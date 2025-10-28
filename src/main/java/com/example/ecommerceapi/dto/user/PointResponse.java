@@ -16,6 +16,5 @@ public class PointResponse {
     private Integer userId;
     private String pointType;
     private Integer pointAmount;
-    private Integer balance;
     private LocalDateTime createdAt;
 }

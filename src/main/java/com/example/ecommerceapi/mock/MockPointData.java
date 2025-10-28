@@ -29,7 +29,6 @@ public class MockPointData {
                 .userId(userId)
                 .pointType("EARN")
                 .pointAmount(amount)
-                .balance(amount)
                 .createdAt(LocalDateTime.now().minusDays(7))
                 .build();
 
@@ -37,11 +36,7 @@ public class MockPointData {
     }
 
     public static Integer getBalance(Integer userId) {
-        List<PointResponse> history = POINT_HISTORY.get(userId);
-        if (history == null || history.isEmpty()) {
-            return 0;
-        }
-        return history.get(history.size() - 1).getBalance();
+        return MockUserData.getBalance(userId);
     }
 
     public static PointResponse usePoint(Integer userId, Integer amount) {
@@ -59,11 +54,11 @@ public class MockPointData {
                 .userId(userId)
                 .pointType("USE")
                 .pointAmount(amount)
-                .balance(newBalance)
                 .createdAt(LocalDateTime.now())
                 .build();
 
         history.add(point);
+        MockUserData.updateBalance(userId, newBalance);
         return point;
     }
 
@@ -77,11 +72,11 @@ public class MockPointData {
                 .userId(userId)
                 .pointType("EARN")
                 .pointAmount(amount)
-                .balance(newBalance)
                 .createdAt(LocalDateTime.now())
                 .build();
 
         history.add(point);
+        MockUserData.updateBalance(userId, newBalance);
         return point;
     }
 

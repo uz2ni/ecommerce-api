@@ -114,7 +114,7 @@ public class MockOrderData {
         result.put("success", true);
         result.put("orderId", orderId);
         result.put("paymentAmount", paymentAmount);
-        result.put("remainingPoint", pointUsage.getBalance());
+        result.put("remainingPoint", MockUserData.getBalance(userId));
         result.put("message", "결제가 완료되었습니다.");
 
         return result;
