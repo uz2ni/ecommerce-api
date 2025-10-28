@@ -56,6 +56,7 @@ public class MockOrderData {
         OrderResponse order = OrderResponse.builder()
                 .orderId(ORDER_ID_GENERATOR.getAndIncrement())
                 .userId(userId)
+                .orderStatus("PENDING")
                 .totalOrderAmount(totalOrderAmount)
                 .totalDiscountAmount(totalDiscountAmount)
                 .usedPoint(0)
@@ -63,6 +64,7 @@ public class MockOrderData {
                 .deliveryUsername(deliveryUsername)
                 .deliveryAddress(deliveryAddress)
                 .createdAt(LocalDateTime.now())
+                .updatedAt(LocalDateTime.now())
                 .orderItems(orderItems)
                 .build();
 
@@ -101,6 +103,10 @@ public class MockOrderData {
             result.put("message", "포인트 차감에 실패했습니다.");
             return result;
         }
+
+        // 주문 상태를 결제 완료로 변경
+        order.setOrderStatus("PAID");
+        order.setUpdatedAt(LocalDateTime.now());
 
         // 결제 완료 후 장바구니에서 주문 상품 제거
         MockCartData.clearCart(userId);

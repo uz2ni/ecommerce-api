@@ -42,6 +42,23 @@ public class OrderController {
     }
 
     @Operation(
+            summary = "주문 내역 조회",
+            description = "주문 ID로 주문 내역을 조회합니다."
+    )
+    @GetMapping("/{orderId}")
+    public ResponseEntity<OrderResponse> getOrder(
+            @io.swagger.v3.oas.annotations.Parameter(description = "주문 ID", required = true)
+            @PathVariable Integer orderId) {
+
+        OrderResponse order = orderService.getOrder(orderId);
+        if (order == null) {
+            return ResponseEntity.notFound().build();
+        }
+
+        return ResponseEntity.ok(order);
+    }
+
+    @Operation(
             summary = "결제",
             description = "포인트로 주문 금액을 결제합니다. 포인트가 부족하면 실패하고, 성공 시 장바구니에서 주문 상품이 제거됩니다."
     )

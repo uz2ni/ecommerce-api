@@ -15,6 +15,7 @@ import java.util.List;
 public class OrderResponse {
     private Integer orderId;
     private Integer userId;
+    private String orderStatus;
     private Integer totalOrderAmount;
     private Integer totalDiscountAmount;
     private Integer usedPoint;
@@ -22,5 +23,6 @@ public class OrderResponse {
     private String deliveryUsername;
     private String deliveryAddress;
     private LocalDateTime createdAt;
+    private LocalDateTime updatedAt;
     private List<OrderItemResponse> orderItems;
 }

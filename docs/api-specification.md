@@ -523,6 +523,7 @@ POST /api/orders
 {
   "orderId": 1,
   "userId": 1,
+  "orderStatus": "PENDING",
   "totalOrderAmount": 50700,
   "totalDiscountAmount": 20000,
   "usedPoint": 0,
@@ -530,6 +531,7 @@ POST /api/orders
   "deliveryUsername": "김철수",
   "deliveryAddress": "서울시 강남구 테헤란로 123",
   "createdAt": "2025-10-29T16:00:00",
+  "updatedAt": "2025-10-29T16:00:00",
   "orderItems": [
     {
       "orderItemId": 1,
@@ -550,6 +552,7 @@ POST /api/orders
 |------|------|------|
 | orderId | Integer | 주문 ID |
 | userId | Integer | 회원 ID |
+| orderStatus | String | 주문 상태 (PENDING: 결제 대기, PAID: 결제 완료) |
 | totalOrderAmount | Integer | 총 주문 금액 |
 | totalDiscountAmount | Integer | 총 할인 금액 (쿠폰) |
 | usedPoint | Integer | 사용 포인트 |
@@ -557,6 +560,7 @@ POST /api/orders
 | deliveryUsername | String | 수령인 이름 |
 | deliveryAddress | String | 배송지 주소 |
 | createdAt | LocalDateTime | 주문 생성일시 |
+| updatedAt | LocalDateTime | 주문 수정일시 |
 | orderItems | Array | 주문 상품 목록 |
 
 **OrderItem Fields**
@@ -575,10 +579,87 @@ POST /api/orders
 - 장바구니가 비어있으면 주문 생성 실패 (400 Bad Request)
 - 장바구니에 담긴 상품만 주문 가능
 - 주문 생성 시 재고가 부족하면 실패
+- 주문 생성 시 orderStatus는 "PENDING" (결제 대기) 상태로 설정됨
 
 ---
 
-### 4.2 결제
+### 4.2 주문 내역 조회
+주문 ID로 주문 내역을 조회합니다.
+
+**Endpoint**
+```
+GET /api/orders/{orderId}
+```
+
+**Path Parameters**
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| orderId | Integer | O | 주문 ID |
+
+**Response**
+```json
+{
+  "orderId": 1,
+  "userId": 1,
+  "orderStatus": "PAID",
+  "totalOrderAmount": 50700,
+  "totalDiscountAmount": 20000,
+  "usedPoint": 0,
+  "finalPaymentAmount": 30700,
+  "deliveryUsername": "김철수",
+  "deliveryAddress": "서울시 강남구 테헤란로 123",
+  "createdAt": "2025-10-29T16:00:00",
+  "updatedAt": "2025-10-29T16:00:00",
+  "orderItems": [
+    {
+      "orderItemId": 1,
+      "productId": 1,
+      "productName": "유기농 딸기",
+      "description": "설향 품종의 달콤한 유기농 딸기입니다. (500g)",
+      "productPrice": 18900,
+      "orderQuantity": 2,
+      "totalPrice": 37800
+    }
+  ]
+}
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| orderId | Integer | 주문 ID |
+| userId | Integer | 회원 ID |
+| orderStatus | String | 주문 상태 (PENDING: 결제 대기, PAID: 결제 완료) |
+| totalOrderAmount | Integer | 총 주문 금액 |
+| totalDiscountAmount | Integer | 총 할인 금액 (쿠폰) |
+| usedPoint | Integer | 사용 포인트 |
+| finalPaymentAmount | Integer | 최종 결제 금액 |
+| deliveryUsername | String | 수령인 이름 |
+| deliveryAddress | String | 배송지 주소 |
+| createdAt | LocalDateTime | 주문 생성일시 |
+| updatedAt | LocalDateTime | 주문 수정일시 |
+| orderItems | Array | 주문 상품 목록 |
+
+**OrderItem Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| orderItemId | Integer | 주문 상품 ID |
+| productId | Integer | 상품 ID |
+| productName | String | 상품명 |
+| description | String | 상품 설명 |
+| productPrice | Integer | 상품 단가 |
+| orderQuantity | Integer | 주문 수량 |
+| totalPrice | Integer | 총 가격 |
+
+**제약조건**
+- 존재하지 않는 주문 ID인 경우 404 Not Found
+
+---
+
+### 4.3 결제
 포인트로 주문 금액을 결제합니다.
 
 **Endpoint**
@@ -634,6 +715,7 @@ POST /api/orders/payment
 - 존재하지 않는 주문 ID인 경우 결제 실패
 - 회원이 보유한 포인트로 결제 진행
 - 포인트가 부족하면 결제 실패 (400 Bad Request)
+- 결제 완료 시 주문 상태(orderStatus)가 "PAID" (결제 완료)로 변경됨
 - 결제 완료 후 주문한 상품은 장바구니에서 자동 제거
 - 결제 완료 시 포인트 이력에 USE 타입으로 기록
 
@@ -801,6 +883,7 @@ GET /api/coupons/{couponId}/usage
    - 장바구니에 담긴 상품만 주문 가능
    - 장바구니가 비어있으면 주문 불가
    - 주문 생성 시 재고 부족하면 실패
+   - 주문 상태: PENDING (결제 대기), PAID (결제 완료)
    - 결제는 포인트 차감으로 진행
    - 포인트 부족 시 결제 실패
    - 결제 완료 후 주문 상품은 장바구니에서 제거
