@@ -4,6 +4,7 @@ import com.example.ecommerceapi.dto.order.*;
 import com.example.ecommerceapi.service.OrderService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -24,8 +25,7 @@ public class OrderController {
     )
     @PostMapping
     public ResponseEntity<OrderResponse> createOrder(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "주문 생성 요청")
-            @RequestBody CreateOrderRequest request) {
+            @Valid @RequestBody CreateOrderRequest request) {
 
         OrderResponse response = orderService.createOrder(
                 request.getUserId(),
@@ -64,8 +64,7 @@ public class OrderController {
     )
     @PostMapping("/payment")
     public ResponseEntity<PaymentResponse> payment(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "결제 요청")
-            @RequestBody PaymentRequest request) {
+            @Valid @RequestBody PaymentRequest request) {
 
         Map<String, Object> result = orderService.processPayment(
                 request.getOrderId(),

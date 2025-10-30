@@ -7,6 +7,7 @@ import com.example.ecommerceapi.service.CouponService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -32,8 +33,7 @@ public class CouponController {
     @Operation(summary = "쿠폰 발급", description = "선착순으로 쿠폰을 발급받습니다. 발급 수량이 소진되면 실패합니다.")
     @PostMapping("/issue")
     public ResponseEntity<String> issueCoupon(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "쿠폰 발급 요청")
-            @RequestBody IssueCouponRequest request) {
+            @Valid @RequestBody IssueCouponRequest request) {
 
         boolean issued = couponService.issueCoupon(request.getCouponId(), request.getUserId());
         if (!issued) {

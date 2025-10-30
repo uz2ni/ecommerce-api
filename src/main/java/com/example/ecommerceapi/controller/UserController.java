@@ -7,6 +7,7 @@ import com.example.ecommerceapi.service.UserService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
@@ -81,7 +82,7 @@ public class UserController {
     public ResponseEntity<PointResponse> chargePoint(
             @Parameter(description = "회원 ID", required = true)
             @PathVariable Integer userId,
-            @RequestBody ChargePointRequest request) {
+            @Valid @RequestBody ChargePointRequest request) {
 
         UserResponse user = userService.getUser(userId);
         if (user == null) {

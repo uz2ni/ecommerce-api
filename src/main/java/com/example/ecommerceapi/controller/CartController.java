@@ -6,8 +6,10 @@ import com.example.ecommerceapi.service.CartService;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
+import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
+import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -33,8 +35,7 @@ public class CartController {
     @Operation(summary = "장바구니 상품 등록", description = "장바구니에 상품을 추가합니다.")
     @PostMapping
     public ResponseEntity<CartItemResponse> addCartItem(
-            @io.swagger.v3.oas.annotations.parameters.RequestBody(description = "장바구니 추가 요청")
-            @RequestBody AddCartItemRequest request) {
+            @Valid @RequestBody AddCartItemRequest request) {
 
         CartItemResponse response = cartService.addCartItem(
                 request.getUserId(),

@@ -189,6 +189,9 @@ POST /api/users/{userId}/points/charge
 |------|------|------|------|
 | amount | Integer | O | 충전할 포인트 금액 |
 
+**제약조건**
+- 충전 포인트가 1000 미만이면 에러
+
 **Response**
 ```json
 {
@@ -864,6 +867,71 @@ GET /api/coupons/{couponId}/usage
 | 400 Bad Request  | 잘못된 요청 (필수값 누락, 유효하지 않은 값 등) |
 | 404 Not Found    | 리소스를 찾을 수 없음                |
 | 500 Server Error | 서버 에러                       |
+
+### Error Response 형식
+
+#### 1. 비즈니스 예외 (BusinessException)
+```json
+{
+  "code": "ERROR_CODE",
+  "message": "에러 메시지"
+}
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| code | String | 에러 코드 |
+| message | String | 에러 메시지 |
+
+#### 2. Validation 예외 (필드 검증 실패)
+요청 파라미터 검증 실패 시 (예: `@NotNull`, `@Min` 등) 다음과 같은 형식으로 응답합니다.
+
+```json
+{
+  "code": "FIELD_NOT_VALID",
+  "errorFields": [
+    {
+      "field": "quantity",
+      "message": "quantity는 1 이상이어야 합니다."
+    },
+    {
+      "field": "userId",
+      "message": "userId는 필수입니다."
+    }
+  ]
+}
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| code | String | 에러 코드 (FIELD_NOT_VALID) |
+| errorFields | Array | 검증 실패한 필드 목록 |
+
+**ErrorField Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| field | String | 검증 실패한 필드명 |
+| message | String | 검증 실패 메시지 |
+
+#### 3. 서버 에러 (500 Internal Server Error)
+```json
+{
+  "code": "SERVER_ERROR",
+  "message": "서버 에러가 발생했습니다."
+}
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| code | String | 에러 코드 (SERVER_ERROR) |
+| message | String | 에러 메시지 |
 
 ### 비즈니스 규칙
 1. **회원**

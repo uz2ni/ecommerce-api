@@ -31,6 +31,7 @@ public enum ErrorCode {
     /**
      * 서버, 그 외
      */
+    FIELD_NOT_VALID("FD0001", "유효하지 않은 필드 값입니다."),
     SERVER_ERROR("SV0001", "서버 에러가 발생했습니다.");
 
     private final String code;
