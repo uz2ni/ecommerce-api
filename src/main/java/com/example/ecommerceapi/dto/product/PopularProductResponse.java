@@ -14,4 +14,5 @@ public class PopularProductResponse {
     private String productName;
     private Integer productPrice;
     private Long salesCount;
+    private Long viewCount;
 }

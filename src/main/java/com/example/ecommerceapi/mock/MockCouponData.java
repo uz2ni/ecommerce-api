@@ -20,6 +20,7 @@ public class MockCouponData {
                 .issuedQuantity(50)
                 .usedQuantity(1)
                 .remainingQuantity(47)
+                .expiredAt(LocalDateTime.now().plusDays(30))
                 .couponStatus("ACTIVE")
                 .build());
 
@@ -30,6 +31,7 @@ public class MockCouponData {
                 .issuedQuantity(3)
                 .usedQuantity(3)
                 .remainingQuantity(3)
+                .expiredAt(LocalDateTime.now().minusDays(1))
                 .couponStatus("DEPLETED")
                 .build());
 
@@ -40,6 +42,7 @@ public class MockCouponData {
                 .issuedQuantity(30)
                 .usedQuantity(1)
                 .remainingQuantity(2)
+                .expiredAt(LocalDateTime.now().plusDays(60))
                 .couponStatus("ACTIVE")
                 .build());
 
@@ -136,6 +139,11 @@ public class MockCouponData {
         CouponResponse coupon = COUPONS.get(couponId);
         if (coupon == null || coupon.getRemainingQuantity() <= 0) {
             return false;
+        }
+
+        // 쿠폰 만료일 검증
+        if (coupon.getExpiredAt() != null && LocalDateTime.now().isAfter(coupon.getExpiredAt())) {
+            return false; // 쿠폰이 만료됨
         }
 
         // 회원 정보 조회

@@ -47,7 +47,11 @@ public class MockOrderData {
         if (couponId != null) {
             var coupon = MockCouponData.getCoupon(couponId);
             if (coupon != null) {
-                totalDiscountAmount = coupon.getDiscountAmount();
+                // 쿠폰 만료일 검증
+                if (coupon.getExpiredAt() == null || !LocalDateTime.now().isAfter(coupon.getExpiredAt())) {
+                    totalDiscountAmount = coupon.getDiscountAmount();
+                }
+                // 만료된 쿠폰은 할인 적용하지 않음
             }
         }
 

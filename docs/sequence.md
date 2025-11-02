@@ -7,7 +7,7 @@
 ![시퀀스_장바구니 상품 등록](images/sequence_cart.png)
 
 ## 쿠폰 발급
-![시퀀스_쿠폰 발급](images/sequence_coupon.png)
+![시퀀스_쿠폰 발급](images/sequence_coupon_11021012.png)
 
 ## 주문 생성
 ![시퀀스_주문 생성](images/sequence_order.png)
