@@ -132,7 +132,6 @@ GET /api/users/{userId}/points/history
     "userId": 1,
     "pointType": "EARN",
     "pointAmount": 500000,
-    "balance": 500000,
     "createdAt": "2025-10-22T10:00:00"
   },
   {
@@ -140,7 +139,6 @@ GET /api/users/{userId}/points/history
     "userId": 1,
     "pointType": "USE",
     "pointAmount": 50700,
-    "balance": 449300,
     "createdAt": "2025-10-29T14:30:00"
   }
 ]
@@ -154,7 +152,6 @@ GET /api/users/{userId}/points/history
 | userId | Integer | 회원 ID |
 | pointType | String | 포인트 타입 (EARN: 충전, USE: 사용) |
 | pointAmount | Integer | 포인트 금액 |
-| balance | Integer | 해당 시점의 잔액 |
 | createdAt | LocalDateTime | 생성일시 |
 
 **제약조건**
