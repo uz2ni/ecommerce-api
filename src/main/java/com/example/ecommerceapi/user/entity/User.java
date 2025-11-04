@@ -1,0 +1,50 @@
+package com.example.ecommerceapi.user.entity;
+
+import com.example.ecommerceapi.common.exception.ErrorCode;
+import com.example.ecommerceapi.point.exception.PointException;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
+public class User {
+    private Integer userId;
+    private String username;
+    private Integer pointBalance;
+
+    /**
+     * 포인트를 충전합니다.
+     * 금액 범위 검증은 외부 Validator를 통해 수행해야 합니다.
+     * @param amount 충전할 금액
+     */
+    public void chargePoints(Integer amount) {
+        this.pointBalance += amount;
+    }
+
+    /**
+     * 포인트를 사용합니다.
+     * 금액 범위 검증은 외부 Validator를 통해 수행해야 합니다.
+     * @param amount 사용할 금액
+     * @throws PointException 잔액이 부족할 경우
+     */
+    public void usePoints(Integer amount) {
+        if (this.pointBalance < amount) {
+            throw new PointException(ErrorCode.POINT_INSUFFICIENT_BALANCE);
+        }
+        this.pointBalance -= amount;
+    }
+
+    /**
+     * 포인트를 환불합니다.
+     * 금액 범위 검증은 외부 Validator를 통해 수행해야 합니다.
+     * @param amount 환불할 금액
+     */
+    public void refundPoints(Integer amount) {
+        this.pointBalance += amount;
+    }
+
+}
