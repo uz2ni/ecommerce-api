@@ -3,7 +3,6 @@ package com.example.ecommerceapi.product.service;
 import com.example.ecommerceapi.product.dto.PopularProductResponse;
 import com.example.ecommerceapi.product.dto.ProductResponse;
 import com.example.ecommerceapi.product.dto.ProductStockResponse;
-import com.example.ecommerceapi.application.usecase.CartUseCase;
 import com.example.ecommerceapi.product.usecase.ProductUseCase;
 import com.example.ecommerceapi.product.infrastructure.MockProductData;
 import org.springframework.stereotype.Service;

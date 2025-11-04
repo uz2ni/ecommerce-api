@@ -2,6 +2,7 @@ package com.example.ecommerceapi.coupon.infrastructure;
 
 import com.example.ecommerceapi.coupon.dto.CouponResponse;
 import com.example.ecommerceapi.coupon.dto.CouponUsageResponse;
+import com.example.ecommerceapi.user.infrastructure.MockUserData;
 
 import java.time.LocalDateTime;
 import java.util.*;

@@ -1,7 +1,6 @@
 package com.example.ecommerceapi.user.infrastructure;
 
-import com.example.ecommerceapi.user.entity.User;
-import com.example.ecommerceapi.user.repository.UserRepository;
+import com.example.ecommerceapi.user.domain.entity.User;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
@@ -10,7 +9,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class InMemoryUserRepository implements UserRepository {
+public class InMemoryUserRepository {
 
     private Map<Integer, User> USERS = new HashMap<>();
 
@@ -47,23 +46,19 @@ public class InMemoryUserRepository implements UserRepository {
                 .build());
     }
 
-    @Override
     public List<User> findAll() {
         return USERS.values().stream().toList();
     }
 
-    @Override
     public User findById(Integer userId) {
         return USERS.get(userId);
     }
 
-    @Override
     public Integer findBalanceById(Integer userId) {
         User user = USERS.get(userId);
         return user != null ? user.getPointBalance() : null;
     }
 
-    @Override
     public void updateBalance(Integer userId, Integer newBalance) {
         User user = USERS.get(userId);
         if (user != null) {

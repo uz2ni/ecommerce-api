@@ -1,5 +1,7 @@
 package com.example.ecommerceapi.point.entity;
 
+import com.example.ecommerceapi.common.exception.ErrorCode;
+import com.example.ecommerceapi.common.exception.PointException;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -61,5 +63,16 @@ public class Point {
                 .pointAmount(amount)
                 .createdAt(LocalDateTime.now())
                 .build();
+    }
+
+    /**
+     * 포인트 금액이 유효한지 검증합니다.
+     * @param amount 검증할 금액
+     * @throws PointException 금액이 null이거나 범위를 벗어난 경우
+     */
+    public static void validatePointAmount(Integer amount, Integer minAmount, Integer maxAmount) {
+        if ((amount == null) || (amount < minAmount) || (amount > maxAmount)) {
+            throw new PointException(ErrorCode.POINT_INVALID_AMOUNT);
+        }
     }
 }

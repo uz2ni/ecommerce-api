@@ -2,7 +2,6 @@ package com.example.ecommerceapi.point.infrastructure;
 
 import com.example.ecommerceapi.point.entity.Point;
 import com.example.ecommerceapi.point.entity.PointType;
-import com.example.ecommerceapi.point.repository.PointRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
@@ -11,7 +10,7 @@ import java.util.*;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class InMemoryPointRepository implements PointRepository {
+public class InMemoryPointRepository {
 
     private final Map<Integer, List<Point>> POINT_HISTORY = new HashMap<>();
     private final AtomicInteger POINT_ID_GENERATOR = new AtomicInteger(1);
@@ -38,12 +37,10 @@ public class InMemoryPointRepository implements PointRepository {
         save(point);
     }
 
-    @Override
     public List<Point> findAllByUserId(Integer userId) {
         return POINT_HISTORY.getOrDefault(userId, Collections.emptyList());
     }
 
-    @Override
     public Point save(Point point) {
         // pointId가 없으면 자동 생성
         if (point.getPointId() == null) {

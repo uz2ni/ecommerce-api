@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.user.infrastructure;
 
-import com.example.ecommerceapi.user.dto.UserResponse;
+import com.example.ecommerceapi.user.presentation.dto.UserResponse;
 
 import java.util.ArrayList;
 import java.util.HashMap;

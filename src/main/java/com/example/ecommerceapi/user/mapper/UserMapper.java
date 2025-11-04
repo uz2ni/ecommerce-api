@@ -1,8 +1,8 @@
 package com.example.ecommerceapi.user.mapper;
 
-import com.example.ecommerceapi.user.dto.UserPointBalanceResponse;
-import com.example.ecommerceapi.user.dto.UserResponse;
-import com.example.ecommerceapi.user.entity.User;
+import com.example.ecommerceapi.user.presentation.dto.UserPointBalanceResponse;
+import com.example.ecommerceapi.user.presentation.dto.UserResponse;
+import com.example.ecommerceapi.user.domain.entity.User;
 import org.mapstruct.Mapper;
 
 @Mapper(componentModel = "spring") // Spring Bean으로 등록. 생성자 주입 가능

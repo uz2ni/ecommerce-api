@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.point.mapper;
 
-import com.example.ecommerceapi.point.dto.PointResponse;
+import com.example.ecommerceapi.point.application.dto.PointResponseDto;
 import com.example.ecommerceapi.point.entity.Point;
 import com.example.ecommerceapi.point.entity.PointType;
 import org.mapstruct.Mapper;
@@ -10,10 +10,10 @@ import org.mapstruct.Mapping;
 public interface PointMapper {
 
     @Mapping(target = "pointType", expression = "java(pointTypeToString(point.getPointType()))")
-    PointResponse toResponse(Point point);
+    PointResponseDto toResponse(Point point);
 
     @Mapping(target = "pointType", expression = "java(stringToPointType(dto.getPointType()))")
-    Point toDomain(PointResponse dto);
+    Point toDomain(PointResponseDto dto);
 
     /**
      * PointType enum을 String으로 변환합니다.

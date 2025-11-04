@@ -1,7 +1,6 @@
 package com.example.ecommerceapi.cart.service;
 
 import com.example.ecommerceapi.cart.dto.CartItemResponse;
-import com.example.ecommerceapi.application.service.CartService;
 import com.example.ecommerceapi.cart.usecase.CartUseCase;
 import com.example.ecommerceapi.cart.infrastructure.MockCartData;
 import org.springframework.stereotype.Service;

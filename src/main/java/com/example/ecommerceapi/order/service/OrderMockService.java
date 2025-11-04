@@ -1,7 +1,6 @@
 package com.example.ecommerceapi.order.service;
 
 import com.example.ecommerceapi.order.dto.OrderResponse;
-import com.example.ecommerceapi.application.usecase.CartUseCase;
 import com.example.ecommerceapi.order.usecase.OrderUseCase;
 import com.example.ecommerceapi.order.infrastructure.MockOrderData;
 import org.springframework.stereotype.Service;

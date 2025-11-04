@@ -1,7 +1,12 @@
 package com.example.ecommerceapi.order.infrastructure;
 
+import com.example.ecommerceapi.cart.infrastructure.MockCartData;
+import com.example.ecommerceapi.coupon.infrastructure.MockCouponData;
 import com.example.ecommerceapi.order.dto.OrderItemResponse;
 import com.example.ecommerceapi.order.dto.OrderResponse;
+import com.example.ecommerceapi.point.infrastructure.MockPointData;
+import com.example.ecommerceapi.product.infrastructure.MockProductData;
+import com.example.ecommerceapi.user.infrastructure.MockUserData;
 
 import java.time.LocalDateTime;
 import java.util.*;
