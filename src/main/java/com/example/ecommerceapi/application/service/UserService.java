@@ -6,6 +6,7 @@ import com.example.ecommerceapi.application.mapper.UserMapper;
 import com.example.ecommerceapi.application.usecase.UserUseCase;
 import com.example.ecommerceapi.domain.entity.User;
 import com.example.ecommerceapi.domain.repository.UserRepository;
+import com.example.ecommerceapi.domain.service.PointValidator;
 import com.example.ecommerceapi.domain.service.UserValidator;
 import com.example.ecommerceapi.common.aspect.WithLock;
 import lombok.RequiredArgsConstructor;
@@ -23,6 +24,7 @@ public class UserService implements UserUseCase {
     private final UserRepository userRepository;
     private final UserMapper userMapper;
     private final UserValidator userValidator;
+    private final PointValidator pointValidator;
 
     @Override
     public List<UserResponse> getAllUsers() {
@@ -46,13 +48,16 @@ public class UserService implements UserUseCase {
     @Override
     @WithLock(key = "'chargePoints:' + #userId", ignoreIfLocked = true)
     public Boolean chargePoints(Integer userId, Integer amount) {
-        // 1. 사용자 조회 및 검증
+        // 1. 금액 유효성 검증
+        pointValidator.validatePointAmount(amount);
+
+        // 2. 사용자 조회 및 검증
         User user = userValidator.validateAndGetUser(userId);
 
-        // 2. 도메인 로직 실행 (검증 + 잔액 계산)
+        // 3. 도메인 로직 실행 (잔액 계산)
         user.chargePoints(amount);
 
-        // 3. 변경된 잔액 저장
+        // 4. 변경된 잔액 저장
         userRepository.updateBalance(userId, user.getPointBalance());
 
         return true;
