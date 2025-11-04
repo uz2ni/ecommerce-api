@@ -29,7 +29,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
                 e.getMessage()
         );
         log.debug(response.toString());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.status(e.getErrorCode().getStatus()).body(response);
     }
 
     @Override
@@ -48,7 +48,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
         );
 
         log.info(response.toString());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.status(ErrorCode.FIELD_NOT_VALID.getStatus()).body(response);
 
     }
 
@@ -76,7 +76,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
         );
 
         log.info(response.toString());
-        return ResponseEntity.badRequest().body(response);
+        return ResponseEntity.status(ErrorCode.FIELD_TYPE_NOT_VALID.getStatus()).body(response);
     }
 
     @ExceptionHandler(Exception.class)
@@ -87,7 +87,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
         );
         log.error(response.toString());
         log.error(e.getMessage());
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(response);
     }
 
 }
