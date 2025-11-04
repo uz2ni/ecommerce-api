@@ -1,20 +1,21 @@
 package com.example.ecommerceapi.common.exception;
 
-import com.example.ecommerceapi.common.response.ApiResponse;
-import com.example.ecommerceapi.common.response.ErrorResponse;
-import com.example.ecommerceapi.common.response.FieldErrorDetail;
-import com.example.ecommerceapi.common.response.FieldErrorResponse;
+import com.example.ecommerceapi.common.response.*;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.exc.InvalidFormatException;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.HttpStatusCode;
 import org.springframework.http.ResponseEntity;
+import org.springframework.http.converter.HttpMessageNotReadableException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
 import org.springframework.web.context.request.WebRequest;
 import org.springframework.web.servlet.mvc.method.annotation.ResponseEntityExceptionHandler;
 
+import java.util.ArrayList;
 import java.util.List;
 
 @Slf4j
@@ -51,7 +52,34 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
 
     }
 
-    @ExceptionHandler(value = Exception.class)
+    @Override
+    protected ResponseEntity<Object> handleHttpMessageNotReadable(HttpMessageNotReadableException e,
+                                                                    HttpHeaders headers, HttpStatusCode status, WebRequest request) {
+
+        List<FieldErrorDetail> errorDetails =  new ArrayList<>();
+
+        Throwable cause = e.getCause();
+        if (cause instanceof InvalidFormatException ife) {
+            for (JsonMappingException.Reference ref : ife.getPath()) {
+
+                String fieldName = ref.getFieldName();
+                String rejectedValue = String.valueOf(ife.getValue());
+                String targetType = ife.getTargetType().getSimpleName();
+
+                errorDetails.add(new FieldErrorDetail(fieldName, targetType + " 타입이어야 합니다. (입력값: " + rejectedValue + ")"));
+            }
+        }
+
+        FieldErrorResponse response = new FieldErrorResponse(
+                ErrorCode.FIELD_TYPE_NOT_VALID.getCode(),
+                errorDetails
+        );
+
+        log.info(response.toString());
+        return ResponseEntity.badRequest().body(response);
+    }
+
+    @ExceptionHandler(Exception.class)
     public ResponseEntity<ErrorResponse> handleServerException(Exception e) {
         ErrorResponse response = new ErrorResponse(
                 ErrorCode.SERVER_ERROR.getCode(),
