@@ -48,17 +48,17 @@ public class InMemoryUserRepository implements UserRepository {
     }
 
     @Override
-    public List<User> getAllUsers() {
+    public List<User> findAll() {
         return USERS.values().stream().toList();
     }
 
     @Override
-    public User getUser(Integer userId) {
+    public User findById(Integer userId) {
         return USERS.get(userId);
     }
 
     @Override
-    public Integer getBalance(Integer userId) {
+    public Integer findBalanceById(Integer userId) {
         User user = USERS.get(userId);
         return user != null ? user.getPointBalance() : null;
     }

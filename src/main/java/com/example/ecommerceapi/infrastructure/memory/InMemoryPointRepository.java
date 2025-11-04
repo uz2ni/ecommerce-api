@@ -35,16 +35,16 @@ public class InMemoryPointRepository implements PointRepository {
                 .createdAt(LocalDateTime.now().minusDays(7))
                 .build();
 
-        savePointHistory(point);
+        save(point);
     }
 
     @Override
-    public List<Point> getPointHistory(Integer userId) {
+    public List<Point> findAllByUserId(Integer userId) {
         return POINT_HISTORY.getOrDefault(userId, Collections.emptyList());
     }
 
     @Override
-    public Point savePointHistory(Point point) {
+    public Point save(Point point) {
         // pointId가 없으면 자동 생성
         if (point.getPointId() == null) {
             point = Point.builder()

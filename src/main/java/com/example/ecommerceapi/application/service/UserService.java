@@ -26,7 +26,7 @@ public class UserService implements UserUseCase {
 
     @Override
     public List<UserResponse> getAllUsers() {
-        return userRepository.getAllUsers().stream()
+        return userRepository.findAll().stream()
                 .map(userMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -40,7 +40,7 @@ public class UserService implements UserUseCase {
     @Override
     public UserPointBalanceResponse getPointBalance(Integer userId) {
         User user = userValidator.validateAndGetUser(userId);
-        return userMapper.toUserPointBalanceResponse(userId, userRepository.getBalance(userId));
+        return userMapper.toUserPointBalanceResponse(userId, userRepository.findBalanceById(userId));
     }
 
     @Override

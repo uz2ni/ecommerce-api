@@ -20,7 +20,7 @@ public class UserValidator {
      * @throws UserException 사용자가 존재하지 않을 경우
      */
     public User validateAndGetUser(Integer userId) {
-        User user = userRepository.getUser(userId);
+        User user = userRepository.findById(userId);
         if (user == null) {
             throw new UserException(ErrorCode.USER_NOT_FOUND);
         }

@@ -29,7 +29,7 @@ public class PointService implements PointUseCase {
         // 사용자 검증
         userValidator.validateAndGetUser(userId);
 
-        return pointRepository.getPointHistory(userId).stream()
+        return pointRepository.findAllByUserId(userId).stream()
                 .map(pointMapper::toResponse)
                 .collect(Collectors.toList());
     }
@@ -44,7 +44,7 @@ public class PointService implements PointUseCase {
 
         // 2. 포인트 이력 저장 (도메인 팩토리 메서드 사용)
         Point point = Point.createChargeHistory(userId, amount);
-        Point savedPoint = pointRepository.savePointHistory(point);
+        Point savedPoint = pointRepository.save(point);
 
         // 3. DTO로 변환하여 반환
         return pointMapper.toResponse(savedPoint);

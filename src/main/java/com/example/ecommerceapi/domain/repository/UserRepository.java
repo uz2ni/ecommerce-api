@@ -6,11 +6,11 @@ import java.util.List;
 
 public interface UserRepository {
 
-    List<User> getAllUsers();
+    List<User> findAll();
 
-    User getUser(Integer userId);
+    User findById(Integer userId);
 
-    Integer getBalance(Integer userId);
+    Integer findBalanceById(Integer userId);
 
     void updateBalance(Integer userId, Integer newBalance);
 
