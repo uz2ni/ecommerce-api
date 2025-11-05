@@ -4,6 +4,7 @@ import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
 import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
 import com.example.ecommerceapi.product.application.enums.ProductStatisticType;
+import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.application.dto.PopularProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductResult;
@@ -21,15 +22,9 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class ProductService {
 
-    private final InMemoryProductRepository productRepository;
+    private final ProductValidator productValidator;
 
-    private Product validateAndGetProduct(Integer productId) {
-        Product product = productRepository.findById(productId);
-        if(product == null) {
-            throw new ProductException(ErrorCode.PRODUCT_NOT_FOUND);
-        }
-        return product;
-    }
+    private final InMemoryProductRepository productRepository;
 
     public List<ProductResult> getAllProducts() {
         return productRepository.findAll().stream()
@@ -38,12 +33,12 @@ public class ProductService {
     }
 
     public ProductResult getProduct(Integer productId) {
-        Product product = validateAndGetProduct(productId);
+        Product product = productValidator.validateAndGetProduct(productId);
         return ProductResult.from(product);
     }
 
     public ProductStockResult getProductStock(Integer productId) {
-        Product product = validateAndGetProduct(productId);
+        Product product = productValidator.validateAndGetProduct(productId);
         return ProductStockResult.from(product);
     }
 
@@ -77,7 +72,7 @@ public class ProductService {
     }
 
     public IncrementProductViewResult incrementProductViewCount(Integer productId) {
-        Product product = validateAndGetProduct(productId);
+        Product product = productValidator.validateAndGetProduct(productId);
         product.incrementViewCount();
         return IncrementProductViewResult.from(product);
     }
