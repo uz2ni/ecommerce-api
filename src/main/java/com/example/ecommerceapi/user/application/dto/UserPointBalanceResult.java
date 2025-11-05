@@ -1,6 +1,5 @@
 package com.example.ecommerceapi.user.application.dto;
 
-import com.example.ecommerceapi.user.presentation.dto.UserPointBalanceResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -10,13 +9,13 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserPointBalanceResponseDto {
+public class UserPointBalanceResult {
 
     private Integer userId;
     private Integer pointBalance;
 
-    public static UserPointBalanceResponseDto from(Integer userId, Integer pointBalance) {
-        return UserPointBalanceResponseDto.builder()
+    public static UserPointBalanceResult from(Integer userId, Integer pointBalance) {
+        return UserPointBalanceResult.builder()
                 .userId(userId)
                 .pointBalance(pointBalance)
                 .build();

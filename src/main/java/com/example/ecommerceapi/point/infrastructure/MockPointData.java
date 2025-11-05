@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.point.infrastructure;
 
-import com.example.ecommerceapi.point.application.dto.PointResponseDto;
+import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.user.infrastructure.MockUserData;
 
 import java.time.LocalDateTime;
@@ -9,7 +9,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 
 public class MockPointData {
 
-    private static final Map<Integer, List<PointResponseDto>> POINT_HISTORY = new HashMap<>();
+    private static final Map<Integer, List<PointResult>> POINT_HISTORY = new HashMap<>();
     private static final AtomicInteger POINT_ID_GENERATOR = new AtomicInteger(1);
 
     static {
@@ -22,9 +22,9 @@ public class MockPointData {
     }
 
     private static void addInitialPoint(Integer userId, Integer amount) {
-        List<PointResponseDto> history = POINT_HISTORY.computeIfAbsent(userId, k -> new ArrayList<>());
+        List<PointResult> history = POINT_HISTORY.computeIfAbsent(userId, k -> new ArrayList<>());
 
-        PointResponseDto point = PointResponseDto.builder()
+        PointResult point = PointResult.builder()
                 .pointId(POINT_ID_GENERATOR.getAndIncrement())
                 .userId(userId)
                 .pointType("EARN")
@@ -39,17 +39,17 @@ public class MockPointData {
         return MockUserData.getBalance(userId);
     }
 
-    public static PointResponseDto usePoint(Integer userId, Integer amount) {
+    public static PointResult usePoint(Integer userId, Integer amount) {
         Integer currentBalance = getBalance(userId);
 
         if (currentBalance < amount) {
             return null; // 잔액 부족
         }
 
-        List<PointResponseDto> history = POINT_HISTORY.computeIfAbsent(userId, k -> new ArrayList<>());
+        List<PointResult> history = POINT_HISTORY.computeIfAbsent(userId, k -> new ArrayList<>());
         Integer newBalance = currentBalance - amount;
 
-        PointResponseDto point = PointResponseDto.builder()
+        PointResult point = PointResult.builder()
                 .pointId(POINT_ID_GENERATOR.getAndIncrement())
                 .userId(userId)
                 .pointType("USE")
@@ -62,12 +62,12 @@ public class MockPointData {
         return point;
     }
 
-    public static PointResponseDto addPoint(Integer userId, Integer amount) {
+    public static PointResult addPoint(Integer userId, Integer amount) {
         Integer currentBalance = getBalance(userId);
-        List<PointResponseDto> history = POINT_HISTORY.computeIfAbsent(userId, k -> new ArrayList<>());
+        List<PointResult> history = POINT_HISTORY.computeIfAbsent(userId, k -> new ArrayList<>());
         Integer newBalance = currentBalance + amount;
 
-        PointResponseDto point = PointResponseDto.builder()
+        PointResult point = PointResult.builder()
                 .pointId(POINT_ID_GENERATOR.getAndIncrement())
                 .userId(userId)
                 .pointType("EARN")
@@ -80,7 +80,7 @@ public class MockPointData {
         return point;
     }
 
-    public static List<PointResponseDto> getPointHistory(Integer userId) {
+    public static List<PointResult> getPointHistory(Integer userId) {
         return POINT_HISTORY.getOrDefault(userId, Collections.emptyList());
     }
 }

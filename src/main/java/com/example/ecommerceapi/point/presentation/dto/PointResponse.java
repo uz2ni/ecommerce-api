@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.point.presentation.dto;
 
-import com.example.ecommerceapi.point.application.dto.PointResponseDto;
+import com.example.ecommerceapi.point.application.dto.PointResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -21,7 +21,7 @@ public class PointResponse {
     private Integer pointAmount;
     private LocalDateTime createdAt;
 
-    public static PointResponse from(PointResponseDto dto) {
+    public static PointResponse from(PointResult dto) {
         return PointResponse.builder()
                 .pointId(dto.getPointId())
                 .userId(dto.getUserId())
@@ -31,7 +31,7 @@ public class PointResponse {
                 .build();
     }
 
-    public static List<PointResponse> fromList(List<PointResponseDto> dtos) {
+    public static List<PointResponse> fromList(List<PointResult> dtos) {
         return dtos.stream()
                 .map(PointResponse::from)
                 .toList();

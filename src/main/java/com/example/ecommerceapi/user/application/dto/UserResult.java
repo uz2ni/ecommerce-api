@@ -10,14 +10,14 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class UserResponseDto {
+public class UserResult {
 
     private Integer userId;
     private String username;
     private Integer pointBalance;
 
-    public static UserResponseDto from(User user) {
-        return UserResponseDto.builder()
+    public static UserResult from(User user) {
+        return UserResult.builder()
                 .userId(user.getUserId())
                 .username(user.getUsername())
                 .pointBalance(user.getPointBalance())

@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class PointResponseDto {
+public class PointResult {
 
     private Integer pointId;
     private Integer userId;
@@ -20,8 +20,8 @@ public class PointResponseDto {
     private Integer pointAmount;
     private LocalDateTime createdAt;
 
-    public static PointResponseDto from(Point point) {
-        return PointResponseDto.builder()
+    public static PointResult from(Point point) {
+        return PointResult.builder()
                 .pointId(point.getPointId())
                 .userId(point.getUserId())
                 .pointType(point.getPointType().name())

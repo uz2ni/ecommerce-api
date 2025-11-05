@@ -1,8 +1,8 @@
 package com.example.ecommerceapi.user.application.service;
 
 import com.example.ecommerceapi.common.exception.UserException;
-import com.example.ecommerceapi.user.application.dto.UserPointBalanceResponseDto;
-import com.example.ecommerceapi.user.application.dto.UserResponseDto;
+import com.example.ecommerceapi.user.application.dto.UserPointBalanceResult;
+import com.example.ecommerceapi.user.application.dto.UserResult;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
@@ -60,7 +60,7 @@ class UserServiceTest {
         given(userRepository.findAll()).willReturn(users);
 
         // when
-        List<UserResponseDto> result = userService.getAllUsers();
+        List<UserResult> result = userService.getAllUsers();
 
         // then
         assertThat(result).hasSize(2);
@@ -79,7 +79,7 @@ class UserServiceTest {
         given(userRepository.findAll()).willReturn(Arrays.asList());
 
         // when
-        List<UserResponseDto> result = userService.getAllUsers();
+        List<UserResult> result = userService.getAllUsers();
 
         // then
         assertThat(result).isEmpty();
@@ -92,7 +92,7 @@ class UserServiceTest {
         given(userValidator.validateAndGetUser(1)).willReturn(user1);
 
         // when
-        UserResponseDto result = userService.getUser(1);
+        UserResult result = userService.getUser(1);
 
         // then
         assertThat(result.getUserId()).isEqualTo(1);
@@ -121,7 +121,7 @@ class UserServiceTest {
         given(userRepository.findBalanceById(1)).willReturn(10000);
 
         // when
-        UserPointBalanceResponseDto result = userService.getPointBalance(1);
+        UserPointBalanceResult result = userService.getPointBalance(1);
 
         // then
         assertThat(result.getUserId()).isEqualTo(1);

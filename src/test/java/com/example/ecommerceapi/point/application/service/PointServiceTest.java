@@ -2,7 +2,7 @@ package com.example.ecommerceapi.point.application.service;
 
 import com.example.ecommerceapi.common.exception.PointException;
 import com.example.ecommerceapi.common.exception.UserException;
-import com.example.ecommerceapi.point.application.dto.PointResponseDto;
+import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.point.entity.Point;
 import com.example.ecommerceapi.point.entity.PointType;
 import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
@@ -87,7 +87,7 @@ class PointServiceTest {
         given(pointRepository.findAllByUserId(1)).willReturn(points);
 
         // when
-        List<PointResponseDto> result = pointService.getPointHistory(1);
+        List<PointResult> result = pointService.getPointHistory(1);
 
         // then
         assertThat(result).hasSize(2);
@@ -118,7 +118,7 @@ class PointServiceTest {
         given(pointRepository.findAllByUserId(1)).willReturn(Arrays.asList());
 
         // when
-        List<PointResponseDto> result = pointService.getPointHistory(1);
+        List<PointResult> result = pointService.getPointHistory(1);
 
         // then
         assertThat(result).isEmpty();
@@ -142,7 +142,7 @@ class PointServiceTest {
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
-        PointResponseDto result = pointService.chargePoint(1, amount);
+        PointResult result = pointService.chargePoint(1, amount);
 
         // then
         assertThat(result.getPointId()).isEqualTo(1);
@@ -218,7 +218,7 @@ class PointServiceTest {
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
-        PointResponseDto result = pointService.chargePoint(1, minAmount);
+        PointResult result = pointService.chargePoint(1, minAmount);
 
         // then
         assertThat(result.getPointAmount()).isEqualTo(1000);
@@ -241,7 +241,7 @@ class PointServiceTest {
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
-        PointResponseDto result = pointService.chargePoint(1, maxAmount);
+        PointResult result = pointService.chargePoint(1, maxAmount);
 
         // then
         assertThat(result.getPointAmount()).isEqualTo(1000000);

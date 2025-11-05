@@ -1,8 +1,8 @@
 package com.example.ecommerceapi.user.application.service;
 
 import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
-import com.example.ecommerceapi.user.application.dto.UserPointBalanceResponseDto;
-import com.example.ecommerceapi.user.application.dto.UserResponseDto;
+import com.example.ecommerceapi.user.application.dto.UserPointBalanceResult;
+import com.example.ecommerceapi.user.application.dto.UserResult;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import lombok.RequiredArgsConstructor;
@@ -20,21 +20,21 @@ public class UserService {
     private final InMemoryUserRepository userRepository;
     private final UserValidator userValidator;
 
-    public List<UserResponseDto> getAllUsers() {
+    public List<UserResult> getAllUsers() {
         return userRepository.findAll().stream()
-                .map(UserResponseDto::from)
+                .map(UserResult::from)
                 .collect(Collectors.toList());
     }
 
-    public UserResponseDto getUser(Integer userId) {
+    public UserResult getUser(Integer userId) {
         User user = userValidator.validateAndGetUser(userId);
-        return UserResponseDto.from(user);
+        return UserResult.from(user);
     }
 
-    public UserPointBalanceResponseDto getPointBalance(Integer userId) {
+    public UserPointBalanceResult getPointBalance(Integer userId) {
         userValidator.validateAndGetUser(userId);
         Integer balance = userRepository.findBalanceById(userId);
-        return UserPointBalanceResponseDto.from(userId, balance);
+        return UserPointBalanceResult.from(userId, balance);
     }
 
 }

@@ -1,12 +1,12 @@
 package com.example.ecommerceapi.user.presentation.controller;
 
-import com.example.ecommerceapi.point.application.dto.PointResponseDto;
+import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.point.application.service.PointService;
 import com.example.ecommerceapi.point.presentation.dto.PointResponse;
-import com.example.ecommerceapi.user.application.dto.ChargePointRequestDto;
-import com.example.ecommerceapi.user.application.dto.UserPointBalanceResponseDto;
-import com.example.ecommerceapi.user.application.dto.UserResponseDto;
+import com.example.ecommerceapi.user.application.dto.UserPointBalanceResult;
+import com.example.ecommerceapi.user.application.dto.UserResult;
 import com.example.ecommerceapi.user.application.service.UserService;
+import com.example.ecommerceapi.user.presentation.dto.ChargePointRequest;
 import com.example.ecommerceapi.user.presentation.dto.UserPointBalanceResponse;
 import com.example.ecommerceapi.user.presentation.dto.UserResponse;
 import io.swagger.v3.oas.annotations.Operation;
@@ -31,7 +31,7 @@ public class UserController {
     @Operation(summary = "회원 목록 조회", description = "전체 회원 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<UserResponse>> getAllUsers() {
-        List<UserResponseDto> users = userService.getAllUsers();
+        List<UserResult> users = userService.getAllUsers();
         return ResponseEntity.ok(UserResponse.fromList(users));
     }
 
@@ -41,7 +41,7 @@ public class UserController {
             @Parameter(description = "회원 ID", required = true)
             @PathVariable Integer userId) {
 
-        UserResponseDto user = userService.getUser(userId);
+        UserResult user = userService.getUser(userId);
         return ResponseEntity.ok(UserResponse.from(user));
     }
 
@@ -51,7 +51,7 @@ public class UserController {
             @Parameter(description = "회원 ID", required = true)
             @PathVariable Integer userId) {
 
-        UserPointBalanceResponseDto balance = userService.getPointBalance(userId);
+        UserPointBalanceResult balance = userService.getPointBalance(userId);
         return ResponseEntity.ok(UserPointBalanceResponse.from(balance));
     }
 
@@ -61,7 +61,7 @@ public class UserController {
             @Parameter(description = "회원 ID", required = true)
             @PathVariable Integer userId) {
 
-        List<PointResponseDto> history = pointService.getPointHistory(userId);
+        List<PointResult> history = pointService.getPointHistory(userId);
         return ResponseEntity.ok(PointResponse.fromList(history));
     }
 
@@ -70,9 +70,9 @@ public class UserController {
     public ResponseEntity<PointResponse> chargePoint(
             @Parameter(description = "회원 ID", required = true)
             @PathVariable Integer userId,
-            @Valid @RequestBody ChargePointRequestDto request) {
+            @Valid @RequestBody ChargePointRequest request) {
 
-        PointResponseDto point = pointService.chargePoint(userId, request.getAmount());
+        PointResult point = pointService.chargePoint(userId, request.getAmount());
         return ResponseEntity.ok(PointResponse.from(point));
     }
 }

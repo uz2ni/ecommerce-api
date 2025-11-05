@@ -1,7 +1,7 @@
 package com.example.ecommerceapi.point.application.service;
 
 import com.example.ecommerceapi.common.aspect.WithLock;
-import com.example.ecommerceapi.point.application.dto.PointResponseDto;
+import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.point.entity.Point;
 import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
@@ -28,17 +28,17 @@ public class PointService {
     private final InMemoryUserRepository userRepository;
     private final UserValidator userValidator;
 
-    public List<PointResponseDto> getPointHistory(Integer userId) {
+    public List<PointResult> getPointHistory(Integer userId) {
         // 사용자 검증
         userValidator.validateAndGetUser(userId);
 
         return pointRepository.findAllByUserId(userId).stream()
-                .map(PointResponseDto::from)
+                .map(PointResult::from)
                 .collect(Collectors.toList());
     }
 
     @WithLock(key = "'chargePoint:' + #userId", ignoreIfLocked = true)
-    public PointResponseDto chargePoint(Integer userId, Integer amount) {
+    public PointResult chargePoint(Integer userId, Integer amount) {
 
         // 1. 금액 유효성 검증
         Point.validatePointAmount(amount, minAmount, maxAmount);
@@ -55,6 +55,6 @@ public class PointService {
         Point savedPoint = pointRepository.save(point);
 
         // 5. DTO로 변환하여 반환
-        return PointResponseDto.from(savedPoint);
+        return PointResult.from(savedPoint);
     }
 }

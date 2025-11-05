@@ -7,6 +7,6 @@ import lombok.NoArgsConstructor;
 @Data
 @NoArgsConstructor
 @AllArgsConstructor
-public class ChargePointRequestDto {
+public class ChargePointCommand {
     private Integer amount;
 }
