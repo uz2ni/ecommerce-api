@@ -44,6 +44,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
 
         FieldErrorResponse response = new FieldErrorResponse(
                 ErrorCode.FIELD_NOT_VALID.getCode(),
+                ErrorCode.FIELD_NOT_VALID.getMessage(),
                 errorDetails
         );
 
@@ -72,6 +73,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
 
         FieldErrorResponse response = new FieldErrorResponse(
                 ErrorCode.FIELD_TYPE_NOT_VALID.getCode(),
+                ErrorCode.FIELD_TYPE_NOT_VALID.getMessage(),
                 errorDetails
         );
 

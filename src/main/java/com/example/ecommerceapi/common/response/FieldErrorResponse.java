@@ -4,5 +4,6 @@ import java.util.List;
 
 public record FieldErrorResponse(
         String code,
+        String message,
         List<FieldErrorDetail> errorFields
 ) { }
