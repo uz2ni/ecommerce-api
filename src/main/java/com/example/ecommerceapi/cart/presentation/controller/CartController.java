@@ -1,8 +1,10 @@
-package com.example.ecommerceapi.cart.controller;
+package com.example.ecommerceapi.cart.presentation.controller;
 
-import com.example.ecommerceapi.cart.dto.AddCartItemRequest;
-import com.example.ecommerceapi.cart.dto.CartItemResponse;
-import com.example.ecommerceapi.cart.usecase.CartUseCase;
+import com.example.ecommerceapi.cart.application.dto.CartItemResult;
+import com.example.ecommerceapi.cart.presentation.dto.AddCartItemRequest;
+import com.example.ecommerceapi.cart.presentation.dto.CartItemResponse;
+import com.example.ecommerceapi.cart.application.service.CartService;
+import com.example.ecommerceapi.cart.presentation.dto.DeleteCartItemResponse;
 import io.swagger.v3.oas.annotations.Operation;
 import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.tags.Tag;
@@ -19,7 +21,7 @@ import java.util.List;
 @RequiredArgsConstructor
 public class CartController {
 
-    private final CartUseCase cartUseCase;
+    private final CartService cartService;
 
     @Operation(summary = "장바구니 상품 목록 조회", description = "사용자의 장바구니에 담긴 상품 목록을 조회합니다.")
     @GetMapping
@@ -27,8 +29,8 @@ public class CartController {
             @Parameter(description = "회원 ID", required = true)
             @RequestParam Integer userId) {
 
-        List<CartItemResponse> cartItems = cartUseCase.getCartItems(userId);
-        return ResponseEntity.ok(cartItems);
+        List<CartItemResult> cartItems = cartService.getCartItems(userId);
+        return ResponseEntity.ok(CartItemResponse.fromList(cartItems));
     }
 
     @Operation(summary = "장바구니 상품 등록", description = "장바구니에 상품을 추가합니다.")
@@ -36,30 +38,22 @@ public class CartController {
     public ResponseEntity<CartItemResponse> addCartItem(
             @Valid @RequestBody AddCartItemRequest request) {
 
-        CartItemResponse response = cartUseCase.addCartItem(
-                request.getUserId(),
-                request.getProductId(),
-                request.getQuantity()
-        );
-
-        if (response == null) {
-            return ResponseEntity.badRequest().build();
-        }
-
-        return ResponseEntity.ok(response);
+        CartItemResult cartItem = cartService.addCartItem(request.toCommand());
+        return ResponseEntity.ok(CartItemResponse.from(cartItem));
     }
 
     @Operation(summary = "장바구니 상품 삭제", description = "장바구니에서 상품을 삭제합니다.")
     @DeleteMapping("/{cartItemId}")
-    public ResponseEntity<String> deleteCartItem(
+    public ResponseEntity<DeleteCartItemResponse> deleteCartItem(
             @Parameter(description = "장바구니 상품 ID", required = true)
             @PathVariable Integer cartItemId) {
 
-        boolean deleted = cartUseCase.deleteCartItem(cartItemId);
-        if (!deleted) {
-            return ResponseEntity.notFound().build();
-        }
+        Integer deleteCartItemId = cartService.deleteCartItem(cartItemId);
 
-        return ResponseEntity.ok("장바구니 상품이 삭제되었습니다.");
+        DeleteCartItemResponse response = DeleteCartItemResponse.builder()
+                .cartItemId(deleteCartItemId)
+                .build();
+
+        return ResponseEntity.ok(response);
     }
 }

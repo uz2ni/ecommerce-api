@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.cart.infrastructure;
 
-import com.example.ecommerceapi.cart.dto.CartItemResponse;
+import com.example.ecommerceapi.cart.presentation.dto.CartItemResponse;
 import com.example.ecommerceapi.product.infrastructure.MockProductData;
 
 import java.time.LocalDateTime;

@@ -1,5 +1,6 @@
-package com.example.ecommerceapi.cart.dto;
+package com.example.ecommerceapi.cart.presentation.dto;
 
+import com.example.ecommerceapi.cart.application.dto.AddCartItemCommand;
 import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
@@ -23,4 +24,11 @@ public class AddCartItemRequest {
     @Min(value = 1, message = "quantity는 1 이상이어야 합니다.")
     private int quantity;
 
+    public AddCartItemCommand toCommand() {
+        return AddCartItemCommand.builder()
+                .userId(this.userId)
+                .productId(this.productId)
+                .quantity(this.quantity)
+                .build();
+    }
 }

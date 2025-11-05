@@ -20,6 +20,9 @@ public enum ErrorCode {
     /**
      * 장바구니(CT__)
      */
+    CART_INVALID_QUANTITY("CT01", "수량은 1 이상이어야 합니다.", 400),
+    CART_EXCEED_STOCK("CT02", "장바구니 수량이 남은 재고를 초과했습니다.", 400),
+    CART_ITEM_NOT_FOUND("CT03", "존재하지 않는 장바구니 상품 ID 입니다.", 404),
 
     /**
      * 쿠폰(CP__)

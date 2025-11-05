@@ -1,14 +1,13 @@
-package com.example.ecommerceapi.cart.service;
+package com.example.ecommerceapi.cart.application.service;
 
-import com.example.ecommerceapi.cart.dto.CartItemResponse;
-import com.example.ecommerceapi.cart.usecase.CartUseCase;
+import com.example.ecommerceapi.cart.presentation.dto.CartItemResponse;
 import com.example.ecommerceapi.cart.infrastructure.MockCartData;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class CartMockService implements CartUseCase {
+public class CartMockService {
 
     public List<CartItemResponse> getCartItems(Integer userId) {
         return MockCartData.getCartItems(userId);
