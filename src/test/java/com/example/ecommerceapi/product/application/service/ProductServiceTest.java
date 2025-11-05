@@ -1,10 +1,10 @@
 package com.example.ecommerceapi.product.application.service;
 
 import com.example.ecommerceapi.common.exception.ProductException;
-import com.example.ecommerceapi.product.application.dto.IncrementProductViewResponseDto;
-import com.example.ecommerceapi.product.application.dto.PopularProductResponseDto;
-import com.example.ecommerceapi.product.application.dto.ProductResponseDto;
-import com.example.ecommerceapi.product.application.dto.ProductStockResponseDto;
+import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
+import com.example.ecommerceapi.product.application.dto.PopularProductResult;
+import com.example.ecommerceapi.product.application.dto.ProductResult;
+import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -71,7 +71,7 @@ class ProductServiceTest {
             given(productRepository.findAll()).willReturn(products);
 
             // when
-            List<ProductResponseDto> result = productService.getAllProducts();
+            List<ProductResult> result = productService.getAllProducts();
 
             // then
             assertThat(result).hasSize(2);
@@ -90,7 +90,7 @@ class ProductServiceTest {
             given(productRepository.findAll()).willReturn(Arrays.asList());
 
             // when
-            List<ProductResponseDto> result = productService.getAllProducts();
+            List<ProductResult> result = productService.getAllProducts();
 
             // then
             assertThat(result).isEmpty();
@@ -103,7 +103,7 @@ class ProductServiceTest {
             given(productRepository.findById(1)).willReturn(product1);
 
             // when
-            ProductResponseDto result = productService.getProduct(1);
+            ProductResult result = productService.getProduct(1);
 
             // then
             assertThat(result.getProductId()).isEqualTo(1);
@@ -137,7 +137,7 @@ class ProductServiceTest {
             given(productRepository.findById(1)).willReturn(product1);
 
             // when
-            ProductStockResponseDto result = productService.getProductStock(1);
+            ProductStockResult result = productService.getProductStock(1);
 
             // then
             assertThat(result.getStock()).isEqualTo(50);
@@ -169,7 +169,7 @@ class ProductServiceTest {
             given(productRepository.findPopularProductsByView(5)).willReturn(popularProducts);
 
             // when
-            List<PopularProductResponseDto> result = productService.getPopularProducts("VIEWS", 3, 5);
+            List<PopularProductResult> result = productService.getPopularProducts("VIEWS", 3, 5);
 
             // then
             assertThat(result).hasSize(2);
@@ -187,7 +187,7 @@ class ProductServiceTest {
             given(productRepository.findPopularProductsBySales(3,5)).willReturn(popularProducts);
 
             // when
-            List<PopularProductResponseDto> result = productService.getPopularProducts("SALES", 3, 5);
+            List<PopularProductResult> result = productService.getPopularProducts("SALES", 3, 5);
 
             // then
             assertThat(result).hasSize(2);
@@ -220,7 +220,7 @@ class ProductServiceTest {
             Integer initialViewCount = product1.getViewCount();
 
             // when
-            IncrementProductViewResponseDto result = productService.incrementProductViewCount(1);
+            IncrementProductViewResult result = productService.incrementProductViewCount(1);
 
             // then
             assertThat(result.getViewCount()).isEqualTo(initialViewCount + 1);

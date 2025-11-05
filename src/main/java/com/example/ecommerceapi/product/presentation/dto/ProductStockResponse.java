@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.product.presentation.dto;
 
-import com.example.ecommerceapi.product.application.dto.ProductStockResponseDto;
+import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -13,7 +13,7 @@ import lombok.NoArgsConstructor;
 public class ProductStockResponse {
     private Integer stock;
 
-    public static ProductStockResponse from(ProductStockResponseDto dto) {
+    public static ProductStockResponse from(ProductStockResult dto) {
         return ProductStockResponse.builder()
                 .stock(dto.getStock())
                 .build();

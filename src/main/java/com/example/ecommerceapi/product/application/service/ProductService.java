@@ -2,12 +2,12 @@ package com.example.ecommerceapi.product.application.service;
 
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
-import com.example.ecommerceapi.product.application.dto.IncrementProductViewResponseDto;
+import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
 import com.example.ecommerceapi.product.application.enums.ProductStatisticType;
 import com.example.ecommerceapi.product.domain.entity.Product;
-import com.example.ecommerceapi.product.application.dto.PopularProductResponseDto;
-import com.example.ecommerceapi.product.application.dto.ProductResponseDto;
-import com.example.ecommerceapi.product.application.dto.ProductStockResponseDto;
+import com.example.ecommerceapi.product.application.dto.PopularProductResult;
+import com.example.ecommerceapi.product.application.dto.ProductResult;
+import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
@@ -31,26 +31,26 @@ public class ProductService {
         return product;
     }
 
-    public List<ProductResponseDto> getAllProducts() {
+    public List<ProductResult> getAllProducts() {
         return productRepository.findAll().stream()
-                .map(ProductResponseDto::from)
+                .map(ProductResult::from)
                 .collect(Collectors.toList());
     }
 
-    public ProductResponseDto getProduct(Integer productId) {
+    public ProductResult getProduct(Integer productId) {
         Product product = validateAndGetProduct(productId);
-        return ProductResponseDto.from(product);
+        return ProductResult.from(product);
     }
 
-    public ProductStockResponseDto getProductStock(Integer productId) {
+    public ProductStockResult getProductStock(Integer productId) {
         Product product = validateAndGetProduct(productId);
-        return ProductStockResponseDto.from(product);
+        return ProductStockResult.from(product);
     }
 
-    public List<PopularProductResponseDto> getPopularProducts(String type, Integer days, Integer limit) {
+    public List<PopularProductResult> getPopularProducts(String type, Integer days, Integer limit) {
 
         ProductStatisticType typeEnum = ProductStatisticType.valueOf(type);
-        List<PopularProductResponseDto> popularProducts;
+        List<PopularProductResult> popularProducts;
 
         switch (typeEnum) {
             case SALES:
@@ -66,20 +66,20 @@ public class ProductService {
         return popularProducts;
     }
 
-    private List<PopularProductResponseDto> getSalesStatistics(int days, int limit) {
+    private List<PopularProductResult> getSalesStatistics(int days, int limit) {
         List<Product> popularProducts = productRepository.findPopularProductsBySales(days, limit);
-        return PopularProductResponseDto.fromList(popularProducts);
+        return PopularProductResult.fromList(popularProducts);
     }
 
-    private List<PopularProductResponseDto> getViewStatistics(Integer limit) {
+    private List<PopularProductResult> getViewStatistics(Integer limit) {
         List<Product> popularProducts = productRepository.findPopularProductsByView(limit);
-        return PopularProductResponseDto.fromList(popularProducts);
+        return PopularProductResult.fromList(popularProducts);
     }
 
-    public IncrementProductViewResponseDto incrementProductViewCount(Integer productId) {
+    public IncrementProductViewResult incrementProductViewCount(Integer productId) {
         Product product = validateAndGetProduct(productId);
         product.incrementViewCount();
-        return IncrementProductViewResponseDto.from(product);
+        return IncrementProductViewResult.from(product);
     }
 
 }

@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.product.presentation.dto;
 
-import com.example.ecommerceapi.product.application.dto.ProductResponseDto;
+import com.example.ecommerceapi.product.application.dto.ProductResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -18,7 +18,7 @@ public class ProductResponse {
     private String description;
     private Integer productPrice;
 
-    public static ProductResponse from(ProductResponseDto dto) {
+    public static ProductResponse from(ProductResult dto) {
         return ProductResponse.builder()
                 .productId(dto.getProductId())
                 .productName(dto.getProductName())
@@ -27,7 +27,7 @@ public class ProductResponse {
                 .build();
     }
 
-    public static List<ProductResponse> fromList(List<ProductResponseDto> dtos) {
+    public static List<ProductResponse> fromList(List<ProductResult> dtos) {
         return dtos.stream()
                 .map(ProductResponse::from)
                 .toList();

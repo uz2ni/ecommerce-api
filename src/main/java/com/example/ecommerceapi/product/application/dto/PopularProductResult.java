@@ -6,22 +6,32 @@ import lombok.Builder;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
+import java.util.List;
+
 @Data
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductResponseDto {
+public class PopularProductResult {
     private Integer productId;
     private String productName;
-    private String description;
     private Integer productPrice;
+    private Integer salesCount;
+    private Integer viewCount;
 
-    public static ProductResponseDto from(Product product) {
-        return ProductResponseDto.builder()
+    public static PopularProductResult from(Product product) {
+        return PopularProductResult.builder()
                 .productId(product.getProductId())
                 .productName(product.getProductName())
-                .description(product.getDescription())
                 .productPrice(product.getProductPrice())
+                .salesCount(null)
+                .viewCount(product.getViewCount())
                 .build();
+    }
+
+    public static List<PopularProductResult> fromList(List<Product> product) {
+        return product.stream()
+                .map(PopularProductResult::from)
+                .toList();
     }
 }

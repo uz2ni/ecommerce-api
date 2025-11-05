@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.product.presentation.dto;
 
-import com.example.ecommerceapi.product.application.dto.PopularProductResponseDto;
+import com.example.ecommerceapi.product.application.dto.PopularProductResult;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,7 +19,7 @@ public class PopularProductResponse {
     private Integer salesCount;
     private Integer viewCount;
 
-    public static PopularProductResponse from(PopularProductResponseDto dto) {
+    public static PopularProductResponse from(PopularProductResult dto) {
         return PopularProductResponse.builder()
                 .productId(dto.getProductId())
                 .productName(dto.getProductName())
@@ -29,7 +29,7 @@ public class PopularProductResponse {
                 .build();
     }
 
-    public static List<PopularProductResponse> fromList(List<PopularProductResponseDto> dtos) {
+    public static List<PopularProductResponse> fromList(List<PopularProductResult> dtos) {
         return dtos.stream()
                 .map(PopularProductResponse::from)
                 .toList();

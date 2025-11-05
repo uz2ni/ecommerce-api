@@ -10,12 +10,12 @@ import lombok.NoArgsConstructor;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class ProductStockResponseDto {
-    private Integer stock;
+public class IncrementProductViewResult {
+    private Integer viewCount;
 
-    public static ProductStockResponseDto from(Product product) {
-        return ProductStockResponseDto.builder()
-                .stock(product.getQuantity())
+    public static IncrementProductViewResult from(Product product) {
+        return IncrementProductViewResult.builder()
+                .viewCount(product.getViewCount())
                 .build();
     }
 }

@@ -1,9 +1,9 @@
 package com.example.ecommerceapi.product.presentation.controller;
 
-import com.example.ecommerceapi.product.application.dto.IncrementProductViewResponseDto;
-import com.example.ecommerceapi.product.application.dto.PopularProductResponseDto;
-import com.example.ecommerceapi.product.application.dto.ProductResponseDto;
-import com.example.ecommerceapi.product.application.dto.ProductStockResponseDto;
+import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
+import com.example.ecommerceapi.product.application.dto.PopularProductResult;
+import com.example.ecommerceapi.product.application.dto.ProductResult;
+import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import com.example.ecommerceapi.product.presentation.dto.IncrementProductViewResponse;
 import com.example.ecommerceapi.product.presentation.dto.PopularProductResponse;
 import com.example.ecommerceapi.product.presentation.dto.ProductResponse;
@@ -30,7 +30,7 @@ public class ProductController {
     @Operation(summary = "상품 목록 조회", description = "전체 상품 목록을 조회합니다.")
     @GetMapping
     public ResponseEntity<List<ProductResponse>> getAllProducts() {
-        List<ProductResponseDto> products = productService.getAllProducts();
+        List<ProductResult> products = productService.getAllProducts();
         return ResponseEntity.ok(ProductResponse.fromList(products));
     }
     
@@ -40,7 +40,7 @@ public class ProductController {
             @Parameter(description = "상품 ID", required = true)
             @PathVariable Integer productId) {
 
-        ProductResponseDto product = productService.getProduct(productId);
+        ProductResult product = productService.getProduct(productId);
         return ResponseEntity.ok(ProductResponse.from(product));
     }
 
@@ -50,7 +50,7 @@ public class ProductController {
             @Parameter(description = "상품 ID", required = true)
             @PathVariable Integer productId) {
 
-        ProductStockResponseDto stock = productService.getProductStock(productId);
+        ProductStockResult stock = productService.getProductStock(productId);
         return ResponseEntity.ok(ProductStockResponse.from(stock));
     }
 
@@ -62,7 +62,7 @@ public class ProductController {
             @Parameter(description = "개수") @RequestParam(defaultValue = "5") @Min(1) Integer limit
     ) {
 
-        List<PopularProductResponseDto> popularProducts = productService.getPopularProducts(type, days, limit);
+        List<PopularProductResult> popularProducts = productService.getPopularProducts(type, days, limit);
         return ResponseEntity.ok(PopularProductResponse.fromList(popularProducts));
     }
 
@@ -72,7 +72,7 @@ public class ProductController {
             @Parameter(description = "상품 ID", required = true)
             @PathVariable Integer productId) {
 
-        IncrementProductViewResponseDto viewCount = productService.incrementProductViewCount(productId);
+        IncrementProductViewResult viewCount = productService.incrementProductViewCount(productId);
         return ResponseEntity.ok(IncrementProductViewResponse.from(viewCount));
     }
 }
