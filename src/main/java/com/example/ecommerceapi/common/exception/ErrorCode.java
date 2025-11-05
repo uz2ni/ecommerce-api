@@ -27,6 +27,9 @@ public enum ErrorCode {
     /**
      * 쿠폰(CP__)
      */
+    COUPON_NOT_FOUND("CP01", "존재하지 않는 쿠폰입니다.", 404),
+    COUPON_NOT_AVAILABLE("CP02", "발급 가능한 쿠폰이 아닙니다. 수량이 소진되었거나 만료되었습니다.", 400),
+    COUPON_ALREADY_ISSUED("CP03", "이미 발급받은 쿠폰입니다.", 400),
 
     /**
      * 회원(US__)

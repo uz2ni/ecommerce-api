@@ -2,7 +2,7 @@ package com.example.ecommerceapi.common.exception;
 
 public class CouponException extends BusinessException {
 
-    protected CouponException(ErrorCode errorCode) {
+    public CouponException(ErrorCode errorCode) {
         super(errorCode);
     }
 
