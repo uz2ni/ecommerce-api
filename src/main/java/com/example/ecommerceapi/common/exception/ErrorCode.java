@@ -10,7 +10,8 @@ public enum ErrorCode {
     /**
      * 상품 (PD__)
      */
-    // PRODUCT_NOT_FOUND("PD01", "존재하는 상품이 아닙니다.", 404);
+    PRODUCT_NOT_FOUND("PD01", "존재하는 상품이 아닙니다.", 404),
+    PRODUCT_NOT_VALID_STATISTIC("PD02", "지원하지 않는 상품 통계 타입입니다", 400),
 
     /**
      * 주문/결제(OD__)

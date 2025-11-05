@@ -2,7 +2,7 @@ package com.example.ecommerceapi.user.presentation.controller;
 
 import com.example.ecommerceapi.point.application.dto.PointResponseDto;
 import com.example.ecommerceapi.point.application.service.PointService;
-import com.example.ecommerceapi.presentation.dto.PointResponse;
+import com.example.ecommerceapi.point.presentation.dto.PointResponse;
 import com.example.ecommerceapi.user.application.dto.ChargePointRequestDto;
 import com.example.ecommerceapi.user.application.dto.UserPointBalanceResponseDto;
 import com.example.ecommerceapi.user.application.dto.UserResponseDto;

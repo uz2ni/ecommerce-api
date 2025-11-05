@@ -1,8 +1,6 @@
-package com.example.ecommerceapi.presentation.dto;
+package com.example.ecommerceapi.point.presentation.dto;
 
 import com.example.ecommerceapi.point.application.dto.PointResponseDto;
-import com.example.ecommerceapi.user.application.dto.UserResponseDto;
-import com.example.ecommerceapi.user.presentation.dto.UserResponse;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;

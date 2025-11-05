@@ -1,16 +1,15 @@
-package com.example.ecommerceapi.product.service;
+package com.example.ecommerceapi.product.application.service;
 
-import com.example.ecommerceapi.product.dto.PopularProductResponse;
-import com.example.ecommerceapi.product.dto.ProductResponse;
-import com.example.ecommerceapi.product.dto.ProductStockResponse;
-import com.example.ecommerceapi.product.usecase.ProductUseCase;
+import com.example.ecommerceapi.product.presentation.dto.PopularProductResponse;
+import com.example.ecommerceapi.product.presentation.dto.ProductResponse;
+import com.example.ecommerceapi.product.presentation.dto.ProductStockResponse;
 import com.example.ecommerceapi.product.infrastructure.MockProductData;
 import org.springframework.stereotype.Service;
 
 import java.util.List;
 
 @Service
-public class ProductMockService implements ProductUseCase {
+public class ProductMockService {
 
     public List<ProductResponse> getAllProducts() {
         return MockProductData.getAllProducts();

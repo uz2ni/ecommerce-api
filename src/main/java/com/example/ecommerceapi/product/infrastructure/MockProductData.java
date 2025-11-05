@@ -1,8 +1,8 @@
 package com.example.ecommerceapi.product.infrastructure;
 
-import com.example.ecommerceapi.product.dto.PopularProductResponse;
-import com.example.ecommerceapi.product.dto.ProductResponse;
-import com.example.ecommerceapi.product.dto.ProductStockResponse;
+import com.example.ecommerceapi.product.presentation.dto.PopularProductResponse;
+import com.example.ecommerceapi.product.presentation.dto.ProductResponse;
+import com.example.ecommerceapi.product.presentation.dto.ProductStockResponse;
 
 import java.util.*;
 
@@ -70,8 +70,6 @@ public class MockProductData {
         }
 
         return ProductStockResponse.builder()
-                .productId(productId)
-                .productName(product.getProductName())
                 .stock(PRODUCT_STOCKS.getOrDefault(productId, 0))
                 .build();
     }
@@ -82,31 +80,31 @@ public class MockProductData {
                         .productId(1)
                         .productName("유기농 딸기")
                         .productPrice(18900)
-                        .salesCount(320L)
+                        .salesCount(320)
                         .build(),
                 PopularProductResponse.builder()
                         .productId(2)
                         .productName("제주 감귤")
                         .productPrice(12900)
-                        .salesCount(285L)
+                        .salesCount(285)
                         .build(),
                 PopularProductResponse.builder()
                         .productId(5)
                         .productName("버터 크루아상")
                         .productPrice(8900)
-                        .salesCount(210L)
+                        .salesCount(210)
                         .build(),
                 PopularProductResponse.builder()
                         .productId(3)
                         .productName("티라미수 케이크")
                         .productPrice(32000)
-                        .salesCount(156L)
+                        .salesCount(156)
                         .build(),
                 PopularProductResponse.builder()
                         .productId(4)
                         .productName("마카롱 세트")
                         .productPrice(25000)
-                        .salesCount(142L)
+                        .salesCount(142)
                         .build()
         );
     }
