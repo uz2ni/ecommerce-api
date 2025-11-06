@@ -63,7 +63,14 @@ public class ProductService {
 
     private List<PopularProductResult> getSalesStatistics(int days, int limit) {
         List<Product> popularProducts = productRepository.findPopularProductsBySales(days, limit);
-        return PopularProductResult.fromList(popularProducts);
+        java.util.Map<Integer, Integer> salesMap = productRepository.getSalesCountMap(days);
+
+        return popularProducts.stream()
+                .map(product -> PopularProductResult.fromWithSales(
+                        product,
+                        salesMap.getOrDefault(product.getProductId(), 0)
+                ))
+                .collect(Collectors.toList());
     }
 
     private List<PopularProductResult> getViewStatistics(Integer limit) {

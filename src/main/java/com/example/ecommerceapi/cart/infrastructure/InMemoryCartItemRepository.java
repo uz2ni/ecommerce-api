@@ -132,4 +132,13 @@ public class InMemoryCartItemRepository {
     public int count() {
         return store.size();
     }
+
+    /**
+     * 회원 전체 장바구니 아이템 삭제
+     */
+    public void deleteByUserId(Integer userId) {
+        store.entrySet().removeIf(entry ->
+                entry.getValue().getUserId().equals(userId)
+        );
+    }
 }

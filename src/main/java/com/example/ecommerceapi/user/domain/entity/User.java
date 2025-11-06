@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.user.domain.entity;
 
+import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.PointException;
 import lombok.AllArgsConstructor;
@@ -44,4 +45,11 @@ public class User {
         this.pointBalance += amount;
     }
 
+    /**
+     * 포인트를 원상복구합니다. (보상 트랜잭션, 결제 취소)
+     * @param amount 충전할 금액
+     */
+    public void addPoints(Integer amount) {
+        this.pointBalance += amount;
+    }
 }

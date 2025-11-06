@@ -51,4 +51,16 @@ public class CartItem {
         }
     }
 
+    public CartItem deepCopy() {
+        return CartItem.builder()
+                .cartItemId(this.cartItemId)   // 복원 시 다시 넣을 수 있도록
+                .userId(this.userId)
+                .productId(this.productId)
+                .productName(this.productName)
+                .productPrice(this.productPrice)
+                .quantity(this.quantity)
+                .totalPrice(this.totalPrice)
+                .createdAt(this.createdAt)
+                .build();
+    }
 }

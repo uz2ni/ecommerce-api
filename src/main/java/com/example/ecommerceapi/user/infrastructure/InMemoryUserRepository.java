@@ -70,4 +70,12 @@ public class InMemoryUserRepository {
             USERS.put(userId, updatedUser);
         }
     }
+
+    public void save(User user) {
+        USERS.put(user.getUserId(), user);
+    }
+
+    public void clear() {
+        USERS.clear();
+    }
 }

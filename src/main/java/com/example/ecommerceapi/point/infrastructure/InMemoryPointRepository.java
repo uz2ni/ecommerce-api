@@ -61,4 +61,12 @@ public class InMemoryPointRepository {
 
         return point;
     }
+
+    public void delete(Integer pointId) {
+        POINT_HISTORY.remove(pointId);
+    }
+
+    public void clear() {
+        POINT_HISTORY.clear();
+    }
 }

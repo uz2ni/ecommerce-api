@@ -29,6 +29,16 @@ public class PopularProductResult {
                 .build();
     }
 
+    public static PopularProductResult fromWithSales(Product product, Integer salesCount) {
+        return PopularProductResult.builder()
+                .productId(product.getProductId())
+                .productName(product.getProductName())
+                .productPrice(product.getProductPrice())
+                .salesCount(salesCount)
+                .viewCount(product.getViewCount())
+                .build();
+    }
+
     public static List<PopularProductResult> fromList(List<Product> product) {
         return product.stream()
                 .map(PopularProductResult::from)

@@ -184,17 +184,23 @@ class ProductServiceTest {
         void getPopularProducts_ShouldReturnPopularProducts_BySales() {
             // given
             List<Product> popularProducts = Arrays.asList(product2, product1);
-            given(productRepository.findPopularProductsBySales(3,5)).willReturn(popularProducts);
+            given(productRepository.findPopularProductsBySales(3, 5)).willReturn(popularProducts);
+
+            // 판매량 정보 mock (product2: 50개, product1: 30개 판매)
+            java.util.Map<Integer, Integer> salesMap = new java.util.HashMap<>();
+            salesMap.put(2, 50);
+            salesMap.put(1, 30);
+            given(productRepository.getSalesCountMap(3)).willReturn(salesMap);
 
             // when
             List<PopularProductResult> result = productService.getPopularProducts("SALES", 3, 5);
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getProductId()).isEqualTo(1);
-            assertThat(result.get(0).getViewCount()).isEqualTo(200);
+            assertThat(result.get(0).getProductId()).isEqualTo(2);
+            assertThat(result.get(0).getSalesCount()).isEqualTo(50);
             assertThat(result.get(1).getProductId()).isEqualTo(1);
-            assertThat(result.get(1).getViewCount()).isEqualTo(100);
+            assertThat(result.get(1).getSalesCount()).isEqualTo(30);
         }
 
         @Test

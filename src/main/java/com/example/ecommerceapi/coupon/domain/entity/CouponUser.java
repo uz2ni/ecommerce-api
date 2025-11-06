@@ -32,4 +32,9 @@ public class CouponUser {
         this.used = true;
         this.usedAt = LocalDateTime.now();
     }
+
+    public void markAsUnused() {
+        this.used = false;
+        this.usedAt = null;
+    }
 }

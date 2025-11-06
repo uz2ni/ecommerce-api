@@ -1,4 +1,4 @@
-package com.example.ecommerceapi.order.dto;
+package com.example.ecommerceapi.order.presentation.dto;
 
 import jakarta.validation.constraints.NotNull;
 import lombok.AllArgsConstructor;
