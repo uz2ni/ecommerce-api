@@ -2,7 +2,7 @@ package com.example.ecommerceapi.point.application.service;
 
 import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.point.application.dto.PointResult;
-import com.example.ecommerceapi.point.entity.Point;
+import com.example.ecommerceapi.point.domain.entity.Point;
 import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;

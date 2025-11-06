@@ -16,7 +16,7 @@ import com.example.ecommerceapi.order.domain.entity.Order;
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
 import com.example.ecommerceapi.order.infrastructure.InMemoryOrderItemRepository;
 import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
-import com.example.ecommerceapi.point.entity.Point;
+import com.example.ecommerceapi.point.domain.entity.Point;
 import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
 import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;

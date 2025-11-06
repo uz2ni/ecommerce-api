@@ -1,4 +1,4 @@
-package com.example.ecommerceapi.point.entity;
+package com.example.ecommerceapi.point.domain.entity;
 
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.PointException;

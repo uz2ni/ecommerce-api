@@ -1,6 +1,8 @@
 package com.example.ecommerceapi.point.entity;
 
 import com.example.ecommerceapi.common.exception.PointException;
+import com.example.ecommerceapi.point.domain.entity.Point;
+import com.example.ecommerceapi.point.domain.entity.PointType;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 

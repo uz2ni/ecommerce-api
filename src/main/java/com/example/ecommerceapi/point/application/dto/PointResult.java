@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.point.application.dto;
 
-import com.example.ecommerceapi.point.entity.Point;
+import com.example.ecommerceapi.point.domain.entity.Point;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
