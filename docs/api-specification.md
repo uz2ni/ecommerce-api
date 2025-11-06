@@ -130,7 +130,7 @@ GET /api/users/{userId}/points/history
   {
     "pointId": 1,
     "userId": 1,
-    "pointType": "EARN",
+    "pointType": "CHARGE",
     "pointAmount": 500000,
     "createdAt": "2025-10-22T10:00:00"
   },
@@ -150,7 +150,7 @@ GET /api/users/{userId}/points/history
 |------|------|------|
 | pointId | Integer | 포인트 이력 ID |
 | userId | Integer | 회원 ID |
-| pointType | String | 포인트 타입 (EARN: 충전, USE: 사용) |
+| pointType | String | 포인트 타입 (CHARGE: 충전, USE: 사용, REFUND: 환불) |
 | pointAmount | Integer | 포인트 금액 |
 | createdAt | LocalDateTime | 생성일시 |
 
@@ -194,7 +194,7 @@ POST /api/users/{userId}/points/charge
 {
   "pointId": 3,
   "userId": 1,
-  "pointType": "EARN",
+  "pointType": "CHARGE",
   "pointAmount": 100000,
   "balance": 600000,
   "createdAt": "2025-10-29T15:00:00"
@@ -207,7 +207,7 @@ POST /api/users/{userId}/points/charge
 |------|------|------|
 | pointId | Integer | 포인트 이력 ID |
 | userId | Integer | 회원 ID |
-| pointType | String | 포인트 타입 (EARN) |
+| pointType | String | 포인트 타입 (CHARGE) |
 | pointAmount | Integer | 충전한 포인트 금액 |
 | balance | Integer | 충전 후 잔액 |
 | createdAt | LocalDateTime | 충전일시 |
@@ -326,12 +326,20 @@ GET /api/products/{productId}/stock
 ---
 
 ### 2.4 인기 상품 통계 조회
-최근 3일 기준 top5 인기 상품을 조회합니다.
+최근 N일 기준 topX 인기 상품을 조회합니다. 판매량 또는 조회수 기준으로 조회 가능합니다.
 
 **Endpoint**
 ```
-GET /api/products/popular
+GET /api/products/popular?type={type}&days={days}&limit={limit}
 ```
+
+**Query Parameters**
+
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| type | String | X | SALES | 통계 타입 (SALES: 판매량, VIEWS: 조회수) |
+| days | Integer | X | 3 | 조회 기간 (일) |
+| limit | Integer | X | 5 | 조회 개수 |
 
 **Response**
 ```json
@@ -352,10 +360,11 @@ GET /api/products/popular
 | productId | Integer | 상품 ID |
 | productName | String | 상품명 |
 | productPrice | Integer | 상품 가격 |
-| salesCount | Long | 판매 수량 |
+| salesCount | Long | 판매 수량 (type=SALES일 때) |
+| viewCount | Long | 조회 수량 (type=VIEWS일 때) |
 
 **제약조건**
-- 최대 5개까지 반환
+- limit 파라미터로 조회 개수 지정 가능 (기본값: 5)
 
 ---
 
@@ -481,8 +490,16 @@ DELETE /api/cart/{cartItemId}
 
 **Response**
 ```json
-"장바구니 상품이 삭제되었습니다."
+{
+  "cartItemId": 1
+}
 ```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| cartItemId | Integer | 삭제된 장바구니 상품 ID |
 
 **제약조건**
 - 존재하지 않는 장바구니 상품 ID인 경우 404 Not Found
@@ -580,6 +597,8 @@ POST /api/orders
 - 장바구니에 담긴 상품만 주문 가능
 - 주문 생성 시 재고가 부족하면 실패
 - 주문 생성 시 orderStatus는 "PENDING" (결제 대기) 상태로 설정됨
+- 쿠폰 사용 시 쿠폰이 유효한지(발급된, 사용되지 않은, 만료되지 않은) 검증
+- 쿠폰은 사용자에게 발급된 것만 사용 가능
 
 ---
 
@@ -692,16 +711,6 @@ POST /api/orders/payment
 }
 ```
 
-**Response (실패)**
-```json
-{
-  "orderId": null,
-  "paymentAmount": null,
-  "remainingPoint": null,
-  "message": "포인트가 부족합니다."
-}
-```
-
 **Response Fields**
 
 | 필드 | 타입 | 설명 |
@@ -712,12 +721,14 @@ POST /api/orders/payment
 | message | String | 결제 결과 메시지 |
 
 **제약조건**
-- 존재하지 않는 주문 ID인 경우 결제 실패
+- 존재하지 않는 주문 ID인 경우 결제 실패 (400 Bad Request)
 - 회원이 보유한 포인트로 결제 진행
-- 포인트가 부족하면 결제 실패 (400 Bad Request)
+- 포인트가 부족하면 결제 실패 (400 Bad Request 예외 발생)
+- 이미 결제된 주문인 경우 결제 실패 (400 Bad Request)
 - 결제 완료 시 주문 상태(orderStatus)가 "PAID" (결제 완료)로 변경됨
 - 결제 완료 후 주문한 상품은 장바구니에서 자동 제거
 - 결제 완료 시 포인트 이력에 USE 타입으로 기록
+- 결제 실패 시 예외가 발생하며, 재고 및 포인트는 자동으로 롤백됨
 
 ---
 
@@ -738,10 +749,11 @@ GET /api/coupons
     "couponId": 1,
     "couponName": "신규 오픈 선착순 할인 쿠폰",
     "discountAmount": 20000,
+    "totalQuantity": 100,
     "issuedQuantity": 50,
-    "usedQuantity": 3,
-    "remainingQuantity": 47,
-    "couponStatus": "ACTIVE"
+    "remainingQuantity": 50,
+    "expiredAt": "2025-12-31T23:59:59",
+    "status": "ACTIVE"
   }
 ]
 ```
@@ -753,10 +765,11 @@ GET /api/coupons
 | couponId | Integer | 쿠폰 ID |
 | couponName | String | 쿠폰 이름 |
 | discountAmount | Integer | 할인 금액 |
-| issuedQuantity | Integer | 발급 가능 수량 |
-| usedQuantity | Integer | 발급된 수량 |
+| totalQuantity | Integer | 총 발급 가능 수량 |
+| issuedQuantity | Integer | 발급된 수량 |
 | remainingQuantity | Integer | 남은 수량 |
-| couponStatus | String | 쿠폰 상태 (ACTIVE: 발급가능, DEPLETED: 소진) |
+| expiredAt | LocalDateTime | 쿠폰 만료일시 |
+| status | String | 쿠폰 상태 (ACTIVE: 발급가능, DEPLETED: 소진, EXPIRED: 만료) |
 
 ---
 
@@ -785,18 +798,27 @@ POST /api/coupons/issue
 
 **Response (성공)**
 ```json
-"쿠폰이 발급되었습니다."
+{
+  "couponUserId": 1,
+  "couponId": 1,
+  "userId": 1
+}
 ```
 
-**Response (실패)**
-```json
-"쿠폰 발급에 실패했습니다. 수량이 부족하거나 존재하지 않는 쿠폰입니다."
-```
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| couponUserId | Integer | 쿠폰 발급 이력 ID |
+| couponId | Integer | 쿠폰 ID |
+| userId | Integer | 회원 ID |
 
 **제약조건**
 - 발급 수량이 소진되면 실패 (400 Bad Request)
-- 존재하지 않는 쿠폰 ID인 경우 실패
-- 존재하지 않는 회원 ID인 경우 실패
+- 쿠폰이 만료되었으면 실패 (400 Bad Request)
+- 존재하지 않는 쿠폰 ID인 경우 실패 (400 Bad Request)
+- 존재하지 않는 회원 ID인 경우 실패 (400 Bad Request)
+- 이미 발급받은 쿠폰은 중복 발급 불가 (400 Bad Request)
 - 발급 성공 시 쿠폰 사용 이력에 자동 추가
 - 발급된 쿠폰은 주문 생성 시 사용 가능
 - 선착순 쿠폰은 사전에 등록되어 있음
@@ -933,12 +955,13 @@ GET /api/coupons/{couponId}/usage
 ### 비즈니스 규칙
 1. **회원**
    - 회원과 회원 포인트는 미리 등록되어 있음
-   - 포인트 타입: EARN(충전), USE(사용)
+   - 포인트 타입: CHARGE(충전), USE(사용), REFUND(환불)
 
 2. **상품**
    - 상품은 옵션이 없고 단일 상품
    - 상품 등록은 이미 되어있다고 가정
-   - 인기 상품: 최근 3일 기준 top5
+   - 인기 상품: 최근 N일 기준 topX 조회 (판매량 또는 조회수 기준)
+   - 조회수는 상품 조회 시 자동으로 증가
 
 3. **장바구니**
    - 수량 변동 시 상품 삭제 후 재등록
@@ -948,12 +971,17 @@ GET /api/coupons/{couponId}/usage
    - 장바구니에 담긴 상품만 주문 가능
    - 장바구니가 비어있으면 주문 불가
    - 주문 생성 시 재고 부족하면 실패
-   - 주문 상태: PENDING (결제 대기), PAID (결제 완료)
+   - 주문 상태: PENDING (결제 대기), PAID (결제 완료), CANCELLED (주문 취소), FAILED (결제 실패)
    - 결제는 포인트 차감으로 진행
-   - 포인트 부족 시 결제 실패
+   - 포인트 부족 시 결제 실패 (예외 발생)
    - 결제 완료 후 주문 상품은 장바구니에서 제거
+   - 결제 실패 시 재고 및 포인트 자동 롤백
 
 5. **쿠폰**
    - 선착순 쿠폰은 미리 등록되어 있음
    - 발급 수량 소진 시 더 이상 발급 불가
+   - 쿠폰 만료일이 지나면 발급 및 사용 불가
+   - 동일 쿠폰 중복 발급 불가
    - 주문 생성 시 쿠폰 ID를 전달하여 할인 적용
+   - 쿠폰은 사용자에게 발급된 것만 사용 가능
+   - 쿠폰 사용 시 유효성 검증 (발급 여부, 사용 여부, 만료 여부)

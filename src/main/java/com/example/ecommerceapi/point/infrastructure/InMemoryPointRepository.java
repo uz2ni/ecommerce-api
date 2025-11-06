@@ -1,7 +1,7 @@
 package com.example.ecommerceapi.point.infrastructure;
 
-import com.example.ecommerceapi.point.entity.Point;
-import com.example.ecommerceapi.point.entity.PointType;
+import com.example.ecommerceapi.point.domain.entity.Point;
+import com.example.ecommerceapi.point.domain.entity.PointType;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
