@@ -2,6 +2,7 @@ package com.example.ecommerceapi.coupon.infrastructure;
 
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
 import jakarta.annotation.PostConstruct;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
-public class InMemoryCouponUserRepository {
+public class InMemoryCouponUserRepository implements CouponUserRepository {
 
     private final Map<Integer, CouponUser> store = new ConcurrentHashMap<>();
     private final AtomicInteger idGenerator = new AtomicInteger(1);

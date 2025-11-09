@@ -3,17 +3,17 @@ package com.example.ecommerceapi.order.application.service;
 import com.example.ecommerceapi.cart.application.dto.AddCartItemCommand;
 import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
-import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.exception.OrderException;
 import com.example.ecommerceapi.order.application.dto.CreateOrderCommand;
 import com.example.ecommerceapi.order.application.dto.CreateOrderResult;
 import com.example.ecommerceapi.order.domain.entity.Order;
 import com.example.ecommerceapi.order.domain.entity.OrderStatus;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
+import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.product.domain.entity.Product;
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -39,16 +39,16 @@ class OrderServiceConcurrencyIntegrationTest {
     private CartService cartService;
 
     @Autowired
-    private InMemoryOrderRepository orderRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    private InMemoryProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @Autowired
-    private InMemoryCartItemRepository cartItemRepository;
+    private CartItemRepository cartItemRepository;
 
     private static final int THREAD_COUNT = 10;
 

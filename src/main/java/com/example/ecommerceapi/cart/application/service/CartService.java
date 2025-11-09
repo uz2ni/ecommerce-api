@@ -3,7 +3,7 @@ package com.example.ecommerceapi.cart.application.service;
 import com.example.ecommerceapi.cart.application.dto.AddCartItemCommand;
 import com.example.ecommerceapi.cart.application.dto.CartItemResult;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
-import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.exception.CartException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.product.application.validator.ProductValidator;
@@ -23,7 +23,7 @@ public class CartService {
 
     private final UserValidator userValidator;
     private final ProductValidator productValidator;
-    private final InMemoryCartItemRepository cartItemRepository;
+    private final CartItemRepository cartItemRepository;
 
     public List<CartItemResult> getCartItems(Integer userId) {
         // 1. 회원 존재 검증

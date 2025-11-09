@@ -1,6 +1,7 @@
 package com.example.ecommerceapi.user.infrastructure;
 
 import com.example.ecommerceapi.user.domain.entity.User;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import jakarta.annotation.PostConstruct;
 import org.springframework.stereotype.Repository;
 
@@ -9,7 +10,7 @@ import java.util.List;
 import java.util.Map;
 
 @Repository
-public class InMemoryUserRepository {
+public class InMemoryUserRepository implements UserRepository {
 
     private Map<Integer, User> USERS = new HashMap<>();
 

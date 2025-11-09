@@ -2,6 +2,7 @@ package com.example.ecommerceapi.cart.infrastructure;
 
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import jakarta.annotation.PostConstruct;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import org.springframework.stereotype.Repository;
 
 import java.time.LocalDateTime;
@@ -13,7 +14,7 @@ import java.util.concurrent.atomic.AtomicInteger;
 import java.util.stream.Collectors;
 
 @Repository
-public class InMemoryCartItemRepository {
+public class InMemoryCartItemRepository implements CartItemRepository {
 
     private final Map<Integer, CartItem> store = new ConcurrentHashMap<>();
     private final AtomicInteger idGenerator = new AtomicInteger(1);

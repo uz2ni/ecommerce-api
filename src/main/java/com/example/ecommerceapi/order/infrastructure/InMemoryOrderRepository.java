@@ -1,6 +1,7 @@
 package com.example.ecommerceapi.order.infrastructure;
 
 import com.example.ecommerceapi.order.domain.entity.Order;
+import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import org.springframework.stereotype.Repository;
 
 import java.util.*;
@@ -8,7 +9,7 @@ import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.atomic.AtomicInteger;
 
 @Repository
-public class InMemoryOrderRepository {
+public class InMemoryOrderRepository implements OrderRepository {
 
     private final Map<Integer, Order> orders = new ConcurrentHashMap<>();
     private final AtomicInteger idGenerator = new AtomicInteger(1);

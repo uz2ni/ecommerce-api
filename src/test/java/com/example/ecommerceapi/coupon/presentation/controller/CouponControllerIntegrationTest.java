@@ -1,7 +1,7 @@
 package com.example.ecommerceapi.coupon.presentation.controller;
 
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.coupon.presentation.dto.IssueCouponRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -32,10 +32,10 @@ class CouponControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private InMemoryCouponRepository couponRepository;
+    private CouponRepository couponRepository;
 
     @Autowired
-    private InMemoryCouponUserRepository couponUserRepository;
+    private CouponUserRepository couponUserRepository;
 
     @BeforeEach
     void setUp() {

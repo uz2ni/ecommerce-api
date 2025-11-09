@@ -3,7 +3,7 @@ package com.example.ecommerceapi.coupon.application.validator;
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -13,7 +13,7 @@ import java.util.Optional;
 @RequiredArgsConstructor
 public class CouponValidator {
 
-    private final InMemoryCouponRepository couponRepository;
+    private final CouponRepository couponRepository;
 
     /**
      * 쿠폰 존재 여부를 검증하고 Coupon 엔티티를 반환합니다.

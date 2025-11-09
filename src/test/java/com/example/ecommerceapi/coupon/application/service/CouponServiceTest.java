@@ -9,11 +9,11 @@ import com.example.ecommerceapi.coupon.application.dto.IssueCouponResult;
 import com.example.ecommerceapi.coupon.application.validator.CouponValidator;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -44,13 +44,13 @@ class CouponServiceTest {
     private UserValidator userValidator;
 
     @Mock
-    private InMemoryCouponRepository couponRepository;
+    private CouponRepository couponRepository;
 
     @Mock
-    private InMemoryCouponUserRepository couponUserRepository;
+    private CouponUserRepository couponUserRepository;
 
     @Mock
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private CouponService couponService;

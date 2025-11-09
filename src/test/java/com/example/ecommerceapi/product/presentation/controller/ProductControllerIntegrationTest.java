@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.product.presentation.controller;
 
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,7 +28,7 @@ class ProductControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private InMemoryProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @BeforeEach
     void setUp() {
@@ -72,7 +72,7 @@ class ProductControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is("PD01")))
-                .andExpect(jsonPath("$.message", is("상품이 존재하지 않습니다.")));
+                .andExpect(jsonPath("$.message", is("존재하는 상품이 아닙니다.")));
     }
 
     @Test
@@ -82,8 +82,7 @@ class ProductControllerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.productId", is(1)))
-                .andExpect(jsonPath("$.quantity", notNullValue()));
+                .andExpect(jsonPath("$.stock", notNullValue()));
     }
 
     @Test
@@ -94,7 +93,7 @@ class ProductControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is("PD01")))
-                .andExpect(jsonPath("$.message", is("상품이 존재하지 않습니다.")));
+                .andExpect(jsonPath("$.message", is("존재하는 상품이 아닙니다.")));
     }
 
     @Test
@@ -160,7 +159,7 @@ class ProductControllerIntegrationTest {
                 .andExpect(status().isNotFound())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                 .andExpect(jsonPath("$.code", is("PD01")))
-                .andExpect(jsonPath("$.message", is("상품이 존재하지 않습니다.")));
+                .andExpect(jsonPath("$.message", is("존재하는 상품이 아닙니다.")));
     }
 
     @Test

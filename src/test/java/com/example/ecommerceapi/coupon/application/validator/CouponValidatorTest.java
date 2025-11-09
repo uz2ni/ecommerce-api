@@ -2,7 +2,7 @@ package com.example.ecommerceapi.coupon.application.validator;
 
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -22,7 +22,7 @@ import static org.mockito.BDDMockito.given;
 class CouponValidatorTest {
 
     @Mock
-    private InMemoryCouponRepository couponRepository;
+    private CouponRepository couponRepository;
 
     @InjectMocks
     private CouponValidator couponValidator;

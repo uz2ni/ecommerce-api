@@ -4,7 +4,7 @@ import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
 import com.example.ecommerceapi.common.exception.UserException;
 import com.example.ecommerceapi.product.domain.entity.Product;
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
@@ -12,7 +12,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class ProductValidator {
 
-    private final InMemoryProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     /**
      * 상품 존재 여부를 검증하고 Product 엔티티를 반환합니다.

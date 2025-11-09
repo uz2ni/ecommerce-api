@@ -1,7 +1,7 @@
 package com.example.ecommerceapi.user.application.validator;
 
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.UserException;
 import lombok.RequiredArgsConstructor;
@@ -11,7 +11,7 @@ import org.springframework.stereotype.Component;
 @RequiredArgsConstructor
 public class UserValidator {
 
-    private final InMemoryUserRepository userRepository;
+    private final UserRepository userRepository;
 
     /**
      * 사용자 존재 여부를 검증하고 User 엔티티를 반환합니다.

@@ -2,7 +2,7 @@ package com.example.ecommerceapi.user.application.validator;
 
 import com.example.ecommerceapi.common.exception.UserException;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -19,7 +19,7 @@ import static org.mockito.BDDMockito.given;
 class UserValidatorTest {
 
     @Mock
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @InjectMocks
     private UserValidator userValidator;

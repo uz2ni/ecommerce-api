@@ -10,11 +10,11 @@ import com.example.ecommerceapi.coupon.application.dto.IssueCouponResult;
 import com.example.ecommerceapi.coupon.application.validator.CouponValidator;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -29,9 +29,9 @@ public class CouponService {
 
     private final CouponValidator couponValidator;
     private final UserValidator userValidator;
-    private final InMemoryCouponRepository couponRepository;
-    private final InMemoryCouponUserRepository couponUserRepository;
-    private final InMemoryUserRepository userRepository;
+    private final CouponRepository couponRepository;
+    private final CouponUserRepository couponUserRepository;
+    private final UserRepository userRepository;
 
     /**
      * 쿠폰 정보 목록 조회

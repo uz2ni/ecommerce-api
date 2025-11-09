@@ -1,15 +1,15 @@
 package com.example.ecommerceapi.order.presentation.controller;
 
-import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderItemRepository;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
+import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
+import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.order.presentation.dto.CreateOrderRequest;
 import com.example.ecommerceapi.order.presentation.dto.PaymentRequest;
-import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.point.domain.repository.PointRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -38,28 +38,28 @@ class OrderControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private InMemoryOrderRepository orderRepository;
+    private OrderRepository orderRepository;
 
     @Autowired
-    private InMemoryOrderItemRepository orderItemRepository;
+    private OrderItemRepository orderItemRepository;
 
     @Autowired
-    private InMemoryCartItemRepository cartItemRepository;
+    private CartItemRepository cartItemRepository;
 
     @Autowired
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Autowired
-    private InMemoryProductRepository productRepository;
+    private ProductRepository productRepository;
 
     @Autowired
-    private InMemoryCouponRepository couponRepository;
+    private CouponRepository couponRepository;
 
     @Autowired
-    private InMemoryCouponUserRepository couponUserRepository;
+    private CouponUserRepository couponUserRepository;
 
     @Autowired
-    private InMemoryPointRepository pointRepository;
+    private PointRepository pointRepository;
 
     @BeforeEach
     void setUp() {

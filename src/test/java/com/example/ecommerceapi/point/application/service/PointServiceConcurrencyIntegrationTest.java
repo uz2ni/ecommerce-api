@@ -1,7 +1,8 @@
 package com.example.ecommerceapi.point.application.service;
 
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,11 +22,16 @@ class PointServiceConcurrencyIntegrationTest {
     private PointService pointService;
 
     @Autowired
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     private static final int THREAD_COUNT = 10;
     private static final int CHARGE_AMOUNT = 10000;
 
+    @BeforeEach
+    void setUp() {
+        userRepository.clear();
+        userRepository.init();
+    }
 
     @Test
     @DisplayName("동시에 여러 번 포인트 충전 요청 시 최초 요청만 처리된다")

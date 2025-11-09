@@ -3,10 +3,10 @@ package com.example.ecommerceapi.point.application.service;
 import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.point.domain.entity.Point;
-import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
+import com.example.ecommerceapi.point.domain.repository.PointRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
@@ -24,8 +24,8 @@ public class PointService {
     @Value("${constant.point.max-amount}")
     private Integer maxAmount;
 
-    private final InMemoryPointRepository pointRepository;
-    private final InMemoryUserRepository userRepository;
+    private final PointRepository pointRepository;
+    private final UserRepository userRepository;
     private final UserValidator userValidator;
 
     public List<PointResult> getPointHistory(Integer userId) {

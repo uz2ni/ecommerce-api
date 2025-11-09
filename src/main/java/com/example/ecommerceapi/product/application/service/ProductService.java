@@ -9,7 +9,7 @@ import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.application.dto.PopularProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductStockResult;
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -24,7 +24,7 @@ public class ProductService {
 
     private final ProductValidator productValidator;
 
-    private final InMemoryProductRepository productRepository;
+    private final ProductRepository productRepository;
 
     public List<ProductResult> getAllProducts() {
         return productRepository.findAll().stream()

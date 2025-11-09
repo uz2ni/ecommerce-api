@@ -1,7 +1,7 @@
 package com.example.ecommerceapi.user.presentation.controller;
 
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
-import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
+import com.example.ecommerceapi.point.domain.repository.PointRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -31,11 +31,6 @@ class UserControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private InMemoryUserRepository userRepository;
-
-    @Autowired
-    private InMemoryPointRepository pointRepository;
 
     @BeforeEach
     void setUp() {
@@ -158,8 +153,9 @@ class UserControllerIntegrationTest {
                 .andDo(print())
                 .andExpect(status().isBadRequest())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.code", is("PT02")))
-                .andExpect(jsonPath("$.message", is("포인트 금액이 유효하지 않습니다.")));
+                .andExpect(jsonPath("$.code", is("FD01")))
+                .andExpect(jsonPath("$.errorFields[0].field", is("amount")))
+                .andExpect(jsonPath("$.errorFields[0].message", is("amount는 1000 이상이어야 합니다.")));
     }
 
     @Test

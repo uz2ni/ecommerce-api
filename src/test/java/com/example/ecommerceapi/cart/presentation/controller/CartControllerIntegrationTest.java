@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.cart.presentation.controller;
 
-import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.cart.presentation.dto.AddCartItemRequest;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -30,7 +30,7 @@ class CartControllerIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private InMemoryCartItemRepository cartItemRepository;
+    private CartItemRepository cartItemRepository;
 
     @BeforeEach
     void setUp() {

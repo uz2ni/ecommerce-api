@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.user.application.service;
 
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import com.example.ecommerceapi.user.application.dto.UserPointBalanceResult;
 import com.example.ecommerceapi.user.application.dto.UserResult;
 import com.example.ecommerceapi.user.domain.entity.User;
@@ -17,7 +17,7 @@ import java.util.stream.Collectors;
 @RequiredArgsConstructor
 public class UserService {
 
-    private final InMemoryUserRepository userRepository;
+    private final UserRepository userRepository;
     private final UserValidator userValidator;
 
     public List<UserResult> getAllUsers() {

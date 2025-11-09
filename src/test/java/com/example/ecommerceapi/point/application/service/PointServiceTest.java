@@ -5,10 +5,10 @@ import com.example.ecommerceapi.common.exception.UserException;
 import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.point.domain.entity.Point;
 import com.example.ecommerceapi.point.domain.entity.PointType;
-import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
+import com.example.ecommerceapi.point.domain.repository.PointRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -34,10 +34,10 @@ import static org.mockito.Mockito.verify;
 class PointServiceTest {
 
     @Mock
-    private InMemoryPointRepository pointRepository;
+    private PointRepository pointRepository;
 
     @Mock
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
     private UserValidator userValidator;

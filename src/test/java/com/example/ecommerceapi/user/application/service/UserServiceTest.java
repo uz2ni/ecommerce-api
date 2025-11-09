@@ -5,7 +5,7 @@ import com.example.ecommerceapi.user.application.dto.UserPointBalanceResult;
 import com.example.ecommerceapi.user.application.dto.UserResult;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -26,7 +26,7 @@ import static org.mockito.BDDMockito.willThrow;
 class UserServiceTest {
 
     @Mock
-    private InMemoryUserRepository userRepository;
+    private UserRepository userRepository;
 
     @Mock
     private UserValidator userValidator;

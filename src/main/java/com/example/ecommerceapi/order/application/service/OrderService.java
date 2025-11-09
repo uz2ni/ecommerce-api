@@ -1,29 +1,29 @@
 package com.example.ecommerceapi.order.application.service;
 
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
-import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.common.exception.*;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.order.application.dto.CreateOrderCommand;
 import com.example.ecommerceapi.order.application.dto.CreateOrderResult;
 import com.example.ecommerceapi.order.application.dto.OrderResult;
 import com.example.ecommerceapi.order.application.dto.PaymentResult;
 import com.example.ecommerceapi.order.domain.entity.Order;
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderItemRepository;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
+import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
+import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.point.domain.entity.Point;
-import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
+import com.example.ecommerceapi.point.domain.repository.PointRepository;
 import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
-import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -40,14 +40,14 @@ public class OrderService {
 
     private final UserValidator userValidator;
     private final ProductValidator productValidator;
-    private final InMemoryOrderRepository orderRepository;
-    private final InMemoryOrderItemRepository orderItemRepository;
-    private final InMemoryCartItemRepository cartItemRepository;
-    private final InMemoryProductRepository productRepository;
-    private final InMemoryCouponRepository couponRepository;
-    private final InMemoryCouponUserRepository couponUserRepository;
-    private final InMemoryUserRepository userRepository;
-    private final InMemoryPointRepository pointRepository;
+    private final OrderRepository orderRepository;
+    private final OrderItemRepository orderItemRepository;
+    private final CartItemRepository cartItemRepository;
+    private final ProductRepository productRepository;
+    private final CouponRepository couponRepository;
+    private final CouponUserRepository couponUserRepository;
+    private final UserRepository userRepository;
+    private final PointRepository pointRepository;
 
 
     public CreateOrderResult createOrder(CreateOrderCommand command) {

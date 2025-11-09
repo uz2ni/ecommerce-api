@@ -3,7 +3,7 @@ package com.example.ecommerceapi.cart.application.service;
 import com.example.ecommerceapi.cart.application.dto.AddCartItemCommand;
 import com.example.ecommerceapi.cart.application.dto.CartItemResult;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
-import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
+import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.exception.CartException;
 import com.example.ecommerceapi.common.exception.ProductException;
 import com.example.ecommerceapi.common.exception.UserException;
@@ -40,7 +40,7 @@ class CartServiceTest {
     private ProductValidator productValidator;
 
     @Mock
-    private InMemoryCartItemRepository cartItemRepository;
+    private CartItemRepository cartItemRepository;
 
     @InjectMocks
     private CartService cartService;

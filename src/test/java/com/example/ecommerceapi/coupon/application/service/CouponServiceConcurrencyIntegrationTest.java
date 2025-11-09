@@ -4,8 +4,8 @@ import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.coupon.application.dto.IssueCouponCommand;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
-import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
+import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -28,10 +28,10 @@ class CouponServiceConcurrencyIntegrationTest {
     private CouponService couponService;
 
     @Autowired
-    private InMemoryCouponRepository couponRepository;
+    private CouponRepository couponRepository;
 
     @Autowired
-    private InMemoryCouponUserRepository couponUserRepository;
+    private CouponUserRepository couponUserRepository;
 
     private static final int THREAD_COUNT = 20;
 

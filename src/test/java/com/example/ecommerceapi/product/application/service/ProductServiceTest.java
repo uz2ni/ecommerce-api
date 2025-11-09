@@ -1,12 +1,14 @@
 package com.example.ecommerceapi.product.application.service;
 
+import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
 import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
 import com.example.ecommerceapi.product.application.dto.PopularProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductStockResult;
+import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;
-import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -28,7 +30,10 @@ import static org.mockito.Mockito.verify;
 class ProductServiceTest {
 
     @Mock
-    private InMemoryProductRepository productRepository;
+    private ProductRepository productRepository;
+
+    @Mock
+    private ProductValidator productValidator;
 
     @InjectMocks
     private ProductService productService;
@@ -100,7 +105,7 @@ class ProductServiceTest {
         @DisplayName("상품 ID로 상품을 조회한다")
         void getProduct_ShouldReturnProduct_WhenProductExists() {
             // given
-            given(productRepository.findById(1)).willReturn(product1);
+            given(productValidator.validateAndGetProduct(1)).willReturn(product1);
 
             // when
             ProductResult result = productService.getProduct(1);
@@ -116,7 +121,7 @@ class ProductServiceTest {
         @DisplayName("존재하지 않는 상품을 조회하면 예외가 발생한다")
         void getProduct_ShouldThrowException_WhenProductNotFound() {
             // given
-            given(productRepository.findById(999)).willReturn(null);
+            given(productValidator.validateAndGetProduct(999)).willThrow(new ProductException(ErrorCode.PRODUCT_NOT_FOUND));
 
             // when & then
             assertThatThrownBy(() -> productService.getProduct(999))
@@ -134,7 +139,7 @@ class ProductServiceTest {
         @DisplayName("상품 재고를 조회한다")
         void getProductStock_ShouldReturnStock_WhenProductExists() {
             // given
-            given(productRepository.findById(1)).willReturn(product1);
+            given(productValidator.validateAndGetProduct(1)).willReturn(product1);
 
             // when
             ProductStockResult result = productService.getProductStock(1);
@@ -147,7 +152,7 @@ class ProductServiceTest {
         @DisplayName("존재하지 않는 상품의 재고 조회 시 예외가 발생한다")
         void getProductStock_ShouldThrowException_WhenProductNotFound() {
             // given
-            given(productRepository.findById(999)).willReturn(null);
+            given(productValidator.validateAndGetProduct(999)).willThrow(new ProductException(ErrorCode.PRODUCT_NOT_FOUND));
 
             // when & then
             assertThatThrownBy(() -> productService.getProductStock(999))
@@ -222,7 +227,7 @@ class ProductServiceTest {
         @DisplayName("상품 조회수를 증가시킨다")
         void incrementProductViewCount_ShouldIncreaseViewCount_WhenProductExists() {
             // given
-            given(productRepository.findById(1)).willReturn(product1);
+            given(productValidator.validateAndGetProduct(1)).willReturn(product1);
             Integer initialViewCount = product1.getViewCount();
 
             // when
@@ -237,7 +242,7 @@ class ProductServiceTest {
         @DisplayName("존재하지 않는 상품의 조회수 증가 시 예외가 발생한다")
         void incrementProductViewCount_ShouldThrowException_WhenProductNotFound() {
             // given
-            given(productRepository.findById(999)).willReturn(null);
+            given(productValidator.validateAndGetProduct(999)).willThrow(new ProductException(ErrorCode.PRODUCT_NOT_FOUND));
 
             // when & then
             assertThatThrownBy(() -> productService.incrementProductViewCount(999))

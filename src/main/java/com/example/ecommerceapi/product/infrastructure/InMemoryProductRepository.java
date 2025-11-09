@@ -6,6 +6,7 @@ import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.infrastructure.InMemoryOrderItemRepository;
 import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
 import com.example.ecommerceapi.product.domain.entity.Product;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
@@ -16,7 +17,7 @@ import java.util.stream.Collectors;
 
 @Repository
 @RequiredArgsConstructor
-public class InMemoryProductRepository {
+public class InMemoryProductRepository implements ProductRepository {
 
     private final InMemoryOrderRepository orderRepository;
     private final InMemoryOrderItemRepository orderItemRepository;
