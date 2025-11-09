@@ -51,7 +51,7 @@ public class ProductService {
 
     public List<PopularProductResult> getPopularProducts(String type, Integer days, Integer limit) {
 
-        ProductStatisticType typeEnum = ProductStatisticType.valueOf(type);
+        ProductStatisticType typeEnum = ProductStatisticType.from(type);
         List<PopularProductResult> popularProducts;
 
         switch (typeEnum) {

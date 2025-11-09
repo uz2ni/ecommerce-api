@@ -262,7 +262,8 @@ class ProductServiceTest {
         void getPopularProducts_ShouldThrowException_WhenInvalidType() {
             // when & then
             assertThatThrownBy(() -> productService.getPopularProducts("INVALID", 3, 5))
-                    .isInstanceOf(IllegalArgumentException.class);
+                    .isInstanceOf(ProductException.class)
+                    .hasMessage("지원하지 않는 상품 통계 타입입니다");
         }
 
     }
