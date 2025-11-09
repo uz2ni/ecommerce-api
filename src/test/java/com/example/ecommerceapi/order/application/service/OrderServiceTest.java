@@ -579,8 +579,8 @@ class OrderServiceTest {
 
             // when & then
             assertThatThrownBy(() -> orderService.processPayment(1, 1))
-                    .isInstanceOf(OrderException.class)
-                    .hasMessage("결제 처리 중 오류가 발생했습니다.");
+                    .isInstanceOf(PointException.class)
+                    .hasMessage("포인트 잔액이 부족합니다.");
         }
     }
 }

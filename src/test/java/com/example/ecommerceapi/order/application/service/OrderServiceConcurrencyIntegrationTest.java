@@ -5,6 +5,7 @@ import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.exception.OrderException;
+import com.example.ecommerceapi.common.exception.PointException;
 import com.example.ecommerceapi.order.application.dto.CreateOrderCommand;
 import com.example.ecommerceapi.order.application.dto.CreateOrderResult;
 import com.example.ecommerceapi.order.domain.entity.Order;
@@ -227,8 +228,8 @@ class OrderServiceConcurrencyIntegrationTest {
         // when: 결제 시도 (실패할 것임)
         try {
             orderService.processPayment(orderId, userId);
-        } catch (OrderException e) {
-            // 예상된 예외
+        } catch (PointException e) {
+            // 예상된 예외 (포인트 부족)
         }
 
         // then: 보상 트랜잭션으로 상태가 롤백되어야 함

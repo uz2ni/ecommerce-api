@@ -29,6 +29,11 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
                 e.getMessage()
         );
         log.debug(response.toString());
+
+        Throwable cause = e.getCause();
+        if (cause != null) {
+            log.debug("원인 예외 메시지: {}", cause.getMessage());
+        }
         return ResponseEntity.status(e.getErrorCode().getStatus()).body(response);
     }
 
@@ -87,8 +92,7 @@ public class ExceptionAdvice extends ResponseEntityExceptionHandler{
                 ErrorCode.SERVER_ERROR.getCode(),
                 ErrorCode.SERVER_ERROR.getMessage()
         );
-        log.error(response.toString());
-        log.error(e.getMessage());
+        log.error("서버 예외 발생: {}", response, e);
         return ResponseEntity.status(ErrorCode.SERVER_ERROR.getStatus()).body(response);
     }
 

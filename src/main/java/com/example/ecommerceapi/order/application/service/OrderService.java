@@ -223,11 +223,17 @@ public class OrderService {
             // 실패 시 보상 트랜잭션 역순 실행
             while (!compensationStack.isEmpty()) {
                 try { compensationStack.pop().run(); }
-                catch (Exception ignored) {
-                    log.warn("보상 트랜잭션 실행 중 오류 발생", ignored);
+                catch (Exception compensationException) {
+                    log.warn("보상 트랜잭션 실행 중 오류 발생", compensationException);
                 }
             }
-            throw new OrderException(ErrorCode.ORDER_PAY_FAILED);
+
+            // 원래 예외가 비즈니스 예외면 그대로 던지기
+            if (e instanceof BusinessException) {
+                throw e;
+            }
+            // 예상치 못한 시스템 예외는 OrderException으로 감싸기
+            throw new OrderException(ErrorCode.ORDER_PAY_FAILED, e);
         }
     }
 

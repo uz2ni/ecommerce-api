@@ -6,4 +6,8 @@ public class OrderException extends BusinessException {
         super(errorCode);
     }
 
+    public OrderException(ErrorCode errorCode, Throwable cause) {
+        super(errorCode, cause);
+    }
+
 }
