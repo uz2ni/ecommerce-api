@@ -22,19 +22,9 @@ public interface ProductRepository {
     Product findById(Integer productId);
 
     /**
-     * 판매량 기준 인기 상품 조회
-     */
-    List<Product> findPopularProductsBySales(int days, int limit);
-
-    /**
      * 조회수 기준 인기 상품 조회
      */
     List<Product> findPopularProductsByView(int limit);
-
-    /**
-     * 판매 수량 맵 조회
-     */
-    Map<Integer, Integer> getSalesCountMap(int days);
 
     /**
      * 상품 저장

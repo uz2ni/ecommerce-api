@@ -2,6 +2,11 @@ package com.example.ecommerceapi.product.application.service;
 
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
+import com.example.ecommerceapi.order.domain.entity.Order;
+import com.example.ecommerceapi.order.domain.entity.OrderItem;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
+import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
+import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
 import com.example.ecommerceapi.product.application.dto.PopularProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductResult;
@@ -18,6 +23,7 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
@@ -34,6 +40,12 @@ class ProductServiceTest {
 
     @Mock
     private ProductValidator productValidator;
+
+    @Mock
+    private OrderRepository orderRepository;
+
+    @Mock
+    private OrderItemRepository orderItemRepository;
 
     @InjectMocks
     private ProductService productService;
@@ -188,14 +200,51 @@ class ProductServiceTest {
         @DisplayName("판매량 기반 인기 상품을 조회한다")
         void getPopularProducts_ShouldReturnPopularProducts_BySales() {
             // given
-            List<Product> popularProducts = Arrays.asList(product2, product1);
-            given(productRepository.findPopularProductsBySales(3, 5)).willReturn(popularProducts);
+            LocalDateTime now = LocalDateTime.now();
 
-            // 판매량 정보 mock (product2: 50개, product1: 30개 판매)
-            java.util.Map<Integer, Integer> salesMap = new java.util.HashMap<>();
-            salesMap.put(2, 50);
-            salesMap.put(1, 30);
-            given(productRepository.getSalesCountMap(3)).willReturn(salesMap);
+            // 최근 결제 완료된 주문들 mock
+            Order order1 = Order.builder()
+                    .orderId(1)
+                    .userId(1)
+                    .orderStatus(OrderStatus.PAID)
+                    .createdAt(now.minusDays(1))
+                    .build();
+            Order order2 = Order.builder()
+                    .orderId(2)
+                    .userId(1)
+                    .orderStatus(OrderStatus.PAID)
+                    .createdAt(now.minusDays(2))
+                    .build();
+
+            List<Order> orders = Arrays.asList(order1, order2);
+            given(orderRepository.findAll()).willReturn(orders);
+
+            // 주문 상품들 mock (product2: 50개, product1: 30개 판매)
+            OrderItem orderItem1 = OrderItem.builder()
+                    .orderItemId(1)
+                    .orderId(1)
+                    .productId(2)
+                    .orderQuantity(30)
+                    .build();
+            OrderItem orderItem2 = OrderItem.builder()
+                    .orderItemId(2)
+                    .orderId(2)
+                    .productId(2)
+                    .orderQuantity(20)
+                    .build();
+            OrderItem orderItem3 = OrderItem.builder()
+                    .orderItemId(3)
+                    .orderId(1)
+                    .productId(1)
+                    .orderQuantity(30)
+                    .build();
+
+            List<OrderItem> orderItems = Arrays.asList(orderItem1, orderItem2, orderItem3);
+            given(orderItemRepository.findAll()).willReturn(orderItems);
+
+            // 상품 조회 mock
+            given(productRepository.findById(2)).willReturn(product2);
+            given(productRepository.findById(1)).willReturn(product1);
 
             // when
             List<PopularProductResult> result = productService.getPopularProducts("SALES", 3, 5);

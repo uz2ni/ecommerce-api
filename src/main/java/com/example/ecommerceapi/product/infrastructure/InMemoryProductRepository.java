@@ -1,26 +1,15 @@
 package com.example.ecommerceapi.product.infrastructure;
 
-import com.example.ecommerceapi.order.domain.entity.Order;
-import com.example.ecommerceapi.order.domain.entity.OrderItem;
-import com.example.ecommerceapi.order.domain.entity.OrderStatus;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderItemRepository;
-import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
 import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import jakarta.annotation.PostConstruct;
-import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Repository;
 
-import java.time.LocalDateTime;
 import java.util.*;
 import java.util.stream.Collectors;
 
 @Repository
-@RequiredArgsConstructor
 public class InMemoryProductRepository implements ProductRepository {
-
-    private final InMemoryOrderRepository orderRepository;
-    private final InMemoryOrderItemRepository orderItemRepository;
 
     private final Map<Integer, Product> PRODUCTS = new HashMap<>();
 
@@ -85,73 +74,11 @@ public class InMemoryProductRepository implements ProductRepository {
         return PRODUCTS.get(productId);
     }
 
-    public List<Product> findPopularProductsBySales(int days, int limit) {
-        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
-
-        // 최근 N일 내의 결제 완료된 주문들 조회
-        List<Order> recentPaidOrders = orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus() == OrderStatus.PAID)
-                .filter(order -> order.getCreatedAt().isAfter(startDate))
-                .toList();
-
-        if (recentPaidOrders.isEmpty()) {
-            return List.of();
-        }
-
-        // 주문 ID 목록 추출
-        Set<Integer> orderIds = recentPaidOrders.stream()
-                .map(Order::getOrderId)
-                .collect(Collectors.toSet());
-
-        // 해당 주문들의 주문 상품 조회 및 상품별 판매 수량 집계
-        Map<Integer, Integer> productSalesMap = orderItemRepository.findAll().stream()
-                .filter(item -> orderIds.contains(item.getOrderId()))
-                .collect(Collectors.groupingBy(
-                        OrderItem::getProductId,
-                        Collectors.summingInt(OrderItem::getOrderQuantity)
-                ));
-
-        // 판매량 기준으로 정렬하고 상위 limit개 상품 반환
-        return productSalesMap.entrySet().stream()
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                .limit(limit)
-                .map(entry -> findById(entry.getKey()))
-                .filter(Objects::nonNull)
-                .collect(Collectors.toList());
-    }
-
     public List<Product> findPopularProductsByView(int limit) {
         return PRODUCTS.values().stream()
                 .sorted(Comparator.comparing(Product::getViewCount).reversed())
                 .limit(limit)
                 .collect(Collectors.toList());
-    }
-
-    public Map<Integer, Integer> getSalesCountMap(int days) {
-        LocalDateTime startDate = LocalDateTime.now().minusDays(days);
-
-        // 최근 N일 내의 결제 완료된 주문들 조회
-        List<Order> recentPaidOrders = orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus() == OrderStatus.PAID)
-                .filter(order -> order.getCreatedAt().isAfter(startDate))
-                .toList();
-
-        if (recentPaidOrders.isEmpty()) {
-            return Map.of();
-        }
-
-        // 주문 ID 목록 추출
-        Set<Integer> orderIds = recentPaidOrders.stream()
-                .map(Order::getOrderId)
-                .collect(Collectors.toSet());
-
-        // 해당 주문들의 주문 상품 조회 및 상품별 판매 수량 집계
-        return orderItemRepository.findAll().stream()
-                .filter(item -> orderIds.contains(item.getOrderId()))
-                .collect(Collectors.groupingBy(
-                        OrderItem::getProductId,
-                        Collectors.summingInt(OrderItem::getOrderQuantity)
-                ));
     }
 
     public void save(Product product) {
