@@ -60,18 +60,6 @@ public class InMemoryUserRepository implements UserRepository {
         return user != null ? user.getPointBalance() : null;
     }
 
-    public void updateBalance(Integer userId, Integer newBalance) {
-        User user = USERS.get(userId);
-        if (user != null) {
-            User updatedUser = User.builder()
-                    .userId(user.getUserId())
-                    .username(user.getUsername())
-                    .pointBalance(newBalance)
-                    .build();
-            USERS.put(userId, updatedUser);
-        }
-    }
-
     public void save(User user) {
         USERS.put(user.getUserId(), user);
     }

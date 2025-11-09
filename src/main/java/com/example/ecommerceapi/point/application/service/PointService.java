@@ -48,7 +48,7 @@ public class PointService {
 
         // 3. User 잔액 변경 & 업데이트
         user.chargePoints(amount);
-        userRepository.updateBalance(userId, user.getPointBalance());
+        userRepository.save(user);
 
         // 4. Point 이력 저장
         Point point = Point.createChargeHistory(userId, amount);

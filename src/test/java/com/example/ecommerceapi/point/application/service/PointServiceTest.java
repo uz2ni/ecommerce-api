@@ -150,7 +150,7 @@ class PointServiceTest {
         assertThat(result.getPointType()).isEqualTo(PointType.CHARGE.name());
         assertThat(result.getPointAmount()).isEqualTo(amount);
 
-        verify(userRepository).updateBalance(eq(1), eq(beforeBalance+amount));
+        verify(userRepository).save(any(User.class));
         verify(pointRepository).save(any(Point.class));
     }
 

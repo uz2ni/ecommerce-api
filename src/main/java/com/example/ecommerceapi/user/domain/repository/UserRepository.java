@@ -26,11 +26,6 @@ public interface UserRepository {
     Integer findBalanceById(Integer userId);
 
     /**
-     * 사용자의 포인트 잔액 업데이트
-     */
-    void updateBalance(Integer userId, Integer newBalance);
-
-    /**
      * 사용자 저장 (생성/수정)
      */
     void save(User user);
