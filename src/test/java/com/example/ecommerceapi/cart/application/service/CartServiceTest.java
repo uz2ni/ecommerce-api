@@ -217,8 +217,8 @@ class CartServiceTest {
 
             // when & then
             assertThatThrownBy(() -> cartService.addCartItem(command))
-                    .isInstanceOf(CartException.class)
-                    .hasMessage("장바구니 수량이 남은 재고를 초과했습니다.");
+                    .isInstanceOf(ProductException.class)
+                    .hasMessage("상품 재고가 부족합니다.");
         }
 
         @Test

@@ -148,10 +148,10 @@ class CartControllerIntegrationTest {
                             .contentType(MediaType.APPLICATION_JSON)
                             .content(objectMapper.writeValueAsString(request)))
                     .andDo(print())
-                    .andExpect(status().isBadRequest())
+                    .andExpect(status().isConflict())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                    .andExpect(jsonPath("$.code", is("CT02")))
-                    .andExpect(jsonPath("$.message", is("장바구니 수량이 남은 재고를 초과했습니다.")));
+                    .andExpect(jsonPath("$.code", is("PD03")))
+                    .andExpect(jsonPath("$.message", is("상품 재고가 부족합니다.")));
         }
 
         @Test

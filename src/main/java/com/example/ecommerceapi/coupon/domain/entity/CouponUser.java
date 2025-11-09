@@ -1,5 +1,7 @@
 package com.example.ecommerceapi.coupon.domain.entity;
 
+import com.example.ecommerceapi.common.exception.CouponException;
+import com.example.ecommerceapi.common.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -26,6 +28,16 @@ public class CouponUser {
                 .used(false)
                 .issuedAt(LocalDateTime.now())
                 .build();
+    }
+
+    /**
+     * 쿠폰이 사용 가능한 상태인지 검증합니다.
+     * @throws CouponException 이미 사용된 쿠폰인 경우
+     */
+    public void validateUsable() {
+        if (Boolean.TRUE.equals(this.used)) {
+            throw new CouponException(ErrorCode.COUPON_ALREADY_USED);
+        }
     }
 
     public void markAsUsed() {

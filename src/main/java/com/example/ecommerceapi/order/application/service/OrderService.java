@@ -63,9 +63,7 @@ public class OrderService {
         // 3. 각 상품의 재고 검증
         for (CartItem cartItem : cartItems) {
             Product product = productValidator.validateAndGetProduct(cartItem.getProductId());
-            if (product.getQuantity() < cartItem.getQuantity()) {
-                throw new ProductException(ErrorCode.PRODUCT_STOCK_INSUFFICIENT);
-            }
+            product.validateStock(cartItem.getQuantity());
         }
 
         // 4. 쿠폰 검증 (쿠폰 ID가 0이 아닌 경우에만)
@@ -80,9 +78,7 @@ public class OrderService {
             Coupon coupon = couponOpt.get();
 
             // 쿠폰 만료 여부 확인
-            if (coupon.isExpired()) {
-                throw new CouponException(ErrorCode.COUPON_EXPIRED);
-            }
+            coupon.validateNotExpired();
 
             // 사용자가 쿠폰을 발급받았는지 확인
             Optional<CouponUser> couponUserOpt = couponUserRepository.findByCouponIdAndUserId(command.getCouponId(), command.getUserId());
@@ -92,9 +88,7 @@ public class OrderService {
 
             // 쿠폰이 이미 사용되었는지 확인
             CouponUser couponUser = couponUserOpt.get();
-            if (couponUser.getUsed()) {
-                throw new CouponException(ErrorCode.COUPON_ALREADY_USED);
-            }
+            couponUser.validateUsable();
 
             discountAmount = coupon.getDiscountAmount();
             validCouponId = command.getCouponId();

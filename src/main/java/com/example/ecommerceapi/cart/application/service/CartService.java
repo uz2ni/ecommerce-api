@@ -42,9 +42,7 @@ public class CartService {
         Product product = productValidator.validateAndGetProduct(command.getProductId());
 
         // 3. 재고 검증
-        if (command.getQuantity() > product.getQuantity()) {
-            throw new CartException(ErrorCode.CART_EXCEED_STOCK);
-        }
+        product.validateStock(command.getQuantity());
 
         // 4. 이미 담긴 상품인지 확인
         Optional<CartItem> existingItem = cartItemRepository.findByUserIdAndProductId(command.getUserId(), command.getProductId());

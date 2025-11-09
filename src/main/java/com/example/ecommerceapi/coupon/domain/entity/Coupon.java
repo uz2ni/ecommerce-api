@@ -34,6 +34,16 @@ public class Coupon {
         return expiredAt != null && LocalDateTime.now().isAfter(expiredAt);
     }
 
+    /**
+     * 쿠폰이 만료되었는지 검증합니다.
+     * @throws CouponException 쿠폰이 만료된 경우
+     */
+    public void validateNotExpired() {
+        if (isExpired()) {
+            throw new CouponException(ErrorCode.COUPON_EXPIRED);
+        }
+    }
+
     public void issueCoupon() {
         if (!isAvailable()) {
             throw new CouponException(ErrorCode.COUPON_NOT_AVAILABLE);

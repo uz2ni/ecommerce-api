@@ -37,7 +37,7 @@ public class PointService {
                 .collect(Collectors.toList());
     }
 
-    @WithLock(key = "'chargePoint:' + #userId", ignoreIfLocked = true)
+    @WithLock(key = "'chargePoint:' + #userId")
     public PointResult chargePoint(Integer userId, Integer amount) {
 
         // 1. 금액 유효성 검증
