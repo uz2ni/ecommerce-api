@@ -1,0 +1,546 @@
+package com.example.ecommerceapi.order.presentation.controller;
+
+import com.example.ecommerceapi.cart.infrastructure.InMemoryCartItemRepository;
+import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponRepository;
+import com.example.ecommerceapi.coupon.infrastructure.InMemoryCouponUserRepository;
+import com.example.ecommerceapi.order.infrastructure.InMemoryOrderItemRepository;
+import com.example.ecommerceapi.order.infrastructure.InMemoryOrderRepository;
+import com.example.ecommerceapi.order.presentation.dto.CreateOrderRequest;
+import com.example.ecommerceapi.order.presentation.dto.PaymentRequest;
+import com.example.ecommerceapi.point.infrastructure.InMemoryPointRepository;
+import com.example.ecommerceapi.product.infrastructure.InMemoryProductRepository;
+import com.example.ecommerceapi.user.infrastructure.InMemoryUserRepository;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.junit.jupiter.api.BeforeEach;
+import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.Nested;
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
+import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+
+import static org.hamcrest.Matchers.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@SpringBootTest
+@AutoConfigureMockMvc
+@DisplayName("OrderController 통합 테스트")
+class OrderControllerIntegrationTest {
+
+    @Autowired
+    private MockMvc mockMvc;
+
+    @Autowired
+    private ObjectMapper objectMapper;
+
+    @Autowired
+    private InMemoryOrderRepository orderRepository;
+
+    @Autowired
+    private InMemoryOrderItemRepository orderItemRepository;
+
+    @Autowired
+    private InMemoryCartItemRepository cartItemRepository;
+
+    @Autowired
+    private InMemoryUserRepository userRepository;
+
+    @Autowired
+    private InMemoryProductRepository productRepository;
+
+    @Autowired
+    private InMemoryCouponRepository couponRepository;
+
+    @Autowired
+    private InMemoryCouponUserRepository couponUserRepository;
+
+    @Autowired
+    private InMemoryPointRepository pointRepository;
+
+    @BeforeEach
+    void setUp() {
+        // 각 테스트 전에 초기 상태로 리셋
+        orderRepository.clear();
+        orderItemRepository.clear();
+        cartItemRepository.clear();
+        cartItemRepository.init();
+        userRepository.clear();
+        userRepository.init();
+        productRepository.clear();
+        productRepository.init();
+        couponRepository.clear();
+        couponRepository.init();
+        couponUserRepository.clear();
+        couponUserRepository.init();
+        pointRepository.clear();
+        pointRepository.init();
+    }
+
+    @Nested
+    @DisplayName("주문 생성 테스트")
+    class CreateOrderTest {
+
+        @Test
+        @DisplayName("POST /api/orders - 장바구니 상품으로 주문을 생성한다")
+        void createOrder_ShouldCreateOrder_WithCartItems() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.orderId", notNullValue()))
+                    .andExpect(jsonPath("$.userId", is(1)))
+                    .andExpect(jsonPath("$.orderStatus", is("PENDING")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - 쿠폰을 적용하여 주문을 생성한다")
+        void createOrder_ShouldCreateOrder_WithCoupon() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(2)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.orderId", notNullValue()))
+                    .andExpect(jsonPath("$.orderStatus", is("PENDING")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - 장바구니가 비어있으면 예외가 발생한다")
+        void createOrder_ShouldReturnBadRequest_WhenCartIsEmpty() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(3)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("CT04")))
+                    .andExpect(jsonPath("$.message", is("장바구니가 비어있습니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - userId가 null이면 예외가 발생한다")
+        void createOrder_ShouldReturnBadRequest_WhenUserIdIsNull() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(null)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("FD01")))
+                    .andExpect(jsonPath("$.errorFields[0].field", is("userId")))
+                    .andExpect(jsonPath("$.errorFields[0].message", is("userId는 필수입니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - deliveryUsername이 빈 값이면 예외가 발생한다")
+        void createOrder_ShouldReturnBadRequest_WhenDeliveryUsernameIsBlank() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("FD01")))
+                    .andExpect(jsonPath("$.errorFields[0].field", is("deliveryUsername")))
+                    .andExpect(jsonPath("$.errorFields[0].message", is("deliveryUsername는 빈 값일 수 없습니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - deliveryAddress가 빈 값이면 예외가 발생한다")
+        void createOrder_ShouldReturnBadRequest_WhenDeliveryAddressIsBlank() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("")
+                    .couponId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("FD01")))
+                    .andExpect(jsonPath("$.errorFields[0].field", is("deliveryAddress")))
+                    .andExpect(jsonPath("$.errorFields[0].message", is("deliveryAddress는 빈 값일 수 없습니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - 존재하지 않는 사용자로 주문하면 예외가 발생한다")
+        void createOrder_ShouldReturnNotFound_WhenUserNotExists() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(999)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("US01")))
+                    .andExpect(jsonPath("$.message", is("회원이 존재하지 않습니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders - 존재하지 않는 쿠폰으로 주문하면 예외가 발생한다")
+        void createOrder_ShouldReturnNotFound_WhenCouponNotExists() throws Exception {
+            // given
+            CreateOrderRequest request = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(999)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(request)))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("CP01")))
+                    .andExpect(jsonPath("$.message", is("존재하지 않는 쿠폰입니다.")));
+        }
+    }
+
+    @Nested
+    @DisplayName("주문 조회 테스트")
+    class GetOrderTest {
+
+        @Test
+        @DisplayName("GET /api/orders/{orderId} - 주문을 조회한다")
+        void getOrder_ShouldReturnOrder_WhenOrderExists() throws Exception {
+            // given: 먼저 주문 생성
+            CreateOrderRequest createRequest = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            String createResponse = mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createRequest)))
+                    .andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+
+            Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
+
+            // when & then
+            mockMvc.perform(get("/api/orders/{orderId}", orderId))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.orderId", is(orderId)))
+                    .andExpect(jsonPath("$.userId", is(1)))
+                    .andExpect(jsonPath("$.orderStatus", is("PENDING")))
+                    .andExpect(jsonPath("$.orderItems", hasSize(greaterThan(0))));
+        }
+
+        @Test
+        @DisplayName("GET /api/orders/{orderId} - 존재하지 않는 주문 조회 시 예외가 발생한다")
+        void getOrder_ShouldReturnNotFound_WhenOrderNotExists() throws Exception {
+            mockMvc.perform(get("/api/orders/{orderId}", 999))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("OD01")))
+                    .andExpect(jsonPath("$.message", is("존재하지 않는 주문입니다.")));
+        }
+    }
+
+    @Nested
+    @DisplayName("결제 처리 테스트")
+    class PaymentTest {
+
+        @Test
+        @DisplayName("POST /api/orders/payment - 주문을 결제 처리한다")
+        void payment_ShouldProcessPayment_WhenOrderIsPending() throws Exception {
+            // given: 먼저 주문 생성
+            CreateOrderRequest createRequest = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            String createResponse = mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createRequest)))
+                    .andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+
+            Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
+
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(orderId)
+                    .userId(1)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andDo(print())
+                    .andExpect(status().isOk())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.orderId", is(orderId)))
+                    .andExpect(jsonPath("$.orderStatus", is("PAID")))
+                    .andExpect(jsonPath("$.paymentAmount", notNullValue()))
+                    .andExpect(jsonPath("$.remainingPoint", notNullValue()));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders/payment - orderId가 null이면 예외가 발생한다")
+        void payment_ShouldReturnBadRequest_WhenOrderIdIsNull() throws Exception {
+            // given
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(null)
+                    .userId(1)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("FD01")))
+                    .andExpect(jsonPath("$.errorFields[0].field", is("orderId")))
+                    .andExpect(jsonPath("$.errorFields[0].message", is("orderId는 필수입니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders/payment - userId가 null이면 예외가 발생한다")
+        void payment_ShouldReturnBadRequest_WhenUserIdIsNull() throws Exception {
+            // given
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(1)
+                    .userId(null)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andDo(print())
+                    .andExpect(status().isBadRequest())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("FD01")))
+                    .andExpect(jsonPath("$.errorFields[0].field", is("userId")))
+                    .andExpect(jsonPath("$.errorFields[0].message", is("userId는 필수입니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders/payment - 존재하지 않는 주문으로 결제하면 예외가 발생한다")
+        void payment_ShouldReturnNotFound_WhenOrderNotExists() throws Exception {
+            // given
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(999)
+                    .userId(1)
+                    .build();
+
+            // when & then
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andDo(print())
+                    .andExpect(status().isNotFound())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("OD01")))
+                    .andExpect(jsonPath("$.message", is("존재하지 않는 주문입니다.")));
+        }
+
+        @Test
+        @DisplayName("POST /api/orders/payment - 이미 결제된 주문은 예외가 발생한다")
+        void payment_ShouldReturnBadRequest_WhenOrderAlreadyPaid() throws Exception {
+            // given: 주문 생성 후 결제
+            CreateOrderRequest createRequest = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            String createResponse = mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createRequest)))
+                    .andExpect(status().isOk())
+                    .andReturn().getResponse().getContentAsString();
+
+            Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
+
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(orderId)
+                    .userId(1)
+                    .build();
+
+            // 첫 번째 결제 성공
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andExpect(status().isOk());
+
+            // when & then: 두 번째 결제 시도 시 실패
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andDo(print())
+                    .andExpect(status().isConflict())
+                    .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                    .andExpect(jsonPath("$.code", is("OD03")))
+                    .andExpect(jsonPath("$.message", is("결제 가능한 주문 상태가 아닙니다.")));
+        }
+    }
+
+    @Nested
+    @DisplayName("통합 시나리오 테스트")
+    class IntegrationScenarioTest {
+
+        @Test
+        @DisplayName("주문 생성 -> 조회 -> 결제 시나리오")
+        void fullOrderScenario() throws Exception {
+            // 1. 주문 생성
+            CreateOrderRequest createRequest = CreateOrderRequest.builder()
+                    .userId(1)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(null)
+                    .build();
+
+            String createResponse = mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orderStatus", is("PENDING")))
+                    .andReturn().getResponse().getContentAsString();
+
+            Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
+
+            // 2. 주문 조회
+            mockMvc.perform(get("/api/orders/{orderId}", orderId))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orderId", is(orderId)))
+                    .andExpect(jsonPath("$.userId", is(1)))
+                    .andExpect(jsonPath("$.orderStatus", is("PENDING")));
+
+            // 3. 결제 처리
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(orderId)
+                    .userId(1)
+                    .build();
+
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orderId", is(orderId)))
+                    .andExpect(jsonPath("$.orderStatus", is("PAID")))
+                    .andExpect(jsonPath("$.paymentAmount", is(50700)))
+                    .andExpect(jsonPath("$.remainingPoint", is(449300)));
+
+            // 4. 결제 후 주문 조회 - PAID 상태 확인
+            mockMvc.perform(get("/api/orders/{orderId}", orderId))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orderId", is(orderId)))
+                    .andExpect(jsonPath("$.orderStatus", is("PAID")));
+        }
+
+        @Test
+        @DisplayName("쿠폰 적용 주문 -> 결제 시나리오")
+        void orderWithCouponScenario() throws Exception {
+            // 1. 쿠폰 적용 주문 생성
+            CreateOrderRequest createRequest = CreateOrderRequest.builder()
+                    .userId(2)
+                    .deliveryUsername("홍길동")
+                    .deliveryAddress("서울시 강남구")
+                    .couponId(1)
+                    .build();
+
+            String createResponse = mockMvc.perform(post("/api/orders")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(createRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.userId", is(2)))
+                    .andExpect(jsonPath("$.orderStatus", is("PENDING")))
+                    .andReturn().getResponse().getContentAsString();
+
+            Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
+
+            // 2. 결제 처리
+            PaymentRequest paymentRequest = PaymentRequest.builder()
+                    .orderId(orderId)
+                    .userId(1)
+                    .build();
+
+            mockMvc.perform(post("/api/orders/payment")
+                            .contentType(MediaType.APPLICATION_JSON)
+                            .content(objectMapper.writeValueAsString(paymentRequest)))
+                    .andExpect(status().isOk())
+                    .andExpect(jsonPath("$.orderStatus", is("PAID")));
+        }
+    }
+}

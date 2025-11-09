@@ -9,4 +9,4 @@
 - USER(회원)
   - POINT(회원 포인트 이력)
 
-![ERD](images/ERD.png)
+![ERD](images/ERD_11022150.png)
