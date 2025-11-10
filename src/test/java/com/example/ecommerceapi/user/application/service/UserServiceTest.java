@@ -64,12 +64,12 @@ class UserServiceTest {
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getUserId()).isEqualTo(1);
-        assertThat(result.get(0).getUsername()).isEqualTo("user1");
-        assertThat(result.get(0).getPointBalance()).isEqualTo(10000);
-        assertThat(result.get(1).getUserId()).isEqualTo(2);
-        assertThat(result.get(1).getUsername()).isEqualTo("user2");
-        assertThat(result.get(1).getPointBalance()).isEqualTo(20000);
+        assertThat(result.get(0).userId()).isEqualTo(1);
+        assertThat(result.get(0).username()).isEqualTo("user1");
+        assertThat(result.get(0).pointBalance()).isEqualTo(10000);
+        assertThat(result.get(1).userId()).isEqualTo(2);
+        assertThat(result.get(1).username()).isEqualTo("user2");
+        assertThat(result.get(1).pointBalance()).isEqualTo(20000);
     }
 
     @Test
@@ -95,9 +95,9 @@ class UserServiceTest {
         UserResult result = userService.getUser(1);
 
         // then
-        assertThat(result.getUserId()).isEqualTo(1);
-        assertThat(result.getUsername()).isEqualTo("user1");
-        assertThat(result.getPointBalance()).isEqualTo(10000);
+        assertThat(result.userId()).isEqualTo(1);
+        assertThat(result.username()).isEqualTo("user1");
+        assertThat(result.pointBalance()).isEqualTo(10000);
     }
 
     @Test
@@ -124,8 +124,8 @@ class UserServiceTest {
         UserPointBalanceResult result = userService.getPointBalance(1);
 
         // then
-        assertThat(result.getUserId()).isEqualTo(1);
-        assertThat(result.getPointBalance()).isEqualTo(10000);
+        assertThat(result.userId()).isEqualTo(1);
+        assertThat(result.pointBalance()).isEqualTo(10000);
     }
 
     @Test

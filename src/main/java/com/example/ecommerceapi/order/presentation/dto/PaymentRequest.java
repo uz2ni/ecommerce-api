@@ -1,21 +1,12 @@
 package com.example.ecommerceapi.order.presentation.dto;
 
 import jakarta.validation.constraints.NotNull;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PaymentRequest {
+public record PaymentRequest(
+        @NotNull(message = "orderId는 필수입니다.")
+        Integer orderId,
 
-    @NotNull(message = "orderId는 필수입니다.")
-    private Integer orderId;
-
-    @NotNull(message = "userId는 필수입니다.")
-    private Integer userId;
-
+        @NotNull(message = "userId는 필수입니다.")
+        Integer userId
+) {
 }

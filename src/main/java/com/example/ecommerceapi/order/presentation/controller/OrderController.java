@@ -56,7 +56,7 @@ public class OrderController {
     public ResponseEntity<PaymentResponse> payment(
             @Valid @RequestBody PaymentRequest request) {
 
-        PaymentResult payment = orderService.processPayment(request.getOrderId(), request.getUserId());
+        PaymentResult payment = orderService.processPayment(request.orderId(), request.userId());
         return ResponseEntity.ok(PaymentResponse.from(payment));
     }
 }

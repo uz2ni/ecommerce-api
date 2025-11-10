@@ -1,35 +1,27 @@
 package com.example.ecommerceapi.order.application.dto;
 
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class OrderItemResult {
-    private Integer orderItemId;
-    private Integer orderId;
-    private Integer productId;
-    private String productName;
-    private String description;
-    private Integer productPrice;
-    private Integer orderQuantity;
-    private Integer totalPrice;
-
+public record OrderItemResult(
+        Integer orderItemId,
+        Integer orderId,
+        Integer productId,
+        String productName,
+        String description,
+        Integer productPrice,
+        Integer orderQuantity,
+        Integer totalPrice
+) {
     public static OrderItemResult from(OrderItem orderItem) {
-        return OrderItemResult.builder()
-                .orderItemId(orderItem.getOrderItemId())
-                .orderId(orderItem.getOrderId())
-                .productId(orderItem.getProductId())
-                .productName(orderItem.getProductName())
-                .description(orderItem.getDescription())
-                .productPrice(orderItem.getProductPrice())
-                .orderQuantity(orderItem.getOrderQuantity())
-                .totalPrice(orderItem.getTotalPrice())
-                .build();
+        return new OrderItemResult(
+                orderItem.getOrderItemId(),
+                orderItem.getOrderId(),
+                orderItem.getProductId(),
+                orderItem.getProductName(),
+                orderItem.getDescription(),
+                orderItem.getProductPrice(),
+                orderItem.getOrderQuantity(),
+                orderItem.getTotalPrice()
+        );
     }
 }

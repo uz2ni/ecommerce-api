@@ -84,10 +84,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - 쿠폰을 발급한다")
         void issueCoupon_ShouldIssueCoupon_WhenValid() throws Exception {
             // given
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(1)
-                    .userId(5) // 초기 데이터에 없는 사용자
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    5, // 초기 데이터에 없는 사용자
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -105,10 +105,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - 이미 발급받은 쿠폰은 중복 발급할 수 없다")
         void issueCoupon_ShouldReturnBadRequest_WhenAlreadyIssued() throws Exception {
             // given: 초기 데이터에서 user1은 coupon1을 이미 발급받음
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(1)
-                    .userId(1)
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    1,
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -125,10 +125,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - 품절된 쿠폰은 발급할 수 없다")
         void issueCoupon_ShouldReturnBadRequest_WhenSoldOut() throws Exception {
             // given: 초기 데이터에서 coupon2는 품절 상태 (totalQuantity=3, issuedQuantity=3)
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(2)
-                    .userId(5)
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    5,
+                    2
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -145,10 +145,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - 존재하지 않는 사용자는 쿠폰을 발급받을 수 없다")
         void issueCoupon_ShouldReturnNotFound_WhenUserNotExists() throws Exception {
             // given
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(1)
-                    .userId(999)
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    999,
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -165,10 +165,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - 존재하지 않는 쿠폰은 발급할 수 없다")
         void issueCoupon_ShouldReturnNotFound_WhenCouponNotExists() throws Exception {
             // given
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(999)
-                    .userId(1)
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    1,
+                    999
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -185,10 +185,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - couponId가 null이면 예외가 발생한다")
         void issueCoupon_ShouldReturnBadRequest_WhenCouponIdIsNull() throws Exception {
             // given
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(null)
-                    .userId(1)
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    1,
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -206,10 +206,10 @@ class CouponControllerIntegrationTest {
         @DisplayName("POST /api/coupons/issue - userId가 null이면 예외가 발생한다")
         void issueCoupon_ShouldReturnBadRequest_WhenUserIdIsNull() throws Exception {
             // given
-            IssueCouponRequest request = IssueCouponRequest.builder()
-                    .couponId(1)
-                    .userId(null)
-                    .build();
+            IssueCouponRequest request = new IssueCouponRequest(
+                    null,
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/coupons/issue")
@@ -294,10 +294,10 @@ class CouponControllerIntegrationTest {
                     .andExpect(jsonPath("$", hasSize(3)));
 
             // 2. 쿠폰 발급
-            IssueCouponRequest issueRequest = IssueCouponRequest.builder()
-                    .couponId(3)
-                    .userId(1)
-                    .build();
+            IssueCouponRequest issueRequest = new IssueCouponRequest(
+                    1,
+                    3
+            );
 
             String issueResponse = mockMvc.perform(post("/api/coupons/issue")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -330,10 +330,10 @@ class CouponControllerIntegrationTest {
 
             // when: 여러 사용자가 동일 쿠폰 발급
             for (int userId = 1; userId <= 3; userId++) {
-                IssueCouponRequest request = IssueCouponRequest.builder()
-                        .couponId(couponId)
-                        .userId(userId)
-                        .build();
+                IssueCouponRequest request = new IssueCouponRequest(
+                        userId,
+                        couponId
+                );
 
                 mockMvc.perform(post("/api/coupons/issue")
                                 .contentType(MediaType.APPLICATION_JSON)

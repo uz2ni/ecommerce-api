@@ -91,10 +91,10 @@ class PointServiceTest {
 
         // then
         assertThat(result).hasSize(2);
-        assertThat(result.get(0).getPointType()).isEqualTo(PointType.CHARGE.name());
-        assertThat(result.get(0).getPointAmount()).isEqualTo(5000);
-        assertThat(result.get(1).getPointType()).isEqualTo(PointType.USE.name());
-        assertThat(result.get(1).getPointAmount()).isEqualTo(3000);
+        assertThat(result.get(0).pointType()).isEqualTo(PointType.CHARGE.name());
+        assertThat(result.get(0).pointAmount()).isEqualTo(5000);
+        assertThat(result.get(1).pointType()).isEqualTo(PointType.USE.name());
+        assertThat(result.get(1).pointAmount()).isEqualTo(3000);
     }
 
     @Test
@@ -145,10 +145,10 @@ class PointServiceTest {
         PointResult result = pointService.chargePoint(1, amount);
 
         // then
-        assertThat(result.getPointId()).isEqualTo(1);
-        assertThat(result.getUserId()).isEqualTo(1);
-        assertThat(result.getPointType()).isEqualTo(PointType.CHARGE.name());
-        assertThat(result.getPointAmount()).isEqualTo(amount);
+        assertThat(result.pointId()).isEqualTo(1);
+        assertThat(result.userId()).isEqualTo(1);
+        assertThat(result.pointType()).isEqualTo(PointType.CHARGE.name());
+        assertThat(result.pointAmount()).isEqualTo(amount);
 
         verify(userRepository).save(any(User.class));
         verify(pointRepository).save(any(Point.class));
@@ -221,7 +221,7 @@ class PointServiceTest {
         PointResult result = pointService.chargePoint(1, minAmount);
 
         // then
-        assertThat(result.getPointAmount()).isEqualTo(1000);
+        assertThat(result.pointAmount()).isEqualTo(1000);
     }
 
     @Test
@@ -244,6 +244,6 @@ class PointServiceTest {
         PointResult result = pointService.chargePoint(1, maxAmount);
 
         // then
-        assertThat(result.getPointAmount()).isEqualTo(1000000);
+        assertThat(result.pointAmount()).isEqualTo(1000000);
     }
 }

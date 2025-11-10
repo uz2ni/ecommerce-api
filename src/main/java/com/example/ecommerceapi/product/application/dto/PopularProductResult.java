@@ -1,42 +1,34 @@
 package com.example.ecommerceapi.product.application.dto;
 
 import com.example.ecommerceapi.product.domain.entity.Product;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PopularProductResult {
-    private Integer productId;
-    private String productName;
-    private Integer productPrice;
-    private Integer salesCount;
-    private Integer viewCount;
-
+public record PopularProductResult(
+        Integer productId,
+        String productName,
+        Integer productPrice,
+        Integer salesCount,
+        Integer viewCount
+) {
     public static PopularProductResult from(Product product) {
-        return PopularProductResult.builder()
-                .productId(product.getProductId())
-                .productName(product.getProductName())
-                .productPrice(product.getProductPrice())
-                .salesCount(null)
-                .viewCount(product.getViewCount())
-                .build();
+        return new PopularProductResult(
+                product.getProductId(),
+                product.getProductName(),
+                product.getProductPrice(),
+                null,
+                product.getViewCount()
+        );
     }
 
     public static PopularProductResult fromWithSales(Product product, Integer salesCount) {
-        return PopularProductResult.builder()
-                .productId(product.getProductId())
-                .productName(product.getProductName())
-                .productPrice(product.getProductPrice())
-                .salesCount(salesCount)
-                .viewCount(product.getViewCount())
-                .build();
+        return new PopularProductResult(
+                product.getProductId(),
+                product.getProductName(),
+                product.getProductPrice(),
+                salesCount,
+                product.getViewCount()
+        );
     }
 
     public static List<PopularProductResult> fromList(List<Product> product) {

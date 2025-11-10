@@ -52,14 +52,14 @@ public class CouponService {
     @WithLock(key = "'issueCoupon:' + #command.couponId")
     public IssueCouponResult issueCoupon(IssueCouponCommand command) {
         // 1. 회원 존재 검증
-        userValidator.validateAndGetUser(command.getUserId());
+        userValidator.validateAndGetUser(command.userId());
 
         // 2. 쿠폰 존재 검증
-        Coupon coupon = couponValidator.validateAndGetCoupon(command.getCouponId());
+        Coupon coupon = couponValidator.validateAndGetCoupon(command.couponId());
 
         // 3. 중복 발급 검증
         Optional<CouponUser> existingCouponUser = couponUserRepository
-                .findByCouponIdAndUserId(command.getCouponId(), command.getUserId());
+                .findByCouponIdAndUserId(command.couponId(), command.userId());
         if (existingCouponUser.isPresent()) {
             throw new CouponException(ErrorCode.COUPON_ALREADY_ISSUED);
         }
@@ -72,7 +72,7 @@ public class CouponService {
         couponRepository.save(coupon);
 
         // 6. 쿠폰 발급 이력 생성
-        CouponUser couponUser = CouponUser.createIssuedCouponUser(command.getCouponId(), command.getUserId());
+        CouponUser couponUser = CouponUser.createIssuedCouponUser(command.couponId(), command.userId());
         couponUser = couponUserRepository.save(couponUser);
 
         // 7. 결과 반환

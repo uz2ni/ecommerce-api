@@ -52,10 +52,10 @@ public class OrderService {
 
     public CreateOrderResult createOrder(CreateOrderCommand command) {
         // 1. 사용자 검증
-        userValidator.validateAndGetUser(command.getUserId());
+        userValidator.validateAndGetUser(command.userId());
 
         // 2. 장바구니 조회 및 검증
-        List<CartItem> cartItems = cartItemRepository.findByUserId(command.getUserId());
+        List<CartItem> cartItems = cartItemRepository.findByUserId(command.userId());
         if (cartItems.isEmpty()) {
             throw new CartException(ErrorCode.CART_EMPTY);
         }
@@ -69,9 +69,9 @@ public class OrderService {
         // 4. 쿠폰 검증 (쿠폰 ID가 0이 아닌 경우에만)
         Integer discountAmount = 0;
         Integer validCouponId = null;
-        if (command.getCouponId() != null && command.getCouponId() != 0) {
+        if (command.couponId() != null && command.couponId() != 0) {
             // 쿠폰 존재 여부 확인
-            Optional<Coupon> couponOpt = couponRepository.findById(command.getCouponId());
+            Optional<Coupon> couponOpt = couponRepository.findById(command.couponId());
             if (couponOpt.isEmpty()) {
                 throw new CouponException(ErrorCode.COUPON_NOT_FOUND);
             }
@@ -81,7 +81,7 @@ public class OrderService {
             coupon.validateNotExpired();
 
             // 사용자가 쿠폰을 발급받았는지 확인
-            Optional<CouponUser> couponUserOpt = couponUserRepository.findByCouponIdAndUserId(command.getCouponId(), command.getUserId());
+            Optional<CouponUser> couponUserOpt = couponUserRepository.findByCouponIdAndUserId(command.couponId(), command.userId());
             if (couponUserOpt.isEmpty()) {
                 throw new CouponException(ErrorCode.COUPON_NOT_ISSUED);
             }
@@ -91,7 +91,7 @@ public class OrderService {
             couponUser.validateUsable();
 
             discountAmount = coupon.getDiscountAmount();
-            validCouponId = command.getCouponId();
+            validCouponId = command.couponId();
         }
 
         // 5. 주문 총액 계산
@@ -101,9 +101,9 @@ public class OrderService {
 
         // 6. 주문 생성
         Order order = Order.createOrder(
-                command.getUserId(),
-                command.getDeliveryUsername(),
-                command.getDeliveryAddress(),
+                command.userId(),
+                command.deliveryUsername(),
+                command.deliveryAddress(),
                 totalOrderAmount,
                 discountAmount,
                 validCouponId

@@ -1,21 +1,13 @@
 package com.example.ecommerceapi.product.presentation.dto;
 
 import com.example.ecommerceapi.product.application.dto.ProductStockResult;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class ProductStockResponse {
-    private Integer stock;
-
+public record ProductStockResponse(
+        Integer stock
+) {
     public static ProductStockResponse from(ProductStockResult dto) {
-        return ProductStockResponse.builder()
-                .stock(dto.getStock())
-                .build();
+        return new ProductStockResponse(
+                dto.stock()
+        );
     }
 }

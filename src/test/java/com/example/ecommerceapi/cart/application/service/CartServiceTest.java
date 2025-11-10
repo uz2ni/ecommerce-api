@@ -105,10 +105,10 @@ class CartServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getCartItemId()).isEqualTo(1);
-            assertThat(result.get(0).getProductName()).isEqualTo("테스트 상품1");
-            assertThat(result.get(1).getCartItemId()).isEqualTo(2);
-            assertThat(result.get(1).getProductName()).isEqualTo("테스트 상품2");
+            assertThat(result.get(0).cartItemId()).isEqualTo(1);
+            assertThat(result.get(0).productName()).isEqualTo("테스트 상품1");
+            assertThat(result.get(1).cartItemId()).isEqualTo(2);
+            assertThat(result.get(1).productName()).isEqualTo("테스트 상품2");
             verify(userValidator).validateAndGetUser(1);
             verify(cartItemRepository).findByUserId(1);
         }
@@ -149,11 +149,11 @@ class CartServiceTest {
         @DisplayName("새로운 상품을 장바구니에 추가한다")
         void addCartItem_ShouldAddNewItem_WhenItemNotExists() {
             // given
-            AddCartItemCommand command = AddCartItemCommand.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(2)
-                    .build();
+            AddCartItemCommand command = new AddCartItemCommand(
+                    1,
+                    1,
+                    2
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(productValidator.validateAndGetProduct(1)).willReturn(product);
@@ -169,11 +169,11 @@ class CartServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getUserId()).isEqualTo(1);
-            assertThat(result.getProductId()).isEqualTo(1);
-            assertThat(result.getProductName()).isEqualTo("테스트 상품");
-            assertThat(result.getQuantity()).isEqualTo(2);
-            assertThat(result.getTotalPrice()).isEqualTo(20000);
+            assertThat(result.userId()).isEqualTo(1);
+            assertThat(result.productId()).isEqualTo(1);
+            assertThat(result.productName()).isEqualTo("테스트 상품");
+            assertThat(result.quantity()).isEqualTo(2);
+            assertThat(result.totalPrice()).isEqualTo(20000);
             verify(cartItemRepository).save(any(CartItem.class));
         }
 
@@ -181,11 +181,11 @@ class CartServiceTest {
         @DisplayName("이미 존재하는 상품은 수량을 덮어쓴다")
         void addCartItem_ShouldUpdateQuantity_WhenItemExists() {
             // given
-            AddCartItemCommand command = AddCartItemCommand.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(5)
-                    .build();
+            AddCartItemCommand command = new AddCartItemCommand(
+                    1,
+                    1,
+                    5
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(productValidator.validateAndGetProduct(1)).willReturn(product);
@@ -197,8 +197,8 @@ class CartServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getQuantity()).isEqualTo(5);
-            assertThat(result.getTotalPrice()).isEqualTo(50000);
+            assertThat(result.quantity()).isEqualTo(5);
+            assertThat(result.totalPrice()).isEqualTo(50000);
             verify(cartItemRepository).save(cartItem1);
         }
 
@@ -206,11 +206,11 @@ class CartServiceTest {
         @DisplayName("재고를 초과하는 수량은 추가할 수 없다")
         void addCartItem_ShouldThrowException_WhenQuantityExceedsStock() {
             // given
-            AddCartItemCommand command = AddCartItemCommand.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(150)
-                    .build();
+            AddCartItemCommand command = new AddCartItemCommand(
+                    1,
+                    1,
+                    150
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(productValidator.validateAndGetProduct(1)).willReturn(product);
@@ -225,11 +225,11 @@ class CartServiceTest {
         @DisplayName("존재하지 않는 사용자는 장바구니에 추가할 수 없다")
         void addCartItem_ShouldThrowException_WhenUserNotExists() {
             // given
-            AddCartItemCommand command = AddCartItemCommand.builder()
-                    .userId(999)
-                    .productId(1)
-                    .quantity(2)
-                    .build();
+            AddCartItemCommand command = new AddCartItemCommand(
+                    999,
+                    1,
+                    2
+            );
 
             given(userValidator.validateAndGetUser(999))
                     .willThrow(new UserException(com.example.ecommerceapi.common.exception.ErrorCode.USER_NOT_FOUND));
@@ -244,11 +244,11 @@ class CartServiceTest {
         @DisplayName("존재하지 않는 상품은 장바구니에 추가할 수 없다")
         void addCartItem_ShouldThrowException_WhenProductNotExists() {
             // given
-            AddCartItemCommand command = AddCartItemCommand.builder()
-                    .userId(1)
-                    .productId(999)
-                    .quantity(2)
-                    .build();
+            AddCartItemCommand command = new AddCartItemCommand(
+                    1,
+                    999,
+                    2
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(productValidator.validateAndGetProduct(999))
@@ -264,11 +264,11 @@ class CartServiceTest {
         @DisplayName("재고가 정확히 일치하는 수량은 추가할 수 있다")
         void addCartItem_ShouldAddItem_WhenQuantityEqualsStock() {
             // given
-            AddCartItemCommand command = AddCartItemCommand.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(100)
-                    .build();
+            AddCartItemCommand command = new AddCartItemCommand(
+                    1,
+                    1,
+                    100
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(productValidator.validateAndGetProduct(1)).willReturn(product);
@@ -284,8 +284,8 @@ class CartServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getQuantity()).isEqualTo(100);
-            assertThat(result.getTotalPrice()).isEqualTo(1000000);
+            assertThat(result.quantity()).isEqualTo(100);
+            assertThat(result.totalPrice()).isEqualTo(1000000);
         }
     }
 

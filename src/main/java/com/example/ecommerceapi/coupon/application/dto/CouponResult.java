@@ -1,39 +1,31 @@
 package com.example.ecommerceapi.coupon.application.dto;
 
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.time.LocalDateTime;
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class CouponResult {
-    private Integer couponId;
-    private String couponName;
-    private Integer discountAmount;
-    private Integer totalQuantity;
-    private Integer issuedQuantity;
-    private Integer remainingQuantity;
-    private LocalDateTime expiredAt;
-    private String status;
-
+public record CouponResult(
+        Integer couponId,
+        String couponName,
+        Integer discountAmount,
+        Integer totalQuantity,
+        Integer issuedQuantity,
+        Integer remainingQuantity,
+        LocalDateTime expiredAt,
+        String status
+) {
     public static CouponResult from(Coupon coupon) {
-        return CouponResult.builder()
-                .couponId(coupon.getCouponId())
-                .couponName(coupon.getCouponName())
-                .discountAmount(coupon.getDiscountAmount())
-                .totalQuantity(coupon.getTotalQuantity())
-                .issuedQuantity(coupon.getIssuedQuantity())
-                .remainingQuantity(coupon.getRemainingQuantity())
-                .expiredAt(coupon.getExpiredAt())
-                .status(calculateStatus(coupon))
-                .build();
+        return new CouponResult(
+                coupon.getCouponId(),
+                coupon.getCouponName(),
+                coupon.getDiscountAmount(),
+                coupon.getTotalQuantity(),
+                coupon.getIssuedQuantity(),
+                coupon.getRemainingQuantity(),
+                coupon.getExpiredAt(),
+                calculateStatus(coupon)
+        );
     }
 
     public static List<CouponResult> fromList(List<Coupon> coupons) {

@@ -67,10 +67,7 @@ class CouponServiceConcurrencyIntegrationTest {
         for (int i = 0; i < THREAD_COUNT; i++) {
             executorService.submit(() -> {
                 try {
-                    IssueCouponCommand command = IssueCouponCommand.builder()
-                            .couponId(2)
-                            .userId(userId)
-                            .build();
+                    IssueCouponCommand command = new IssueCouponCommand(userId, 2);
                     couponService.issueCoupon(command);
                     successCount.incrementAndGet();
                 } catch (CouponException e) {
@@ -123,10 +120,7 @@ class CouponServiceConcurrencyIntegrationTest {
             final int finalUserId = userId;
             executorService.submit(() -> {
                 try {
-                    IssueCouponCommand command = IssueCouponCommand.builder()
-                            .couponId(3)
-                            .userId(finalUserId)
-                            .build();
+                    IssueCouponCommand command = new IssueCouponCommand(finalUserId, 3);
                     couponService.issueCoupon(command);
                     successCount.incrementAndGet();
                     System.out.println("success: " + successCount.get() + ", latchCnt: " + latch.getCount());

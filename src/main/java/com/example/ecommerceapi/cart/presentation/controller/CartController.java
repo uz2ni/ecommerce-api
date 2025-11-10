@@ -50,9 +50,7 @@ public class CartController {
 
         Integer deleteCartItemId = cartService.deleteCartItem(cartItemId);
 
-        DeleteCartItemResponse response = DeleteCartItemResponse.builder()
-                .cartItemId(deleteCartItemId)
-                .build();
+        DeleteCartItemResponse response = new DeleteCartItemResponse(deleteCartItemId);
 
         return ResponseEntity.ok(response);
     }

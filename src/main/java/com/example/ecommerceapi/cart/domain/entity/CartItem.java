@@ -4,12 +4,14 @@ import com.example.ecommerceapi.common.exception.CartException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
-import lombok.Data;
+import lombok.Getter;
 import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 import java.time.LocalDateTime;
 
-@Data
+@Getter
+@Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor

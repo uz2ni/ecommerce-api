@@ -134,9 +134,9 @@ class CouponServiceTest {
 
             // then
             assertThat(result).hasSize(3);
-            assertThat(result.get(0).getCouponName()).isEqualTo("할인 쿠폰");
-            assertThat(result.get(1).getCouponName()).isEqualTo("만료된 쿠폰");
-            assertThat(result.get(2).getCouponName()).isEqualTo("품절 쿠폰");
+            assertThat(result.get(0).couponName()).isEqualTo("할인 쿠폰");
+            assertThat(result.get(1).couponName()).isEqualTo("만료된 쿠폰");
+            assertThat(result.get(2).couponName()).isEqualTo("품절 쿠폰");
             verify(couponRepository).findAll();
         }
 
@@ -162,10 +162,10 @@ class CouponServiceTest {
         @DisplayName("유효한 쿠폰을 발급한다")
         void issueCoupon_ShouldIssueCoupon_WhenValid() {
             // given
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(1)
-                    .userId(1)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    1,
+                    1
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponValidator.validateAndGetCoupon(1)).willReturn(availableCoupon);
@@ -182,9 +182,9 @@ class CouponServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getCouponUserId()).isEqualTo(1);
-            assertThat(result.getCouponId()).isEqualTo(1);
-            assertThat(result.getUserId()).isEqualTo(1);
+            assertThat(result.couponUserId()).isEqualTo(1);
+            assertThat(result.couponId()).isEqualTo(1);
+            assertThat(result.userId()).isEqualTo(1);
             assertThat(availableCoupon.getIssuedQuantity()).isEqualTo(11);
             verify(couponRepository).save(availableCoupon);
             verify(couponUserRepository).save(any(CouponUser.class));
@@ -194,10 +194,10 @@ class CouponServiceTest {
         @DisplayName("존재하지 않는 사용자로 발급 시 예외가 발생한다")
         void issueCoupon_ShouldThrowException_WhenUserNotExists() {
             // given
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(1)
-                    .userId(999)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    999,
+                    1
+            );
 
             given(userValidator.validateAndGetUser(999))
                     .willThrow(new UserException(com.example.ecommerceapi.common.exception.ErrorCode.USER_NOT_FOUND));
@@ -212,10 +212,10 @@ class CouponServiceTest {
         @DisplayName("존재하지 않는 쿠폰으로 발급 시 예외가 발생한다")
         void issueCoupon_ShouldThrowException_WhenCouponNotExists() {
             // given
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(999)
-                    .userId(1)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    1,
+                    999
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponValidator.validateAndGetCoupon(999))
@@ -231,10 +231,10 @@ class CouponServiceTest {
         @DisplayName("이미 발급받은 쿠폰은 중복 발급할 수 없다")
         void issueCoupon_ShouldThrowException_WhenAlreadyIssued() {
             // given
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(1)
-                    .userId(1)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    1,
+                    1
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponValidator.validateAndGetCoupon(1)).willReturn(availableCoupon);
@@ -250,10 +250,10 @@ class CouponServiceTest {
         @DisplayName("만료된 쿠폰은 발급할 수 없다")
         void issueCoupon_ShouldThrowException_WhenCouponExpired() {
             // given
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(2)
-                    .userId(1)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    1,
+                    2
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponValidator.validateAndGetCoupon(2)).willReturn(expiredCoupon);
@@ -269,10 +269,10 @@ class CouponServiceTest {
         @DisplayName("품절된 쿠폰은 발급할 수 없다")
         void issueCoupon_ShouldThrowException_WhenCouponSoldOut() {
             // given
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(3)
-                    .userId(1)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    1,
+                    3
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponValidator.validateAndGetCoupon(3)).willReturn(soldOutCoupon);
@@ -298,10 +298,10 @@ class CouponServiceTest {
                     .createdAt(LocalDateTime.now())
                     .build();
 
-            IssueCouponCommand command = IssueCouponCommand.builder()
-                    .couponId(4)
-                    .userId(1)
-                    .build();
+            IssueCouponCommand command = new IssueCouponCommand(
+                    1,
+                    4
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponValidator.validateAndGetCoupon(4)).willReturn(lastCoupon);
@@ -346,10 +346,10 @@ class CouponServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getUserName()).isEqualTo("사용자1");
-            assertThat(result.get(0).getUsed()).isFalse();
-            assertThat(result.get(1).getUserName()).isEqualTo("사용자2");
-            assertThat(result.get(1).getUsed()).isTrue();
+            assertThat(result.get(0).userName()).isEqualTo("사용자1");
+            assertThat(result.get(0).used()).isFalse();
+            assertThat(result.get(1).userName()).isEqualTo("사용자2");
+            assertThat(result.get(1).used()).isTrue();
             verify(couponValidator).validateAndGetCoupon(1);
             verify(couponUserRepository).findByCouponId(1);
         }

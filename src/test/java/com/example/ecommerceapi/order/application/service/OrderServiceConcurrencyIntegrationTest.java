@@ -70,15 +70,15 @@ class OrderServiceConcurrencyIntegrationTest {
     void processPayment_ShouldProcessOnlyFirst_WhenConcurrentPaymentForSameOrder() throws InterruptedException {
         // given: 주문 생성
         Integer userId = 1;
-        CreateOrderCommand command = CreateOrderCommand.builder()
-                .userId(userId)
-                .deliveryUsername("홍길동")
-                .deliveryAddress("서울시 강남구")
-                .couponId(null)
-                .build();
+        CreateOrderCommand command = new CreateOrderCommand(
+                userId,
+                "홍길동",
+                "서울시 강남구",
+                null
+        );
 
         CreateOrderResult orderResult = orderService.createOrder(command);
-        Integer orderId = orderResult.getOrderId();
+        Integer orderId = orderResult.orderId();
 
         User initialUser = userRepository.findById(userId);
         Integer initialPointBalance = initialUser.getPointBalance();
@@ -138,23 +138,23 @@ class OrderServiceConcurrencyIntegrationTest {
             userIds[i] = userId;
 
             // 장바구니에 상품 추가
-            AddCartItemCommand addCartCommand = AddCartItemCommand.builder()
-                    .userId(userId)
-                    .productId(1)
-                    .quantity(1)
-                    .build();
+            AddCartItemCommand addCartCommand = new AddCartItemCommand(
+                    userId,
+                    1,
+                    1
+            );
             cartService.addCartItem(addCartCommand);
 
             // 주문 생성
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(userId)
-                    .deliveryUsername("사용자" + userId)
-                    .deliveryAddress("주소" + userId)
-                    .couponId(null)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    userId,
+                    "사용자" + userId,
+                    "주소" + userId,
+                    null
+            );
 
             CreateOrderResult orderResult = orderService.createOrder(command);
-            orderIds[i] = orderResult.getOrderId();
+            orderIds[i] = orderResult.orderId();
         }
 
         CountDownLatch latch = new CountDownLatch(userCount);
@@ -208,15 +208,15 @@ class OrderServiceConcurrencyIntegrationTest {
         userRepository.save(user);
 
         // 주문 생성
-        CreateOrderCommand command = CreateOrderCommand.builder()
-                .userId(userId)
-                .deliveryUsername("홍길동")
-                .deliveryAddress("서울시 강남구")
-                .couponId(null)
-                .build();
+        CreateOrderCommand command = new CreateOrderCommand(
+                userId,
+                "홍길동",
+                "서울시 강남구",
+                null
+        );
 
         CreateOrderResult orderResult = orderService.createOrder(command);
-        Integer orderId = orderResult.getOrderId();
+        Integer orderId = orderResult.orderId();
 
         // 초기 상태 저장
         Integer initialPointBalance = user.getPointBalance();
@@ -258,15 +258,15 @@ class OrderServiceConcurrencyIntegrationTest {
     void processPayment_ShouldClearCartAndReduceStock_WhenPaymentSucceeds() {
         // given: 주문 생성
         Integer userId = 1;
-        CreateOrderCommand command = CreateOrderCommand.builder()
-                .userId(userId)
-                .deliveryUsername("홍길동")
-                .deliveryAddress("서울시 강남구")
-                .couponId(null)
-                .build();
+        CreateOrderCommand command = new CreateOrderCommand(
+                userId,
+                "홍길동",
+                "서울시 강남구",
+                null
+        );
 
         CreateOrderResult orderResult = orderService.createOrder(command);
-        Integer orderId = orderResult.getOrderId();
+        Integer orderId = orderResult.orderId();
 
         // 초기 상태 저장
         List<CartItem> initialCartItems = cartItemRepository.findByUserId(userId);

@@ -1,32 +1,24 @@
 package com.example.ecommerceapi.product.presentation.dto;
 
 import com.example.ecommerceapi.product.application.dto.PopularProductResult;
-import lombok.AllArgsConstructor;
-import lombok.Builder;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
 import java.util.List;
 
-@Data
-@Builder
-@NoArgsConstructor
-@AllArgsConstructor
-public class PopularProductResponse {
-    private Integer productId;
-    private String productName;
-    private Integer productPrice;
-    private Integer salesCount;
-    private Integer viewCount;
-
+public record PopularProductResponse(
+        Integer productId,
+        String productName,
+        Integer productPrice,
+        Integer salesCount,
+        Integer viewCount
+) {
     public static PopularProductResponse from(PopularProductResult dto) {
-        return PopularProductResponse.builder()
-                .productId(dto.getProductId())
-                .productName(dto.getProductName())
-                .productPrice(dto.getProductPrice())
-                .salesCount(null)
-                .viewCount(dto.getViewCount())
-                .build();
+        return new PopularProductResponse(
+                dto.productId(),
+                dto.productName(),
+                dto.productPrice(),
+                null,
+                dto.viewCount()
+        );
     }
 
     public static List<PopularProductResponse> fromList(List<PopularProductResult> dtos) {

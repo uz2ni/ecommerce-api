@@ -72,7 +72,7 @@ public class UserController {
             @PathVariable Integer userId,
             @Valid @RequestBody ChargePointRequest request) {
 
-        PointResult point = pointService.chargePoint(userId, request.getAmount());
+        PointResult point = pointService.chargePoint(userId, request.amount());
         return ResponseEntity.ok(PointResponse.from(point));
     }
 }

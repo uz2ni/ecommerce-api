@@ -92,12 +92,12 @@ class ProductServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getProductId()).isEqualTo(1);
-            assertThat(result.get(0).getProductName()).isEqualTo("상품1");
-            assertThat(result.get(0).getProductPrice()).isEqualTo(10000);
-            assertThat(result.get(1).getProductId()).isEqualTo(2);
-            assertThat(result.get(1).getProductName()).isEqualTo("상품2");
-            assertThat(result.get(1).getProductPrice()).isEqualTo(20000);
+            assertThat(result.get(0).productId()).isEqualTo(1);
+            assertThat(result.get(0).productName()).isEqualTo("상품1");
+            assertThat(result.get(0).productPrice()).isEqualTo(10000);
+            assertThat(result.get(1).productId()).isEqualTo(2);
+            assertThat(result.get(1).productName()).isEqualTo("상품2");
+            assertThat(result.get(1).productPrice()).isEqualTo(20000);
         }
 
         @Test
@@ -123,10 +123,10 @@ class ProductServiceTest {
             ProductResult result = productService.getProduct(1);
 
             // then
-            assertThat(result.getProductId()).isEqualTo(1);
-            assertThat(result.getProductName()).isEqualTo("상품1");
-            assertThat(result.getDescription()).isEqualTo("상품1 설명");
-            assertThat(result.getProductPrice()).isEqualTo(10000);
+            assertThat(result.productId()).isEqualTo(1);
+            assertThat(result.productName()).isEqualTo("상품1");
+            assertThat(result.description()).isEqualTo("상품1 설명");
+            assertThat(result.productPrice()).isEqualTo(10000);
         }
 
         @Test
@@ -157,7 +157,7 @@ class ProductServiceTest {
             ProductStockResult result = productService.getProductStock(1);
 
             // then
-            assertThat(result.getStock()).isEqualTo(50);
+            assertThat(result.stock()).isEqualTo(50);
         }
 
         @Test
@@ -190,10 +190,10 @@ class ProductServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getProductId()).isEqualTo(2);
-            assertThat(result.get(0).getViewCount()).isEqualTo(200);
-            assertThat(result.get(1).getProductId()).isEqualTo(1);
-            assertThat(result.get(1).getViewCount()).isEqualTo(100);
+            assertThat(result.get(0).productId()).isEqualTo(2);
+            assertThat(result.get(0).viewCount()).isEqualTo(200);
+            assertThat(result.get(1).productId()).isEqualTo(1);
+            assertThat(result.get(1).viewCount()).isEqualTo(100);
         }
 
         @Test
@@ -251,10 +251,10 @@ class ProductServiceTest {
 
             // then
             assertThat(result).hasSize(2);
-            assertThat(result.get(0).getProductId()).isEqualTo(2);
-            assertThat(result.get(0).getSalesCount()).isEqualTo(50);
-            assertThat(result.get(1).getProductId()).isEqualTo(1);
-            assertThat(result.get(1).getSalesCount()).isEqualTo(30);
+            assertThat(result.get(0).productId()).isEqualTo(2);
+            assertThat(result.get(0).salesCount()).isEqualTo(50);
+            assertThat(result.get(1).productId()).isEqualTo(1);
+            assertThat(result.get(1).salesCount()).isEqualTo(30);
         }
 
         @Test
@@ -284,7 +284,7 @@ class ProductServiceTest {
             IncrementProductViewResult result = productService.incrementProductViewCount(1);
 
             // then
-            assertThat(result.getViewCount()).isEqualTo(initialViewCount + 1);
+            assertThat(result.viewCount()).isEqualTo(initialViewCount + 1);
             assertThat(product1.getViewCount()).isEqualTo(initialViewCount + 1);
         }
 

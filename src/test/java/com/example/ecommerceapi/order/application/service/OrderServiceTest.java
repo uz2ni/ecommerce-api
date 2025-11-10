@@ -156,12 +156,12 @@ class OrderServiceTest {
         @DisplayName("장바구니 상품으로 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithCartItems() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             List<CartItem> cartItems = Arrays.asList(cartItem1, cartItem2);
 
@@ -187,9 +187,9 @@ class OrderServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getUserId()).isEqualTo(1);
-            assertThat(result.getOrderStatus()).isEqualTo("PENDING");
-            assertThat(result.getCreatedAt()).isNotNull();
+            assertThat(result.userId()).isEqualTo(1);
+            assertThat(result.orderStatus()).isEqualTo("PENDING");
+            assertThat(result.createdAt()).isNotNull();
             verify(orderRepository).save(any(Order.class));
             verify(orderItemRepository, times(2)).save(any(OrderItem.class));
         }
@@ -198,12 +198,12 @@ class OrderServiceTest {
         @DisplayName("쿠폰을 적용하여 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithCoupon() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(1)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    1
+            );
 
             List<CartItem> cartItems = Arrays.asList(cartItem1);
 
@@ -229,9 +229,9 @@ class OrderServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getUserId()).isEqualTo(1);
-            assertThat(result.getOrderStatus()).isEqualTo("PENDING");
-            assertThat(result.getCreatedAt()).isNotNull();
+            assertThat(result.userId()).isEqualTo(1);
+            assertThat(result.orderStatus()).isEqualTo("PENDING");
+            assertThat(result.createdAt()).isNotNull();
             verify(orderRepository).save(any(Order.class));
         }
 
@@ -239,12 +239,12 @@ class OrderServiceTest {
         @DisplayName("장바구니가 비어있으면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenCartIsEmpty() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(cartItemRepository.findByUserId(1)).willReturn(Arrays.asList());
@@ -259,12 +259,12 @@ class OrderServiceTest {
         @DisplayName("재고가 부족하면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenStockInsufficient() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             Product insufficientProduct = Product.builder()
                     .productId(1)
@@ -293,12 +293,12 @@ class OrderServiceTest {
         @DisplayName("존재하지 않는 쿠폰으로 주문하면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenCouponNotFound() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(999)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    999
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(cartItemRepository.findByUserId(1)).willReturn(Arrays.asList(cartItem1));
@@ -315,12 +315,12 @@ class OrderServiceTest {
         @DisplayName("만료된 쿠폰으로 주문하면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenCouponExpired() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(1)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    1
+            );
 
             Coupon expiredCoupon = Coupon.builder()
                     .couponId(1)
@@ -344,12 +344,12 @@ class OrderServiceTest {
         @DisplayName("사용자가 발급받지 않은 쿠폰으로 주문하면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenCouponNotIssued() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(1)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    1
+            );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(cartItemRepository.findByUserId(1)).willReturn(Arrays.asList(cartItem1));
@@ -367,12 +367,12 @@ class OrderServiceTest {
         @DisplayName("이미 사용한 쿠폰으로 주문하면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenCouponAlreadyUsed() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(1)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    1
+            );
 
             CouponUser usedCouponUser = CouponUser.builder()
                     .couponUserId(1)
@@ -397,12 +397,12 @@ class OrderServiceTest {
         @DisplayName("존재하지 않는 사용자로 주문하면 예외가 발생한다")
         void createOrder_ShouldThrowException_WhenUserNotFound() {
             // given
-            CreateOrderCommand command = CreateOrderCommand.builder()
-                    .userId(999)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderCommand command = new CreateOrderCommand(
+                    999,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             given(userValidator.validateAndGetUser(999))
                     .willThrow(new UserException(ErrorCode.USER_NOT_FOUND));
@@ -461,10 +461,10 @@ class OrderServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getOrderId()).isEqualTo(1);
-            assertThat(result.getUserId()).isEqualTo(1);
-            assertThat(result.getTotalOrderAmount()).isEqualTo(40000);
-            assertThat(result.getOrderItems()).hasSize(2);
+            assertThat(result.orderId()).isEqualTo(1);
+            assertThat(result.userId()).isEqualTo(1);
+            assertThat(result.totalOrderAmount()).isEqualTo(40000);
+            assertThat(result.orderItems()).hasSize(2);
             verify(orderRepository).findById(1);
             verify(orderItemRepository).findByOrderId(1);
         }
@@ -517,7 +517,7 @@ class OrderServiceTest {
 
             // then
             assertThat(result).isNotNull();
-            assertThat(result.getOrderId()).isEqualTo(1);
+            assertThat(result.orderId()).isEqualTo(1);
             verify(userRepository).save(any(User.class));
             verify(pointRepository).save(any());
             verify(productRepository).save(any(Product.class));

@@ -88,12 +88,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - 장바구니 상품으로 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithCartItems() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -111,12 +111,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - 쿠폰을 적용하여 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithCoupon() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(2)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    2
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -133,12 +133,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - 장바구니가 비어있으면 예외가 발생한다")
         void createOrder_ShouldReturnBadRequest_WhenCartIsEmpty() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(3)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    3,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -155,12 +155,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - userId가 null이면 예외가 발생한다")
         void createOrder_ShouldReturnBadRequest_WhenUserIdIsNull() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(null)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    null,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -178,12 +178,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - deliveryUsername이 빈 값이면 예외가 발생한다")
         void createOrder_ShouldReturnBadRequest_WhenDeliveryUsernameIsBlank() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    1,
+                    "",
+                    "서울시 강남구",
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -201,12 +201,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - deliveryAddress가 빈 값이면 예외가 발생한다")
         void createOrder_ShouldReturnBadRequest_WhenDeliveryAddressIsBlank() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "",
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -224,12 +224,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - 존재하지 않는 사용자로 주문하면 예외가 발생한다")
         void createOrder_ShouldReturnNotFound_WhenUserNotExists() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(999)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    999,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -246,12 +246,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders - 존재하지 않는 쿠폰으로 주문하면 예외가 발생한다")
         void createOrder_ShouldReturnNotFound_WhenCouponNotExists() throws Exception {
             // given
-            CreateOrderRequest request = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(999)
-                    .build();
+            CreateOrderRequest request = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    999
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders")
@@ -273,12 +273,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("GET /api/orders/{orderId} - 주문을 조회한다")
         void getOrder_ShouldReturnOrder_WhenOrderExists() throws Exception {
             // given: 먼저 주문 생성
-            CreateOrderRequest createRequest = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest createRequest = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             String createResponse = mockMvc.perform(post("/api/orders")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -319,12 +319,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders/payment - 주문을 결제 처리한다")
         void payment_ShouldProcessPayment_WhenOrderIsPending() throws Exception {
             // given: 먼저 주문 생성
-            CreateOrderRequest createRequest = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest createRequest = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             String createResponse = mockMvc.perform(post("/api/orders")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -334,10 +334,10 @@ class OrderControllerIntegrationTest {
 
             Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
 
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(orderId)
-                    .userId(1)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    orderId,
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders/payment")
@@ -356,10 +356,10 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders/payment - orderId가 null이면 예외가 발생한다")
         void payment_ShouldReturnBadRequest_WhenOrderIdIsNull() throws Exception {
             // given
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(null)
-                    .userId(1)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    null,
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders/payment")
@@ -377,10 +377,10 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders/payment - userId가 null이면 예외가 발생한다")
         void payment_ShouldReturnBadRequest_WhenUserIdIsNull() throws Exception {
             // given
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(1)
-                    .userId(null)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    1,
+                    null
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders/payment")
@@ -398,10 +398,10 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders/payment - 존재하지 않는 주문으로 결제하면 예외가 발생한다")
         void payment_ShouldReturnNotFound_WhenOrderNotExists() throws Exception {
             // given
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(999)
-                    .userId(1)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    999,
+                    1
+            );
 
             // when & then
             mockMvc.perform(post("/api/orders/payment")
@@ -418,12 +418,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("POST /api/orders/payment - 이미 결제된 주문은 예외가 발생한다")
         void payment_ShouldReturnBadRequest_WhenOrderAlreadyPaid() throws Exception {
             // given: 주문 생성 후 결제
-            CreateOrderRequest createRequest = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest createRequest = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             String createResponse = mockMvc.perform(post("/api/orders")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -433,10 +433,10 @@ class OrderControllerIntegrationTest {
 
             Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
 
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(orderId)
-                    .userId(1)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    orderId,
+                    1
+            );
 
             // 첫 번째 결제 성공
             mockMvc.perform(post("/api/orders/payment")
@@ -464,12 +464,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("주문 생성 -> 조회 -> 결제 시나리오")
         void fullOrderScenario() throws Exception {
             // 1. 주문 생성
-            CreateOrderRequest createRequest = CreateOrderRequest.builder()
-                    .userId(1)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(null)
-                    .build();
+            CreateOrderRequest createRequest = new CreateOrderRequest(
+                    1,
+                    "홍길동",
+                    "서울시 강남구",
+                    null
+            );
 
             String createResponse = mockMvc.perform(post("/api/orders")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -488,10 +488,10 @@ class OrderControllerIntegrationTest {
                     .andExpect(jsonPath("$.orderStatus", is("PENDING")));
 
             // 3. 결제 처리
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(orderId)
-                    .userId(1)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    orderId,
+                    1
+            );
 
             mockMvc.perform(post("/api/orders/payment")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -513,12 +513,12 @@ class OrderControllerIntegrationTest {
         @DisplayName("쿠폰 적용 주문 -> 결제 시나리오")
         void orderWithCouponScenario() throws Exception {
             // 1. 쿠폰 적용 주문 생성
-            CreateOrderRequest createRequest = CreateOrderRequest.builder()
-                    .userId(2)
-                    .deliveryUsername("홍길동")
-                    .deliveryAddress("서울시 강남구")
-                    .couponId(1)
-                    .build();
+            CreateOrderRequest createRequest = new CreateOrderRequest(
+                    2,
+                    "홍길동",
+                    "서울시 강남구",
+                    1
+            );
 
             String createResponse = mockMvc.perform(post("/api/orders")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -531,10 +531,10 @@ class OrderControllerIntegrationTest {
             Integer orderId = objectMapper.readTree(createResponse).get("orderId").asInt();
 
             // 2. 결제 처리
-            PaymentRequest paymentRequest = PaymentRequest.builder()
-                    .orderId(orderId)
-                    .userId(1)
-                    .build();
+            PaymentRequest paymentRequest = new PaymentRequest(
+                    orderId,
+                    1
+            );
 
             mockMvc.perform(post("/api/orders/payment")
                             .contentType(MediaType.APPLICATION_JSON)

@@ -91,11 +91,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - 새로운 상품을 장바구니에 추가한다")
         void addCartItem_ShouldAddNewItem_WhenItemNotExists() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(1)
-                    .productId(5)
-                    .quantity(3)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    1,
+                    5,
+                    3
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -115,11 +115,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - 이미 존재하는 상품은 수량을 덮어쓴다")
         void addCartItem_ShouldUpdateQuantity_WhenItemExists() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(5)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    1,
+                    1,
+                    5
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -137,11 +137,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - 재고를 초과하는 수량은 추가할 수 없다")
         void addCartItem_ShouldReturnBadRequest_WhenQuantityExceedsStock() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(10000)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    1,
+                    1,
+                    10000
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -158,11 +158,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - 수량이 0이면 예외가 발생한다")
         void addCartItem_ShouldReturnBadRequest_WhenQuantityIsZero() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(1)
-                    .productId(1)
-                    .quantity(0)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    1,
+                    1,
+                    0
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -180,11 +180,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - userId가 null이면 예외가 발생한다")
         void addCartItem_ShouldReturnBadRequest_WhenUserIdIsNull() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(null)
-                    .productId(1)
-                    .quantity(2)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    null,
+                    1,
+                    2
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -203,11 +203,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - productId가 null이면 예외가 발생한다")
         void addCartItem_ShouldReturnBadRequest_WhenProductIdIsNull() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(1)
-                    .productId(null)
-                    .quantity(2)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    1,
+                    null,
+                    2
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -225,11 +225,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - 존재하지 않는 사용자는 장바구니에 추가할 수 없다")
         void addCartItem_ShouldReturnNotFound_WhenUserNotExists() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(999)
-                    .productId(1)
-                    .quantity(2)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    999,
+                    1,
+                    2
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -246,11 +246,11 @@ class CartControllerIntegrationTest {
         @DisplayName("POST /api/cart - 존재하지 않는 상품은 장바구니에 추가할 수 없다")
         void addCartItem_ShouldReturnNotFound_WhenProductNotExists() throws Exception {
             // given
-            AddCartItemRequest request = AddCartItemRequest.builder()
-                    .userId(1)
-                    .productId(999)
-                    .quantity(2)
-                    .build();
+            AddCartItemRequest request = new AddCartItemRequest(
+                    1,
+                    999,
+                    2
+            );
 
             // when & then
             mockMvc.perform(post("/api/cart")
@@ -321,11 +321,11 @@ class CartControllerIntegrationTest {
         @DisplayName("장바구니 추가 -> 조회 -> 삭제 시나리오")
         void fullCartScenario() throws Exception {
             // 1. 장바구니에 상품 추가
-            AddCartItemRequest addRequest = AddCartItemRequest.builder()
-                    .userId(3)
-                    .productId(1)
-                    .quantity(2)
-                    .build();
+            AddCartItemRequest addRequest = new AddCartItemRequest(
+                    3,
+                    1,
+                    2
+            );
 
             String addResponse = mockMvc.perform(post("/api/cart")
                             .contentType(MediaType.APPLICATION_JSON)
@@ -344,10 +344,14 @@ class CartControllerIntegrationTest {
                     .andExpect(jsonPath("$[0].quantity", is(2)));
 
             // 3. 수량 변경 (덮어쓰기)
-            addRequest.setQuantity(5);
+            AddCartItemRequest updateRequest = new AddCartItemRequest(
+                    3,
+                    1,
+                    5
+            );
             mockMvc.perform(post("/api/cart")
                             .contentType(MediaType.APPLICATION_JSON)
-                            .content(objectMapper.writeValueAsString(addRequest)))
+                            .content(objectMapper.writeValueAsString(updateRequest)))
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$.quantity", is(5)));
 
