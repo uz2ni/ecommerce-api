@@ -30,10 +30,10 @@ public class PointService {
 
     public List<PointResult> getPointHistory(Integer userId) {
         // 사용자 검증
-        userValidator.validateAndGetUser(userId);
+        User user = userValidator.validateAndGetUser(userId);
 
         return pointRepository.findAllByUserId(userId).stream()
-                .map(PointResult::from)
+                .map(point -> PointResult.from(point, user.getPointBalance()))
                 .collect(Collectors.toList());
     }
 
@@ -55,6 +55,6 @@ public class PointService {
         Point savedPoint = pointRepository.save(point);
 
         // 5. DTO로 변환하여 반환
-        return PointResult.from(savedPoint);
+        return PointResult.from(savedPoint, user.getPointBalance());
     }
 }

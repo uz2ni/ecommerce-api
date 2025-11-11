@@ -196,7 +196,7 @@ POST /api/users/{userId}/points/charge
   "userId": 1,
   "pointType": "CHARGE",
   "pointAmount": 100000,
-  "balance": 600000,
+  "pointBalance": 600000,
   "createdAt": "2025-10-29T15:00:00"
 }
 ```
@@ -209,7 +209,7 @@ POST /api/users/{userId}/points/charge
 | userId | Integer | 회원 ID |
 | pointType | String | 포인트 타입 (CHARGE) |
 | pointAmount | Integer | 충전한 포인트 금액 |
-| balance | Integer | 충전 후 잔액 |
+| pointBalance | Integer | 충전 후 잔액 |
 | createdAt | LocalDateTime | 충전일시 |
 
 **제약조건**
