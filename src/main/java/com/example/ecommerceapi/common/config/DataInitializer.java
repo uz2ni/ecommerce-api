@@ -1,6 +1,7 @@
 package com.example.ecommerceapi.common.config;
 
 import com.example.ecommerceapi.point.application.service.PointService;
+import com.example.ecommerceapi.product.application.service.ProductService;
 import com.example.ecommerceapi.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -18,12 +19,14 @@ public class DataInitializer implements ApplicationRunner {
 
     private final UserService userService;
     private final PointService pointService;
+    private final ProductService productService;
 
     @Override
     public void run(ApplicationArguments args) {
         log.info("Initializing data...");
         userService.init();
         pointService.init();
+        productService.init();
         log.info("Data initialization completed");
     }
 }

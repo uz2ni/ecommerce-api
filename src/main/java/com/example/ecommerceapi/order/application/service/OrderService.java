@@ -24,6 +24,7 @@ import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
@@ -34,6 +35,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
+@Transactional
 @Primary
 @RequiredArgsConstructor
 public class OrderService {

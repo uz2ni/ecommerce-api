@@ -15,6 +15,8 @@ import com.example.ecommerceapi.product.application.dto.PopularProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductResult;
 import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
+import com.example.ecommerceapi.product.infrastructure.persistence.ProductTableUtils;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
@@ -24,12 +26,14 @@ import java.util.*;
 import java.util.stream.Collectors;
 
 @Service
+@Transactional
 @Primary
 @RequiredArgsConstructor
 public class ProductService {
 
     private final ProductValidator productValidator;
     private final ProductRepository productRepository;
+    private final ProductTableUtils productTableUtils;
     private final OrderRepository orderRepository;
     private final OrderItemRepository orderItemRepository;
 
@@ -119,6 +123,17 @@ public class ProductService {
         Product product = productValidator.validateAndGetProduct(productId);
         product.incrementViewCount();
         return IncrementProductViewResult.from(product);
+    }
+
+    /**
+     * 초기 상품 데이터 생성
+     */
+    public void init() {
+        // 1. 테이블 초기화
+        productTableUtils.resetProductTable();
+
+        // 2. 샘플 데이터 삽입
+        productRepository.init();
     }
 
 }
