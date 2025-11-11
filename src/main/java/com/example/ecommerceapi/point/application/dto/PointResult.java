@@ -15,7 +15,7 @@ public record PointResult(
     public static PointResult from(Point point, Integer pointBalance) {
         return new PointResult(
                 point.getPointId(),
-                point.getUserId(),
+                point.getUser().getUserId(),
                 point.getPointType().name(),
                 point.getPointAmount(),
                 pointBalance,

@@ -1,9 +1,9 @@
 package com.example.ecommerceapi.point.application.service;
 
-import com.example.ecommerceapi.point.application.dto.PointResult;
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
+import com.example.ecommerceapi.user.application.service.UserService;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
-import com.example.ecommerceapi.user.infrastructure.persistence.UserTableUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -18,13 +18,13 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("PointService 동시성 통합 테스트")
-class PointServiceConcurrencyIntegrationTest {
+class PointServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private PointService pointService;
 
     @Autowired
-    private UserTableUtils  userTableUtils;
+    private UserService userService;
 
     @Autowired
     private UserRepository userRepository;
@@ -34,8 +34,8 @@ class PointServiceConcurrencyIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        userTableUtils.resetUserTable();
-        userRepository.init();
+        userService.init();
+        pointService.init();
     }
 
     @Test

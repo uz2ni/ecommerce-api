@@ -59,13 +59,19 @@ public class InMemoryUserRepository implements UserRepository {
         return USERS.get(userId);
     }
 
+    @Override
+    public User findByIdWithLock(Integer userId) {
+        return findById(userId);
+    }
+
     public Integer findBalanceById(Integer userId) {
         User user = USERS.get(userId);
         return user != null ? user.getPointBalance() : null;
     }
 
-    public void save(User user) {
+    public User save(User user) {
         USERS.put(user.getUserId(), user);
+        return USERS.get(user.getUserId());
     }
 
     public void clear() {

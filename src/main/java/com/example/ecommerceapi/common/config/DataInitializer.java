@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.common.config;
 
+import com.example.ecommerceapi.point.application.service.PointService;
 import com.example.ecommerceapi.user.application.service.UserService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -16,11 +17,13 @@ import org.springframework.stereotype.Component;
 public class DataInitializer implements ApplicationRunner {
 
     private final UserService userService;
+    private final PointService pointService;
 
     @Override
     public void run(ApplicationArguments args) {
         log.info("Initializing data...");
         userService.init();
+        pointService.init();
         log.info("Data initialization completed");
     }
 }

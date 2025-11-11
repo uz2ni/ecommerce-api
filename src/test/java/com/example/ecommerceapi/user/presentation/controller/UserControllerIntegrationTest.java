@@ -2,7 +2,6 @@ package com.example.ecommerceapi.user.presentation.controller;
 
 import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.user.application.service.UserService;
-import com.example.ecommerceapi.user.infrastructure.persistence.UserTableUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -34,15 +33,11 @@ class UserControllerIntegrationTest extends AbstractIntegrationTest {
     private ObjectMapper objectMapper;
 
     @Autowired
-    private UserTableUtils userTableUtils;
-
-    @Autowired
     private UserService userService;
 
 
     @BeforeEach
     void setUp() {
-        userTableUtils.resetUserTable();
         userService.init();
     }
 

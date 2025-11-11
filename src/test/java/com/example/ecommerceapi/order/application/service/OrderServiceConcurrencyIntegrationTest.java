@@ -4,6 +4,7 @@ import com.example.ecommerceapi.cart.application.dto.AddCartItemCommand;
 import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.common.exception.OrderException;
 import com.example.ecommerceapi.common.exception.PointException;
 import com.example.ecommerceapi.order.application.dto.CreateOrderCommand;
@@ -32,7 +33,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("OrderService 동시성 통합 테스트")
-class OrderServiceConcurrencyIntegrationTest {
+class OrderServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private OrderService orderService;

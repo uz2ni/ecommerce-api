@@ -167,7 +167,7 @@ public class OrderService {
             });
 
             // 2. 포인트 사용 이력 저장
-            Point point = Point.createUseHistory(userId, paymentAmount);
+            Point point = Point.createUseHistory(user, paymentAmount);
             pointRepository.save(point);
             compensationStack.push(() -> pointRepository.delete(point.getPointId()));
 

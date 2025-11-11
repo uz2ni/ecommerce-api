@@ -33,14 +33,23 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         return jpaUserRepository.findById(userId).orElse(null);
     }
 
+    /**
+     * 동시성 제어가 필요한 경우 사용하는 조회 메서드
+     * 비관적 락(PESSIMISTIC_WRITE)을 적용하여 SELECT FOR UPDATE 실행
+     */
+    @Override
+    public User findByIdWithLock(Integer userId) {
+        return jpaUserRepository.findByIdWithLock(userId).orElse(null);
+    }
+
     @Override
     public Integer findBalanceById(Integer userId) {
         return jpaUserRepository.findBalanceByUserId(userId).orElse(null);
     }
 
     @Override
-    public void save(User user) {
-        jpaUserRepository.save(user);
+    public User save(User user) {
+        return jpaUserRepository.save(user);
     }
 
     @Override

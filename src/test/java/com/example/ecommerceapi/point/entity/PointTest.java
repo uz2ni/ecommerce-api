@@ -3,6 +3,7 @@ package com.example.ecommerceapi.point.entity;
 import com.example.ecommerceapi.common.exception.PointException;
 import com.example.ecommerceapi.point.domain.entity.Point;
 import com.example.ecommerceapi.point.domain.entity.PointType;
+import com.example.ecommerceapi.user.domain.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 
@@ -17,15 +18,15 @@ class PointTest {
     @DisplayName("포인트 충전 이력을 생성한다")
     void createChargeHistory_ShouldCreatePointWithChargeType() {
         // given
-        Integer userId = 1;
+        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).build();
         Integer amount = 10000;
         LocalDateTime beforeCreation = LocalDateTime.now();
 
         // when
-        Point point = Point.createChargeHistory(userId, amount);
+        Point point = Point.createChargeHistory(user, amount);
 
         // then
-        assertThat(point.getUserId()).isEqualTo(userId);
+        assertThat(point.getUser()).isEqualTo(user);
         assertThat(point.getPointType()).isEqualTo(PointType.CHARGE);
         assertThat(point.getPointAmount()).isEqualTo(amount);
         assertThat(point.getCreatedAt()).isAfterOrEqualTo(beforeCreation);
@@ -36,15 +37,15 @@ class PointTest {
     @DisplayName("포인트 사용 이력을 생성한다")
     void createUseHistory_ShouldCreatePointWithUseType() {
         // given
-        Integer userId = 1;
+        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).build();
         Integer amount = 5000;
         LocalDateTime beforeCreation = LocalDateTime.now();
 
         // when
-        Point point = Point.createUseHistory(userId, amount);
+        Point point = Point.createUseHistory(user, amount);
 
         // then
-        assertThat(point.getUserId()).isEqualTo(userId);
+        assertThat(point.getUser()).isEqualTo(user);
         assertThat(point.getPointType()).isEqualTo(PointType.USE);
         assertThat(point.getPointAmount()).isEqualTo(amount);
         assertThat(point.getCreatedAt()).isAfterOrEqualTo(beforeCreation);
@@ -55,15 +56,15 @@ class PointTest {
     @DisplayName("포인트 환불 이력을 생성한다")
     void createRefundHistory_ShouldCreatePointWithRefundType() {
         // given
-        Integer userId = 1;
+        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).build();
         Integer amount = 3000;
         LocalDateTime beforeCreation = LocalDateTime.now();
 
         // when
-        Point point = Point.createRefundHistory(userId, amount);
+        Point point = Point.createRefundHistory(user, amount);
 
         // then
-        assertThat(point.getUserId()).isEqualTo(userId);
+        assertThat(point.getUser()).isEqualTo(user);
         assertThat(point.getPointType()).isEqualTo(PointType.REFUND);
         assertThat(point.getPointAmount()).isEqualTo(amount);
         assertThat(point.getCreatedAt()).isAfterOrEqualTo(beforeCreation);
