@@ -31,11 +31,6 @@ public interface UserRepository {
     void save(User user);
 
     /**
-     * 모든 사용자 삭제 (테스트용)
-     */
-    void clear();
-
-    /**
      * 초기 사용자 데이터 생성 (테스트용)
      */
     void init();

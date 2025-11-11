@@ -1,4 +1,4 @@
-package com.example.ecommerceapi.user.infrastructure;
+package com.example.ecommerceapi.user.infrastructure.memory;
 
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
@@ -9,6 +9,10 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+/**
+ * InMemory 기반 UserRepository 구현체
+ * 테스트 환경에서만 사용
+ */
 @Repository
 public class InMemoryUserRepository implements UserRepository {
 
