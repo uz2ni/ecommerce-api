@@ -9,6 +9,7 @@ import com.example.ecommerceapi.order.presentation.dto.CreateOrderRequest;
 import com.example.ecommerceapi.order.presentation.dto.PaymentRequest;
 import com.example.ecommerceapi.point.domain.repository.PointRepository;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
+import com.example.ecommerceapi.user.application.service.UserService;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -47,7 +48,7 @@ class OrderControllerIntegrationTest {
     private CartItemRepository cartItemRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private UserService userService;
 
     @Autowired
     private ProductRepository productRepository;
@@ -68,8 +69,7 @@ class OrderControllerIntegrationTest {
         orderItemRepository.clear();
         cartItemRepository.clear();
         cartItemRepository.init();
-        userRepository.clear();
-        userRepository.init();
+        userService.init();
         productRepository.clear();
         productRepository.init();
         couponRepository.clear();

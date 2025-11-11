@@ -3,6 +3,7 @@ package com.example.ecommerceapi.point.application.service;
 import com.example.ecommerceapi.point.application.dto.PointResult;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
+import com.example.ecommerceapi.user.infrastructure.persistence.UserTableUtils;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -23,6 +24,9 @@ class PointServiceConcurrencyIntegrationTest {
     private PointService pointService;
 
     @Autowired
+    private UserTableUtils  userTableUtils;
+
+    @Autowired
     private UserRepository userRepository;
 
     private static final int THREAD_COUNT = 10;
@@ -30,7 +34,7 @@ class PointServiceConcurrencyIntegrationTest {
 
     @BeforeEach
     void setUp() {
-        userRepository.clear();
+        userTableUtils.resetUserTable();
         userRepository.init();
     }
 

@@ -13,6 +13,7 @@ import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
+import com.example.ecommerceapi.user.application.service.UserService;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
@@ -43,6 +44,9 @@ class OrderServiceConcurrencyIntegrationTest {
     private OrderRepository orderRepository;
 
     @Autowired
+    private UserService userService;
+
+    @Autowired
     private UserRepository userRepository;
 
     @Autowired
@@ -59,8 +63,7 @@ class OrderServiceConcurrencyIntegrationTest {
         orderRepository.clear();
         cartItemRepository.clear();
         cartItemRepository.init();
-        userRepository.clear();
-        userRepository.init();
+        userService.init();
         productRepository.clear();
         productRepository.init();
     }

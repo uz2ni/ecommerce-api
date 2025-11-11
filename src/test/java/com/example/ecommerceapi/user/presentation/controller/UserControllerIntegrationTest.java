@@ -1,7 +1,8 @@
 package com.example.ecommerceapi.user.presentation.controller;
 
-import com.example.ecommerceapi.user.domain.repository.UserRepository;
-import com.example.ecommerceapi.point.domain.repository.PointRepository;
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
+import com.example.ecommerceapi.user.application.service.UserService;
+import com.example.ecommerceapi.user.infrastructure.persistence.UserTableUtils;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -16,14 +17,15 @@ import java.util.HashMap;
 import java.util.Map;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("UserController 통합 테스트")
-class UserControllerIntegrationTest {
+class UserControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -31,10 +33,17 @@ class UserControllerIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
+    @Autowired
+    private UserTableUtils userTableUtils;
+
+    @Autowired
+    private UserService userService;
+
 
     @BeforeEach
     void setUp() {
-        // 각 테스트 전에 초기 상태로 리셋 (필요한 경우)
+        userTableUtils.resetUserTable();
+        userService.init();
     }
 
     @Test
