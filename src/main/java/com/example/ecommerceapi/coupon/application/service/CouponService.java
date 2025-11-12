@@ -1,6 +1,5 @@
 package com.example.ecommerceapi.coupon.application.service;
 
-import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.coupon.application.dto.CouponResult;
@@ -16,14 +15,15 @@ import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
-import org.springframework.context.annotation.Primary;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
 
 @Service
-@Primary
+@Transactional
 @RequiredArgsConstructor
 public class CouponService {
 
@@ -49,13 +49,13 @@ public class CouponService {
      * - 쿠폰이 만료되면 실패
      * - 쿠폰 동시 접근 시, 순차적 발급(동시성 제어)
      */
-    @WithLock(key = "'issueCoupon:' + #command.couponId")
     public IssueCouponResult issueCoupon(IssueCouponCommand command) {
         // 1. 회원 존재 검증
-        userValidator.validateAndGetUser(command.userId());
+        User user = userValidator.validateAndGetUser(command.userId());
 
         // 2. 쿠폰 존재 검증
-        Coupon coupon = couponValidator.validateAndGetCoupon(command.couponId());
+        Coupon coupon = couponRepository.findById(command.couponId())
+                .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_FOUND));
 
         // 3. 중복 발급 검증
         Optional<CouponUser> existingCouponUser = couponUserRepository
@@ -72,11 +72,12 @@ public class CouponService {
         couponRepository.save(coupon);
 
         // 6. 쿠폰 발급 이력 생성
-        CouponUser couponUser = CouponUser.createIssuedCouponUser(command.couponId(), command.userId());
+        CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
         couponUser = couponUserRepository.save(couponUser);
 
         // 7. 결과 반환
         return IssueCouponResult.from(couponUser);
+
     }
 
     /**
@@ -94,5 +95,13 @@ public class CouponService {
             User user = userRepository.findById(userId);
             return user != null ? user.getUsername() : null;
         });
+    }
+
+    /**
+     * 초기 쿠폰 데이터 생성
+     */
+    public void init() {
+        couponRepository.init();
+        couponUserRepository.init();
     }
 }
