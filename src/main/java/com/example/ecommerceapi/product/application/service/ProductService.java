@@ -27,7 +27,6 @@ import java.util.stream.Collectors;
 
 @Service
 @Transactional
-@Primary
 @RequiredArgsConstructor
 public class ProductService {
 
@@ -92,9 +91,9 @@ public class ProductService {
 
         // 해당 주문들의 주문 상품 조회 및 상품별 판매 수량 집계
         Map<Integer, Integer> salesMap = orderItemRepository.findAll().stream()
-                .filter(item -> orderIds.contains(item.getOrderId()))
+                .filter(item -> orderIds.contains(item.getOrder().getOrderId()))
                 .collect(Collectors.groupingBy(
-                        OrderItem::getProductId,
+                        item -> item.getProduct().getProductId(),
                         Collectors.summingInt(OrderItem::getOrderQuantity)
                 ));
 

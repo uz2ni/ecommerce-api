@@ -13,9 +13,8 @@ import java.util.List;
  * ProductRepository의 JPA 구현체
  * JpaProductRepository를 사용하여 실제 DB 연동
  */
-@Repository
 @Slf4j
-@Primary
+@Repository
 @RequiredArgsConstructor
 public class JpaProductRepositoryAdapter implements ProductRepository {
 

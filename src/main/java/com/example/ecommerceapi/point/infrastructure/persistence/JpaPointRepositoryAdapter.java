@@ -17,9 +17,8 @@ import java.util.List;
  * PointRepository의 JPA 구현체
  * JpaPointRepository를 사용하여 실제 DB 연동
  */
-@Repository
 @Slf4j
-@Primary
+@Repository
 @RequiredArgsConstructor
 public class JpaPointRepositoryAdapter implements PointRepository {
 

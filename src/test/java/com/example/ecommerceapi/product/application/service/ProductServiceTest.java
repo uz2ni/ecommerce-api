@@ -14,6 +14,7 @@ import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
+import com.example.ecommerceapi.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -205,13 +206,13 @@ class ProductServiceTest {
             // 최근 결제 완료된 주문들 mock
             Order order1 = Order.builder()
                     .orderId(1)
-                    .userId(1)
+                    .user(User.builder().userId(1).build())
                     .orderStatus(OrderStatus.PAID)
                     .createdAt(now.minusDays(1))
                     .build();
             Order order2 = Order.builder()
                     .orderId(2)
-                    .userId(1)
+                    .user(User.builder().userId(1).build())
                     .orderStatus(OrderStatus.PAID)
                     .createdAt(now.minusDays(2))
                     .build();
@@ -222,20 +223,20 @@ class ProductServiceTest {
             // 주문 상품들 mock (product2: 50개, product1: 30개 판매)
             OrderItem orderItem1 = OrderItem.builder()
                     .orderItemId(1)
-                    .orderId(1)
-                    .productId(2)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product2)
                     .orderQuantity(30)
                     .build();
             OrderItem orderItem2 = OrderItem.builder()
                     .orderItemId(2)
-                    .orderId(2)
-                    .productId(2)
+                    .order(Order.builder().orderId(2).build())
+                    .product(product2)
                     .orderQuantity(20)
                     .build();
             OrderItem orderItem3 = OrderItem.builder()
                     .orderItemId(3)
-                    .orderId(1)
-                    .productId(1)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product1)
                     .orderQuantity(30)
                     .build();
 

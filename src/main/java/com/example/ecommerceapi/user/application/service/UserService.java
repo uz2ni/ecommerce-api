@@ -50,6 +50,21 @@ public class UserService {
         userRepository.save(User.builder().username("박민수").pointBalance(300000).build());
         userRepository.save(User.builder().username("정수진").pointBalance(750000).build());
         userRepository.save(User.builder().username("최동욱").pointBalance(2000000).build());
+        userRepository.save(User.builder().username("김철수2").pointBalance(500000).build());
+        userRepository.save(User.builder().username("이영희2").pointBalance(1000000).build());
+        userRepository.save(User.builder().username("박민수2").pointBalance(300000).build());
+        userRepository.save(User.builder().username("정수진2").pointBalance(750000).build());
+        userRepository.save(User.builder().username("최동욱2").pointBalance(2000000).build());
+        userRepository.save(User.builder().username("김철수3").pointBalance(500000).build());
+        userRepository.save(User.builder().username("이영희3").pointBalance(1000000).build());
+        userRepository.save(User.builder().username("박민수3").pointBalance(300000).build());
+        userRepository.save(User.builder().username("정수진3").pointBalance(750000).build());
+        userRepository.save(User.builder().username("최동욱3").pointBalance(2000000).build());
+        userRepository.save(User.builder().username("김철수4").pointBalance(500000).build());
+        userRepository.save(User.builder().username("이영희4").pointBalance(1000000).build());
+        userRepository.save(User.builder().username("박민수4").pointBalance(300000).build());
+        userRepository.save(User.builder().username("정수진4").pointBalance(750000).build());
+        userRepository.save(User.builder().username("최동욱5").pointBalance(2000000).build());
     }
 
 }

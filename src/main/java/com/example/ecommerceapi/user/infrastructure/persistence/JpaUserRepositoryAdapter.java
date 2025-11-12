@@ -15,9 +15,8 @@ import java.util.List;
  * UserRepository의 JPA 구현체
  * JpaUserRepository를 사용하여 실제 DB 연동
  */
-@Repository
 @Slf4j
-@Primary
+@Repository
 @RequiredArgsConstructor
 public class JpaUserRepositoryAdapter implements UserRepository {
 
@@ -54,29 +53,5 @@ public class JpaUserRepositoryAdapter implements UserRepository {
 
     @Override
     public void init() {
-        jpaUserRepository.save(User.builder()
-                .username("김철수")
-                .pointBalance(500000)
-                .build());
-
-        jpaUserRepository.save(User.builder()
-                .username("이영희")
-                .pointBalance(1000000)
-                .build());
-
-        jpaUserRepository.save(User.builder()
-                .username("박민수")
-                .pointBalance(300000)
-                .build());
-
-        jpaUserRepository.save(User.builder()
-                .username("정수진")
-                .pointBalance(750000)
-                .build());
-
-        jpaUserRepository.save(User.builder()
-                .username("최동욱")
-                .pointBalance(2000000)
-                .build());
     }
 }
