@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.order.presentation.controller;
 
+import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
@@ -49,6 +50,9 @@ class OrderControllerIntegrationTest extends AbstractIntegrationTest {
     private CartItemRepository cartItemRepository;
 
     @Autowired
+    private CartService cartService;
+
+    @Autowired
     private UserService userService;
 
     @Autowired
@@ -69,7 +73,6 @@ class OrderControllerIntegrationTest extends AbstractIntegrationTest {
         orderRepository.clear();
         orderItemRepository.clear();
         cartItemRepository.clear();
-        cartItemRepository.init();
         userService.init();
         productRepository.clear();
         productRepository.init();
@@ -78,6 +81,7 @@ class OrderControllerIntegrationTest extends AbstractIntegrationTest {
         couponUserRepository.clear();
         couponUserRepository.init();
         pointService.init();
+        cartService.init();
     }
 
     @Nested

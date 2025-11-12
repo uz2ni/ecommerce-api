@@ -63,10 +63,10 @@ class OrderServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
         // 각 테스트 전에 초기 상태로 리셋
         orderRepository.clear();
         cartItemRepository.clear();
-        cartItemRepository.init();
         userService.init();
         productRepository.clear();
         productRepository.init();
+        cartService.init();
     }
 
     @Test
@@ -176,6 +176,7 @@ class OrderServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
                     successCount.incrementAndGet();
                 } catch (Exception e) {
                     failCount.incrementAndGet();
+                    System.out.println("예외 클래스: " + e.getClass().getSimpleName());
                     System.out.println("결제 실패: " + e.getMessage());
                 } finally {
                     latch.countDown();

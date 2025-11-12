@@ -15,8 +15,8 @@ public record OrderItemResult(
     public static OrderItemResult from(OrderItem orderItem) {
         return new OrderItemResult(
                 orderItem.getOrderItemId(),
-                orderItem.getOrderId(),
-                orderItem.getProductId(),
+                orderItem.getOrder().getOrderId(),
+                orderItem.getProduct().getProductId(),
                 orderItem.getProductName(),
                 orderItem.getDescription(),
                 orderItem.getProductPrice(),
