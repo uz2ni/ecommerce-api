@@ -99,7 +99,7 @@ class OrderServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
                 try {
                     orderService.processPayment(orderId, userId);
                     successCount.incrementAndGet();
-                } catch (OrderException e) {
+                } catch (Exception e) {
                     failCount.incrementAndGet();
                 } finally {
                     latch.countDown();

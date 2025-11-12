@@ -2,7 +2,6 @@ package com.example.ecommerceapi.order.application.service;
 
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
-import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.common.exception.*;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
@@ -24,14 +23,10 @@ import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
-import jakarta.persistence.OptimisticLockException;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 
 import java.util.*;
 import java.util.stream.Collectors;
