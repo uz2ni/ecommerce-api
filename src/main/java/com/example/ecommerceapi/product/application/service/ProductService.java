@@ -7,18 +7,16 @@ import com.example.ecommerceapi.order.domain.entity.OrderItem;
 import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
 import com.example.ecommerceapi.order.domain.repository.OrderRepository;
-import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
+import com.example.ecommerceapi.product.application.dto.*;
 import com.example.ecommerceapi.product.application.enums.ProductStatisticType;
 import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;
-import com.example.ecommerceapi.product.application.dto.PopularProductResult;
-import com.example.ecommerceapi.product.application.dto.ProductResult;
-import com.example.ecommerceapi.product.application.dto.ProductStockResult;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.product.infrastructure.persistence.ProductTableUtils;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -73,44 +71,10 @@ public class ProductService {
 
     private List<PopularProductResult> getSalesStatistics(int days, int limit) {
         LocalDateTime startDate = LocalDateTime.now().minusDays(days);
+        PageRequest pageRequest = PageRequest.of(0, limit);
+        List<PopularProductBySailsResult> popularProducts = orderItemRepository.findAllOrderByOrderQuantityDesc(OrderStatus.PAID, startDate, pageRequest);
 
-        // 최근 N일 내의 결제 완료된 주문들 조회
-        List<Order> recentPaidOrders = orderRepository.findAll().stream()
-                .filter(order -> order.getOrderStatus() == OrderStatus.PAID)
-                .filter(order -> order.getCreatedAt().isAfter(startDate))
-                .toList();
-
-        if (recentPaidOrders.isEmpty()) {
-            return List.of();
-        }
-
-        // 주문 ID 목록 추출
-        Set<Integer> orderIds = recentPaidOrders.stream()
-                .map(Order::getOrderId)
-                .collect(Collectors.toSet());
-
-        // 해당 주문들의 주문 상품 조회 및 상품별 판매 수량 집계
-        Map<Integer, Integer> salesMap = orderItemRepository.findAll().stream()
-                .filter(item -> orderIds.contains(item.getOrder().getOrderId()))
-                .collect(Collectors.groupingBy(
-                        item -> item.getProduct().getProductId(),
-                        Collectors.summingInt(OrderItem::getOrderQuantity)
-                ));
-
-        // 판매량 기준으로 정렬하고 상위 limit개 상품 조회
-        List<Product> popularProducts = salesMap.entrySet().stream()
-                .sorted(Map.Entry.<Integer, Integer>comparingByValue().reversed())
-                .limit(limit)
-                .map(entry -> productRepository.findById(entry.getKey()))
-                .filter(Objects::nonNull)
-                .toList();
-
-        return popularProducts.stream()
-                .map(product -> PopularProductResult.fromWithSales(
-                        product,
-                        salesMap.getOrDefault(product.getProductId(), 0)
-                ))
-                .collect(Collectors.toList());
+        return PopularProductResult.fromWithSalesList(popularProducts);
     }
 
     private List<PopularProductResult> getViewStatistics(Integer limit) {

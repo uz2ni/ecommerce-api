@@ -13,6 +13,7 @@ import com.example.ecommerceapi.order.application.dto.OrderResult;
 import com.example.ecommerceapi.order.application.dto.PaymentResult;
 import com.example.ecommerceapi.order.domain.entity.Order;
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
 import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.point.domain.entity.Point;
@@ -53,19 +54,25 @@ public class OrderService {
         // 1. 사용자 검증
         User user = userValidator.validateAndGetUser(command.userId());
 
-        // 2. 장바구니 조회 및 검증
+        // 2. 주문 중복 검증
+        boolean pendingOrderExists = orderRepository.existsByUserIdAndOrderStatus(user.getUserId(), OrderStatus.PENDING);
+        if (pendingOrderExists) {
+            throw new OrderException(ErrorCode.ORDER_ALREADY_EXISTS);
+        }
+
+        // 3. 장바구니 조회 및 검증
         List<CartItem> cartItems = cartItemRepository.findByUserId(command.userId());
         if (cartItems.isEmpty()) {
             throw new CartException(ErrorCode.CART_EMPTY);
         }
 
-        // 3. 각 상품의 재고 검증
+        // 4. 각 상품의 재고 검증
         for (CartItem cartItem : cartItems) {
             Product product = productValidator.validateAndGetProduct(cartItem.getProductId());
             product.validateStock(cartItem.getQuantity());
         }
 
-        // 4. 쿠폰 검증 (쿠폰 ID가 0이 아닌 경우에만)
+        // 5. 쿠폰 검증 (쿠폰 ID가 0이 아닌 경우에만)
         Integer discountAmount = 0;
         Coupon validCoupon = null;
         if (command.couponId() != null && command.couponId() != 0) {
@@ -93,7 +100,7 @@ public class OrderService {
             validCoupon = coupon;
         }
 
-        // 5. 주문 총액 계산
+        // 6. 주문 총액 계산
         Integer totalOrderAmount = cartItems.stream()
                 .mapToInt(CartItem::getTotalPrice)
                 .sum();

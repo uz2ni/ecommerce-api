@@ -22,6 +22,7 @@ public enum ErrorCode {
     ORDER_ALREADY_PAID("OD02", "이미 결제된 주문입니다.", 400),
     ORDER_PAY_INVALID_STATUS("OD03", "결제 가능한 주문 상태가 아닙니다.", 409),
     ORDER_PAY_FAILED("OD04", "결제 처리 중 오류가 발생했습니다.", 500),
+    ORDER_ALREADY_EXISTS("OD05", "주문이 이미 존재합니다.", 400),
 
     /**
      * 장바구니(CT__)

@@ -1,12 +1,16 @@
 package com.example.ecommerceapi.order.infrastructure.persistence;
 
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
+import com.example.ecommerceapi.product.application.dto.PopularProductBySailsResult;
+import com.example.ecommerceapi.product.domain.entity.Product;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
+import org.springframework.data.domain.Pageable;
 import org.springframework.stereotype.Repository;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -51,4 +55,11 @@ public class JpaOrderItemRepositoryAdapter implements OrderItemRepository {
     public void clear() {
         orderItemTableUtils.resetOrderItemTable();
     }
+
+    @Override
+    public List<PopularProductBySailsResult> findAllOrderByOrderQuantityDesc(OrderStatus status, LocalDateTime startDate, Pageable pageable) {
+        return jpaOrderItemRepository.findAllOrderByOrderQuantityDesc(status, startDate, pageable);
+    }
+
+
 }

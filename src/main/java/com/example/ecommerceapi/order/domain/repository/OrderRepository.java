@@ -1,6 +1,7 @@
 package com.example.ecommerceapi.order.domain.repository;
 
 import com.example.ecommerceapi.order.domain.entity.Order;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 
 import java.util.List;
 import java.util.Optional;
@@ -40,4 +41,6 @@ public interface OrderRepository {
      * 모든 주문 삭제 (테스트용)
      */
     void clear();
+
+    boolean existsByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus);
 }

@@ -1,6 +1,7 @@
 package com.example.ecommerceapi.order.infrastructure.persistence;
 
 import com.example.ecommerceapi.order.domain.entity.Order;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -50,5 +51,10 @@ public class JpaOrderRepositoryAdapter implements OrderRepository {
     @Override
     public void clear() {
         orderTableUtils.resetOrderTable();
+    }
+
+    @Override
+    public boolean existsByUserIdAndOrderStatus(Integer userId, OrderStatus orderStatus) {
+        return jpaOrderRepository.existsByUserUserIdAndOrderStatus(userId, orderStatus);
     }
 }

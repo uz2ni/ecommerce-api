@@ -14,12 +14,4 @@ import java.util.Optional;
  * 선착순 쿠폰 발급을 위해 비관적 락 지원
  */
 public interface JpaCouponRepository extends JpaRepository<Coupon, Integer> {
-
-    /**
-     * ID로 쿠폰 조회 (비관적 락 적용)
-     * 선착순 쿠폰 발급 시 동시성 제어를 위해 SELECT FOR UPDATE 사용
-     */
-    @Lock(LockModeType.PESSIMISTIC_WRITE)
-    @Query("SELECT c FROM Coupon c WHERE c.couponId = :couponId")
-    Optional<Coupon> findByIdWithLock(@Param("couponId") Integer couponId);
 }
