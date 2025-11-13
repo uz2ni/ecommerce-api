@@ -2,19 +2,12 @@ package com.example.ecommerceapi.product.application.service;
 
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
-import com.example.ecommerceapi.order.domain.entity.Order;
-import com.example.ecommerceapi.order.domain.entity.OrderItem;
 import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
-import com.example.ecommerceapi.order.domain.repository.OrderRepository;
-import com.example.ecommerceapi.product.application.dto.IncrementProductViewResult;
-import com.example.ecommerceapi.product.application.dto.PopularProductResult;
-import com.example.ecommerceapi.product.application.dto.ProductResult;
-import com.example.ecommerceapi.product.application.dto.ProductStockResult;
+import com.example.ecommerceapi.product.application.dto.*;
 import com.example.ecommerceapi.product.application.validator.ProductValidator;
 import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
-import com.example.ecommerceapi.user.domain.entity.User;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
@@ -23,14 +16,15 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+import org.springframework.data.domain.PageRequest;
 
 import java.time.LocalDateTime;
 import java.util.Arrays;
 import java.util.List;
 
 import static org.assertj.core.api.Assertions.*;
+import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
-import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProductService 단위 테스트")
@@ -41,9 +35,6 @@ class ProductServiceTest {
 
     @Mock
     private ProductValidator productValidator;
-
-    @Mock
-    private OrderRepository orderRepository;
 
     @Mock
     private OrderItemRepository orderItemRepository;
@@ -201,51 +192,37 @@ class ProductServiceTest {
         @DisplayName("판매량 기반 인기 상품을 조회한다")
         void getPopularProducts_ShouldReturnPopularProducts_BySales() {
             // given
-            LocalDateTime now = LocalDateTime.now();
+            // PopularProductBySailsResult mock 객체 생성 (product2: 50개, product1: 30개 판매)
+            PopularProductBySailsResult result1 = new PopularProductBySailsResult() {
+                @Override
+                public Product getProduct() {
+                    return product2;
+                }
 
-            // 최근 결제 완료된 주문들 mock
-            Order order1 = Order.builder()
-                    .orderId(1)
-                    .user(User.builder().userId(1).build())
-                    .orderStatus(OrderStatus.PAID)
-                    .createdAt(now.minusDays(1))
-                    .build();
-            Order order2 = Order.builder()
-                    .orderId(2)
-                    .user(User.builder().userId(1).build())
-                    .orderStatus(OrderStatus.PAID)
-                    .createdAt(now.minusDays(2))
-                    .build();
+                @Override
+                public Integer getSalesCount() {
+                    return 50;
+                }
+            };
 
-            List<Order> orders = Arrays.asList(order1, order2);
-            given(orderRepository.findAll()).willReturn(orders);
+            PopularProductBySailsResult result2 = new PopularProductBySailsResult() {
+                @Override
+                public Product getProduct() {
+                    return product1;
+                }
 
-            // 주문 상품들 mock (product2: 50개, product1: 30개 판매)
-            OrderItem orderItem1 = OrderItem.builder()
-                    .orderItemId(1)
-                    .order(Order.builder().orderId(1).build())
-                    .product(product2)
-                    .orderQuantity(30)
-                    .build();
-            OrderItem orderItem2 = OrderItem.builder()
-                    .orderItemId(2)
-                    .order(Order.builder().orderId(2).build())
-                    .product(product2)
-                    .orderQuantity(20)
-                    .build();
-            OrderItem orderItem3 = OrderItem.builder()
-                    .orderItemId(3)
-                    .order(Order.builder().orderId(1).build())
-                    .product(product1)
-                    .orderQuantity(30)
-                    .build();
+                @Override
+                public Integer getSalesCount() {
+                    return 30;
+                }
+            };
 
-            List<OrderItem> orderItems = Arrays.asList(orderItem1, orderItem2, orderItem3);
-            given(orderItemRepository.findAll()).willReturn(orderItems);
-
-            // 상품 조회 mock
-            given(productRepository.findById(2)).willReturn(product2);
-            given(productRepository.findById(1)).willReturn(product1);
+            List<PopularProductBySailsResult> popularProducts = Arrays.asList(result1, result2);
+            given(orderItemRepository.findAllOrderByOrderQuantityDesc(
+                    eq(OrderStatus.PAID),
+                    any(LocalDateTime.class),
+                    any(PageRequest.class)
+            )).willReturn(popularProducts);
 
             // when
             List<PopularProductResult> result = productService.getPopularProducts("SALES", 3, 5);
