@@ -138,12 +138,11 @@ class OrderServiceTest {
                 .totalQuantity(100)
                 .issuedQuantity(50)
                 .expiredAt(LocalDateTime.now().plusDays(7))
-                .version(1)
                 .build();
 
         couponUser = CouponUser.builder()
                 .couponUserId(1)
-                .coupon(Coupon.builder().couponId(1).version(1).build())
+                .coupon(Coupon.builder().couponId(1).build())
                 .user(user)
                 .used(false)
                 .build();
@@ -328,7 +327,6 @@ class OrderServiceTest {
                     .couponName("만료된 쿠폰")
                     .discountAmount(5000)
                     .expiredAt(LocalDateTime.now().minusDays(1))
-                    .version(1)
                     .build();
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
@@ -378,7 +376,7 @@ class OrderServiceTest {
 
             CouponUser usedCouponUser = CouponUser.builder()
                     .couponUserId(1)
-                    .coupon(Coupon.builder().couponId(1).version(1).build())
+                    .coupon(Coupon.builder().couponId(1).build())
                     .user(user)
                     .used(true)
                     .build();
@@ -510,7 +508,7 @@ class OrderServiceTest {
             given(orderRepository.findById(1)).willReturn(Optional.of(order));
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(orderItemRepository.findByOrderId(1)).willReturn(Arrays.asList(orderItem));
-            given(productRepository.findById(1)).willReturn(product1);
+            given(productRepository.findByIdWithLock(1)).willReturn(product1);
             given(cartItemRepository.findByUserId(1)).willReturn(Arrays.asList(cartItem1));
             given(orderRepository.save(any(Order.class))).willReturn(order);
 

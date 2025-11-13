@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Repository;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
@@ -22,16 +23,25 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
     private final ProductTableUtils productTableUtils;
 
     @Override
+    @Transactional(readOnly = true)
     public List<Product> findAll() {
         return jpaProductRepository.findAll();
     }
 
     @Override
+    @Transactional(readOnly = true)
     public Product findById(Integer productId) {
         return jpaProductRepository.findById(productId).orElse(null);
     }
 
     @Override
+    @Transactional
+    public Product findByIdWithLock(Integer productId) {
+        return jpaProductRepository.findByIdWithLock(productId).orElse(null);
+    }
+
+    @Override
+    @Transactional(readOnly = true)
     public List<Product> findPopularProductsByView(int limit) {
         List<Product> products = jpaProductRepository.findAllOrderByViewCountDesc();
         return products.stream()
@@ -61,7 +71,6 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
                 .productPrice(18900)
                 .quantity(50)
                 .viewCount(320)
-                .version(0)
                 .build());
 
         save(Product.builder()
@@ -70,7 +79,6 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
                 .productPrice(12900)
                 .quantity(100)
                 .viewCount(285)
-                .version(0)
                 .build());
 
         save(Product.builder()
@@ -79,7 +87,6 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
                 .productPrice(32000)
                 .quantity(30)
                 .viewCount(156)
-                .version(0)
                 .build());
 
         save(Product.builder()
@@ -88,7 +95,6 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
                 .productPrice(25000)
                 .quantity(40)
                 .viewCount(142)
-                .version(0)
                 .build());
 
         save(Product.builder()
@@ -97,7 +103,6 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
                 .productPrice(8900)
                 .quantity(80)
                 .viewCount(210)
-                .version(0)
                 .build());
 
         log.info("초기 상품 데이터 생성 완료");

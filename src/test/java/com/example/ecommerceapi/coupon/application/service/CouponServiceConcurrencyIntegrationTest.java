@@ -6,8 +6,6 @@ import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
 import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
 import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
-import com.example.ecommerceapi.user.application.dto.UserResult;
-import com.example.ecommerceapi.user.application.service.UserService;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
@@ -56,7 +54,6 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(0)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
-                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();
@@ -110,7 +107,6 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(9)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
-                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();
@@ -153,6 +149,63 @@ class CouponServiceConcurrencyIntegrationTest {
         assertThat(updatedCoupon.isAvailable()).isFalse();
         assertThat(successCount.get()).isEqualTo(1);
         assertThat(failCount.get()).isEqualTo(THREAD_COUNT - 1);
+    }
+
+    @Test
+    @DisplayName("선착순 쿠폰 발급 시 동시 요청에서 정확히 발급 가능한 수량만큼만 발급된다")
+    void issueCoupon_ShouldIssueExactQuantity_WhenConcurrentRequests() throws InterruptedException {
+        // given: 10개의 쿠폰 생성
+        int totalQuantity = 10;
+        Coupon coupon = Coupon.builder()
+                .couponName("선착순 10명 한정 쿠폰")
+                .discountAmount(5000)
+                .totalQuantity(totalQuantity)
+                .issuedQuantity(0)
+                .expiredAt(LocalDateTime.now().plusDays(30))
+                .createdAt(LocalDateTime.now())
+                .build();
+        coupon = couponRepository.save(coupon);
+        Integer couponId = coupon.getCouponId();
+
+        CountDownLatch latch = new CountDownLatch(THREAD_COUNT);
+        ExecutorService executorService = Executors.newFixedThreadPool(THREAD_COUNT);
+        AtomicInteger successCount = new AtomicInteger(0);
+        AtomicInteger failCount = new AtomicInteger(0);
+
+        // when: 20명의 사용자가 동시에 발급 요청
+        for (int userId = 1; userId <= THREAD_COUNT; userId++) {
+            final int finalUserId = userId;
+            executorService.submit(() -> {
+                try {
+                    IssueCouponCommand command = new IssueCouponCommand(finalUserId, couponId);
+                    couponService.issueCoupon(command);
+                    successCount.incrementAndGet();
+                } catch (CouponException e) {
+                    failCount.incrementAndGet();
+                } finally {
+                    latch.countDown();
+                }
+            });
+        }
+
+        latch.await();
+        executorService.shutdown();
+
+        // then: 정확히 10개만 발급되어야 함
+        Coupon updatedCoupon = couponRepository.findById(couponId).orElseThrow();
+        System.out.println("성공한 발급 수: " + successCount.get());
+        System.out.println("실패한 발급 수: " + failCount.get());
+        System.out.println("최종 발급 수량: " + updatedCoupon.getIssuedQuantity());
+
+        assertThat(updatedCoupon.getIssuedQuantity()).isEqualTo(totalQuantity);
+        assertThat(updatedCoupon.getRemainingQuantity()).isEqualTo(0);
+        assertThat(updatedCoupon.isAvailable()).isFalse();
+        assertThat(successCount.get()).isEqualTo(totalQuantity);
+        assertThat(failCount.get()).isEqualTo(THREAD_COUNT - totalQuantity);
+
+        // 발급 이력도 정확히 10개여야 함
+        List<CouponUser> couponUsers = couponUserRepository.findByCouponId(couponId);
+        assertThat(couponUsers).hasSize(totalQuantity);
     }
 
 }

@@ -24,6 +24,12 @@ public interface CouponRepository {
     Optional<Coupon> findById(Integer couponId);
 
     /**
+     * 비관적 락을 사용하여 쿠폰 조회
+     * 선착순 쿠폰 발급 시 동시성 제어를 위해 사용
+     */
+    Optional<Coupon> findByIdWithPessimisticLock(Integer couponId);
+
+    /**
      * 모든 쿠폰 조회
      */
     List<Coupon> findAll();

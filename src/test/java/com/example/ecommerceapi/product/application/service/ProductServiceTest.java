@@ -54,7 +54,6 @@ class ProductServiceTest {
                 .productPrice(10000)
                 .quantity(50)
                 .viewCount(100)
-                .version(1)
                 .build();
 
         product2 = Product.builder()
@@ -64,7 +63,6 @@ class ProductServiceTest {
                 .productPrice(20000)
                 .quantity(30)
                 .viewCount(200)
-                .version(1)
                 .build();
     }
 

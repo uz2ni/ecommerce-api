@@ -46,6 +46,11 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
     }
 
     @Override
+    public Optional<CouponUser> findByCouponIdAndUserIdWithPessimisticLock(Integer couponId, Integer userId) {
+        return jpaCouponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(couponId, userId);
+    }
+
+    @Override
     public List<CouponUser> findByUserId(Integer userId) {
         return jpaCouponUserRepository.findByUser_UserId(userId);
     }
@@ -66,9 +71,9 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
         couponUserTableUtils.resetCouponUserTable();
 
         // 2. 쿠폰 객체 생성
-        Coupon coupon1 = Coupon.builder().couponId(1).version(1).build();
-        Coupon coupon2 = Coupon.builder().couponId(2).version(1).build();
-        Coupon coupon3 = Coupon.builder().couponId(3).version(1).build();
+        Coupon coupon1 = Coupon.builder().couponId(1).build();
+        Coupon coupon2 = Coupon.builder().couponId(2).build();
+        Coupon coupon3 = Coupon.builder().couponId(3).build();
 
         // 3. 초기 쿠폰 발급 이력 생성
         // 쿠폰 1 발급 이력

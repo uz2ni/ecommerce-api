@@ -39,9 +39,6 @@ public class Product {
     @Column(name = "view_count", nullable = false)
     private Integer viewCount;
 
-    @Version
-    @Column(nullable = false)
-    private Integer version;
 
     public void incrementViewCount() {
         this.viewCount += 1;

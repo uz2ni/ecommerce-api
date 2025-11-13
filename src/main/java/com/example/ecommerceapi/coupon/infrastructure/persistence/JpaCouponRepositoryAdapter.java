@@ -34,6 +34,11 @@ public class JpaCouponRepositoryAdapter implements CouponRepository {
     }
 
     @Override
+    public Optional<Coupon> findByIdWithPessimisticLock(Integer couponId) {
+        return jpaCouponRepository.findByIdWithPessimisticLock(couponId);
+    }
+
+    @Override
     public List<Coupon> findAll() {
         return jpaCouponRepository.findAll();
     }
@@ -62,7 +67,6 @@ public class JpaCouponRepositoryAdapter implements CouponRepository {
                 .issuedQuantity(3)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now().minusDays(5))
-                .version(1)
                 .build());
 
         // 쿠폰 2: 3명 한정 선착순 할인 쿠폰 (소진됨)
@@ -73,7 +77,6 @@ public class JpaCouponRepositoryAdapter implements CouponRepository {
                 .issuedQuantity(3)
                 .expiredAt(LocalDateTime.now().plusDays(15))
                 .createdAt(LocalDateTime.now().minusDays(10))
-                .version(1)
                 .build());
 
         // 쿠폰 3: 누구나 선착순 할인 쿠폰
@@ -84,7 +87,6 @@ public class JpaCouponRepositoryAdapter implements CouponRepository {
                 .issuedQuantity(2)
                 .expiredAt(LocalDateTime.now().plusDays(60))
                 .createdAt(LocalDateTime.now().minusDays(3))
-                .version(1)
                 .build());
 
         log.info("초기 쿠폰 데이터 생성 완료");

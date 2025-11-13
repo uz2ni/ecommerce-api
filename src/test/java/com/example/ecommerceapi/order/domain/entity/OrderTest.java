@@ -25,7 +25,7 @@ class OrderTest {
             String deliveryAddress = "서울시 강남구";
             Integer totalOrderAmount = 50000;
             Integer discountAmount = 5000;
-            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).build();
 
             // when
             Order order = Order.createOrder(
@@ -80,7 +80,7 @@ class OrderTest {
             // when
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
-                    totalOrderAmount, discountAmount, Coupon.builder().couponId(1).version(1).build()
+                    totalOrderAmount, discountAmount, Coupon.builder().couponId(1).build()
             );
 
             // then
@@ -270,7 +270,7 @@ class OrderTest {
             User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
-                    50000, 5000, Coupon.builder().couponId(1).version(1).build()
+                    50000, 5000, Coupon.builder().couponId(1).build()
             );
 
             // when & then

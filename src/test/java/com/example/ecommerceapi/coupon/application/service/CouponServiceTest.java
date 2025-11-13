@@ -85,7 +85,6 @@ class CouponServiceTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
-                .version(1)
                 .build();
 
         expiredCoupon = Coupon.builder()
@@ -96,7 +95,6 @@ class CouponServiceTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().minusDays(1))
                 .createdAt(LocalDateTime.now().minusDays(30))
-                .version(1)
                 .build();
 
         soldOutCoupon = Coupon.builder()
@@ -107,12 +105,11 @@ class CouponServiceTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
-                .version(1)
                 .build();
 
         couponUser1 = CouponUser.builder()
                 .couponUserId(1)
-                .coupon(Coupon.builder().couponId(1).version(1).build())
+                .coupon(Coupon.builder().couponId(1).build())
                 .user(user)
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(5))
@@ -120,7 +117,7 @@ class CouponServiceTest {
 
         couponUser2 = CouponUser.builder()
                 .couponUserId(2)
-                .coupon(Coupon.builder().couponId(1).version(1).build())
+                .coupon(Coupon.builder().couponId(1).build())
                 .user(user2)
                 .used(true)
                 .issuedAt(LocalDateTime.now().minusDays(4))
@@ -178,8 +175,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findById(1)).willReturn(Optional.of(availableCoupon));
-            given(couponUserRepository.findByCouponIdAndUserId(1, 1)).willReturn(Optional.empty());
+            given(couponRepository.findByIdWithPessimisticLock(1)).willReturn(Optional.of(availableCoupon));
+            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(1, 1)).willReturn(Optional.empty());
             given(couponRepository.save(availableCoupon)).willReturn(availableCoupon);
             given(couponUserRepository.save(any(CouponUser.class))).willAnswer(invocation -> {
                 CouponUser cu = invocation.getArgument(0);
@@ -228,7 +225,7 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findById(999)).willReturn(Optional.empty());
+            given(couponRepository.findByIdWithPessimisticLock(999)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -246,8 +243,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findById(1)).willReturn(Optional.of(availableCoupon));
-            given(couponUserRepository.findByCouponIdAndUserId(1, 1)).willReturn(Optional.of(couponUser1));
+            given(couponRepository.findByIdWithPessimisticLock(1)).willReturn(Optional.of(availableCoupon));
+            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(1, 1)).willReturn(Optional.of(couponUser1));
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -265,8 +262,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findById(2)).willReturn(Optional.of(expiredCoupon));
-            given(couponUserRepository.findByCouponIdAndUserId(2, 1)).willReturn(Optional.empty());
+            given(couponRepository.findByIdWithPessimisticLock(2)).willReturn(Optional.of(expiredCoupon));
+            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(2, 1)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -284,8 +281,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findById(3)).willReturn(Optional.of(soldOutCoupon));
-            given(couponUserRepository.findByCouponIdAndUserId(3, 1)).willReturn(Optional.empty());
+            given(couponRepository.findByIdWithPessimisticLock(3)).willReturn(Optional.of(soldOutCoupon));
+            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(3, 1)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -305,7 +302,6 @@ class CouponServiceTest {
                     .issuedQuantity(9)
                     .expiredAt(LocalDateTime.now().plusDays(30))
                     .createdAt(LocalDateTime.now())
-                    .version(1)
                     .build();
 
             IssueCouponCommand command = new IssueCouponCommand(
@@ -314,8 +310,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findById(4)).willReturn(Optional.of(lastCoupon));
-            given(couponUserRepository.findByCouponIdAndUserId(4, 1)).willReturn(Optional.empty());
+            given(couponRepository.findByIdWithPessimisticLock(4)).willReturn(Optional.of(lastCoupon));
+            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(4, 1)).willReturn(Optional.empty());
             given(couponRepository.save(lastCoupon)).willReturn(lastCoupon);
             given(couponUserRepository.save(any(CouponUser.class))).willAnswer(invocation -> {
                 CouponUser cu = invocation.getArgument(0);

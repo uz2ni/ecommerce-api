@@ -173,10 +173,10 @@ public class OrderService {
             pointRepository.save(point);
             compensationStack.push(() -> pointRepository.delete(point.getPointId()));
 
-            // 3. 상품 재고 차감
+            // 3. 상품 재고 차감 (비관적 락 사용)
             List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
             for (OrderItem item : items) {
-                Product product = productRepository.findById(item.getProduct().getProductId());
+                Product product = productRepository.findByIdWithLock(item.getProduct().getProductId());
                 product.decreaseStock(item.getOrderQuantity());
                 productRepository.save(product);
 

@@ -193,13 +193,13 @@ List<CartItem> findByUserId(@Param("userId") Integer userId);
 
 ## 도메인별 락/트랜잭션 처리 전략
 
-| 도메인 | 락/트랜잭션 종류                 | 적용 위치 | 이유 |
-|--------|---------------------------|-----------|------|
-| **User** | 비관적 락 (PESSIMISTIC_WRITE) | 포인트 충전/차감 | 금전적 가치, 정확성 필수 |
-| **Product** | 낙관적 락 (@Version)          | 재고 차감 | 낮은 충돌 빈도, 재시도 가능 |
-| **Coupon** | 낙관적 락 (@Version)          | 발급 수량 증가 | 선착순 특성, 빠른 응답 필요 |
-| **Order** | 트랜잭션 (@Transactional)     | 주문 생성/결제 | 복잡한 비즈니스 로직 |
-| **CartItem** | 트랜잭션 (@Transactional)     | 추가/삭제 | 단순 CRUD 작업 |
+| 도메인 | 락/트랜잭션 종류                 | 적용 위치              | 이유           |
+|--------|---------------------------|--------------------|--------------|
+| **User** | 비관적 락 (PESSIMISTIC_WRITE) | 포인트 충전/차감          | 금전적 가치, 정확성 필수 |
+| **Product** | 비관적 락 (PESSIMISTIC_WRITE) | 동시 주문, 재고 차감 | 동시 주문 모두 처리 가능 |
+| **Coupon** | 비관적 락 (PESSIMISTIC_WRITE) | 발급 수량 증가           | 실패 없이 선착순 발급 |
+| **Order** | 트랜잭션 (@Transactional)     | 주문 생성/결제           | 복잡한 비즈니스 로직  |
+| **CartItem** | 트랜잭션 (@Transactional)     | 추가/삭제              | 단순 CRUD 작업   |
 
 ---
 

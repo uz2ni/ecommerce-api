@@ -32,6 +32,12 @@ public interface CouponUserRepository {
     Optional<CouponUser> findByCouponIdAndUserId(Integer couponId, Integer userId);
 
     /**
+     * 비관적 락을 사용하여 쿠폰 ID와 사용자 ID로 발급 이력 조회
+     * 중복 발급 검증 시 동시성 제어를 위해 사용
+     */
+    Optional<CouponUser> findByCouponIdAndUserIdWithPessimisticLock(Integer couponId, Integer userId);
+
+    /**
      * 사용자 ID로 발급 이력 목록 조회
      */
     List<CouponUser> findByUserId(Integer userId);

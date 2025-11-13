@@ -65,7 +65,6 @@ class CartServiceTest {
                 .productPrice(10000)
                 .quantity(100)
                 .viewCount(0)
-                .version(1)
                 .build();
 
         Product product1 = Product.builder()
@@ -75,7 +74,6 @@ class CartServiceTest {
                 .productPrice(10000)
                 .quantity(100)
                 .viewCount(0)
-                .version(1)
                 .build();
 
         Product product2 = Product.builder()
@@ -85,7 +83,6 @@ class CartServiceTest {
                 .productPrice(20000)
                 .quantity(100)
                 .viewCount(0)
-                .version(1)
                 .build();
 
         cartItem1 = CartItem.builder()

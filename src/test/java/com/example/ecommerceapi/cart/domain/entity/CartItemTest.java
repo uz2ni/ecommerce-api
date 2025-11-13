@@ -31,7 +31,6 @@ class CartItemTest {
                 .productPrice(10000)
                 .quantity(100)
                 .viewCount(0)
-                .version(1)
                 .build();
     }
 
@@ -118,7 +117,6 @@ class CartItemTest {
                     .productPrice(15000)
                     .quantity(100)
                     .viewCount(0)
-                    .version(1)
                     .build();
             Integer quantity = 3;
 
