@@ -55,6 +55,7 @@ class CartServiceTest {
         user = User.builder()
                 .userId(1)
                 .username("테스트 사용자")
+                .pointBalance(100000)
                 .build();
 
         product = Product.builder()
@@ -64,13 +65,30 @@ class CartServiceTest {
                 .productPrice(10000)
                 .quantity(100)
                 .viewCount(0)
-                .version(1)
+                .build();
+
+        Product product1 = Product.builder()
+                .productId(1)
+                .productName("테스트 상품1")
+                .description("테스트 상품1 설명")
+                .productPrice(10000)
+                .quantity(100)
+                .viewCount(0)
+                .build();
+
+        Product product2 = Product.builder()
+                .productId(2)
+                .productName("테스트 상품2")
+                .description("테스트 상품2 설명")
+                .productPrice(20000)
+                .quantity(100)
+                .viewCount(0)
                 .build();
 
         cartItem1 = CartItem.builder()
                 .cartItemId(1)
-                .userId(1)
-                .productId(1)
+                .user(user)
+                .product(product1)
                 .productName("테스트 상품1")
                 .productPrice(10000)
                 .quantity(2)
@@ -79,8 +97,8 @@ class CartServiceTest {
 
         cartItem2 = CartItem.builder()
                 .cartItemId(2)
-                .userId(1)
-                .productId(2)
+                .user(user)
+                .product(product2)
                 .productName("테스트 상품2")
                 .productPrice(20000)
                 .quantity(1)

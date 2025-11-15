@@ -10,8 +10,8 @@ public record IssueCouponResult(
     public static IssueCouponResult from(CouponUser couponUser) {
         return new IssueCouponResult(
                 couponUser.getCouponUserId(),
-                couponUser.getCouponId(),
-                couponUser.getUserId()
+                couponUser.getCoupon().getCouponId(),
+                couponUser.getUser().getUserId()
         );
     }
 }

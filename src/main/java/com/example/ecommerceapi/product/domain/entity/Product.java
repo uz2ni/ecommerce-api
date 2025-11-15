@@ -2,25 +2,43 @@ package com.example.ecommerceapi.product.domain.entity;
 
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
+import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
+@Entity
+@Table(name = "product", indexes = {
+    @Index(name = "idx_product_view_count", columnList = "view_count")
+})
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class Product {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "product_id")
     private Integer productId;
+
+    @Column(name = "product_name", nullable = false, length = 100)
     private String productName;
+
+    @Column(nullable = false, length = 500)
     private String description;
+
+    @Column(name = "product_price", nullable = false)
     private Integer productPrice;
+
+    @Column(nullable = false)
     private Integer quantity;
+
+    @Column(name = "view_count", nullable = false)
     private Integer viewCount;
-    private Integer version;
+
 
     public void incrementViewCount() {
         this.viewCount += 1;

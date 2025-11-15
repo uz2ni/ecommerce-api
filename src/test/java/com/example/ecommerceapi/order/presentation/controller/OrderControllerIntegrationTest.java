@@ -1,15 +1,17 @@
 package com.example.ecommerceapi.order.presentation.controller;
 
+import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
 import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
 import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.order.presentation.dto.CreateOrderRequest;
 import com.example.ecommerceapi.order.presentation.dto.PaymentRequest;
-import com.example.ecommerceapi.point.domain.repository.PointRepository;
+import com.example.ecommerceapi.point.application.service.PointService;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
-import com.example.ecommerceapi.user.domain.repository.UserRepository;
+import com.example.ecommerceapi.user.application.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -22,14 +24,15 @@ import org.springframework.http.MediaType;
 import org.springframework.test.web.servlet.MockMvc;
 
 import static org.hamcrest.Matchers.*;
-import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.get;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.post;
 import static org.springframework.test.web.servlet.result.MockMvcResultHandlers.print;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
 
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("OrderController 통합 테스트")
-class OrderControllerIntegrationTest {
+class OrderControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -47,7 +50,10 @@ class OrderControllerIntegrationTest {
     private CartItemRepository cartItemRepository;
 
     @Autowired
-    private UserRepository userRepository;
+    private CartService cartService;
+
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private ProductRepository productRepository;
@@ -59,7 +65,7 @@ class OrderControllerIntegrationTest {
     private CouponUserRepository couponUserRepository;
 
     @Autowired
-    private PointRepository pointRepository;
+    private PointService pointService;
 
     @BeforeEach
     void setUp() {
@@ -67,17 +73,15 @@ class OrderControllerIntegrationTest {
         orderRepository.clear();
         orderItemRepository.clear();
         cartItemRepository.clear();
-        cartItemRepository.init();
-        userRepository.clear();
-        userRepository.init();
+        userService.init();
         productRepository.clear();
         productRepository.init();
         couponRepository.clear();
         couponRepository.init();
         couponUserRepository.clear();
         couponUserRepository.init();
-        pointRepository.clear();
-        pointRepository.init();
+        pointService.init();
+        cartService.init();
     }
 
     @Nested

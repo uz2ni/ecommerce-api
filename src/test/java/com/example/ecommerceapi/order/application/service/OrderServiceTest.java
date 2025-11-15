@@ -113,8 +113,8 @@ class OrderServiceTest {
 
         cartItem1 = CartItem.builder()
                 .cartItemId(1)
-                .userId(1)
-                .productId(1)
+                .user(user)
+                .product(product1)
                 .productName("테스트 상품1")
                 .productPrice(10000)
                 .quantity(2)
@@ -123,8 +123,8 @@ class OrderServiceTest {
 
         cartItem2 = CartItem.builder()
                 .cartItemId(2)
-                .userId(1)
-                .productId(2)
+                .user(user)
+                .product(product2)
                 .productName("테스트 상품2")
                 .productPrice(20000)
                 .quantity(1)
@@ -142,8 +142,8 @@ class OrderServiceTest {
 
         couponUser = CouponUser.builder()
                 .couponUserId(1)
-                .couponId(1)
-                .userId(1)
+                .coupon(Coupon.builder().couponId(1).build())
+                .user(user)
                 .used(false)
                 .build();
     }
@@ -274,8 +274,8 @@ class OrderServiceTest {
 
             CartItem insufficientCartItem = CartItem.builder()
                     .cartItemId(1)
-                    .userId(1)
-                    .productId(1)
+                    .user(user)
+                    .product(insufficientProduct)
                     .quantity(5)
                     .build();
 
@@ -376,8 +376,8 @@ class OrderServiceTest {
 
             CouponUser usedCouponUser = CouponUser.builder()
                     .couponUserId(1)
-                    .couponId(1)
-                    .userId(1)
+                    .coupon(Coupon.builder().couponId(1).build())
+                    .user(user)
                     .used(true)
                     .build();
 
@@ -424,7 +424,7 @@ class OrderServiceTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .userId(1)
+                    .user(User.builder().userId(1).build())
                     .orderStatus(OrderStatus.PENDING)
                     .totalOrderAmount(40000)
                     .totalDiscountAmount(0)
@@ -435,8 +435,8 @@ class OrderServiceTest {
 
             OrderItem orderItem1 = OrderItem.builder()
                     .orderItemId(1)
-                    .orderId(1)
-                    .productId(1)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product1)
                     .productName("테스트 상품1")
                     .productPrice(10000)
                     .orderQuantity(2)
@@ -445,8 +445,8 @@ class OrderServiceTest {
 
             OrderItem orderItem2 = OrderItem.builder()
                     .orderItemId(2)
-                    .orderId(1)
-                    .productId(2)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product2)
                     .productName("테스트 상품2")
                     .productPrice(20000)
                     .orderQuantity(1)
@@ -492,23 +492,23 @@ class OrderServiceTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .userId(1)
+                    .user(User.builder().userId(1).build())
                     .orderStatus(OrderStatus.PENDING)
                     .finalPaymentAmount(40000)
-                    .couponId(null)
+                    .coupon(null)
                     .build();
 
             OrderItem orderItem = OrderItem.builder()
                     .orderItemId(1)
-                    .orderId(1)
-                    .productId(1)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product1)
                     .orderQuantity(2)
                     .build();
 
             given(orderRepository.findById(1)).willReturn(Optional.of(order));
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(orderItemRepository.findByOrderId(1)).willReturn(Arrays.asList(orderItem));
-            given(productRepository.findById(1)).willReturn(product1);
+            given(productRepository.findByIdWithLock(1)).willReturn(product1);
             given(cartItemRepository.findByUserId(1)).willReturn(Arrays.asList(cartItem1));
             given(orderRepository.save(any(Order.class))).willReturn(order);
 
@@ -543,7 +543,7 @@ class OrderServiceTest {
             // given
             Order paidOrder = Order.builder()
                     .orderId(1)
-                    .userId(1)
+                    .user(User.builder().userId(1).build())
                     .orderStatus(OrderStatus.PAID)
                     .finalPaymentAmount(40000)
                     .build();
@@ -568,10 +568,10 @@ class OrderServiceTest {
 
             Order order = Order.builder()
                     .orderId(1)
-                    .userId(1)
+                    .user(User.builder().userId(1).build())
                     .orderStatus(OrderStatus.PENDING)
                     .finalPaymentAmount(40000)
-                    .couponId(null)
+                    .coupon(null)
                     .build();
 
             given(orderRepository.findById(1)).willReturn(Optional.of(order));

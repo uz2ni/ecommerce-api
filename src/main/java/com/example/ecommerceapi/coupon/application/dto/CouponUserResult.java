@@ -17,8 +17,8 @@ public record CouponUserResult(
     public static CouponUserResult from(CouponUser couponUser, String userName) {
         return new CouponUserResult(
                 couponUser.getCouponUserId(),
-                couponUser.getCouponId(),
-                couponUser.getUserId(),
+                couponUser.getCoupon().getCouponId(),
+                couponUser.getUser().getUserId(),
                 userName,
                 couponUser.getUsed(),
                 couponUser.getIssuedAt(),
@@ -28,7 +28,7 @@ public record CouponUserResult(
 
     public static List<CouponUserResult> fromList(List<CouponUser> couponUsers, java.util.function.Function<Integer, String> userNameResolver) {
         return couponUsers.stream()
-                .map(cu -> from(cu, userNameResolver.apply(cu.getUserId())))
+                .map(cu -> from(cu, userNameResolver.apply(cu.getUser().getUserId())))
                 .toList();
     }
 }

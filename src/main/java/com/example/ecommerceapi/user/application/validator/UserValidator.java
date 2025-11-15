@@ -26,4 +26,18 @@ public class UserValidator {
         }
         return user;
     }
+
+    /**
+     * 사용자 존재 여부를 검증하고 User 엔티티를 반환합니다. (lock 사용)
+     * @param userId 검증할 사용자 ID
+     * @return User 엔티티
+     * @throws UserException 사용자가 존재하지 않을 경우
+     */
+    public User validateAndGetUserWithLock(Integer userId) {
+        User user = userRepository.findByIdWithLock(userId);
+        if (user == null) {
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
+        }
+        return user;
+    }
 }

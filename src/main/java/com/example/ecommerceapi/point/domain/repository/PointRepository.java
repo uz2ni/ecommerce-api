@@ -26,11 +26,6 @@ public interface PointRepository {
     void delete(Integer pointId);
 
     /**
-     * 모든 포인트 이력 삭제 (테스트용)
-     */
-    void clear();
-
-    /**
      * 초기 포인트 이력 데이터 생성 (테스트용)
      */
     void init();

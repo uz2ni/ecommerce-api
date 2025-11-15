@@ -293,9 +293,9 @@ class CouponControllerIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(jsonPath("$", hasSize(3)));
 
-            // 2. 쿠폰 발급
+            // 2. 쿠폰 발급 (user 2는 coupon 3을 아직 발급받지 않음)
             IssueCouponRequest issueRequest = new IssueCouponRequest(
-                    1,
+                    2,
                     3
             );
 
@@ -311,7 +311,7 @@ class CouponControllerIntegrationTest {
             // 3. 쿠폰 사용 이력 조회 - 발급한 내역이 포함되어 있는지 확인
             mockMvc.perform(get("/api/coupons/{couponId}/usage", 3))
                     .andExpect(status().isOk())
-                    .andExpect(jsonPath("$[?(@.couponUserId == " + couponUserId + ")].userId", contains(1)));
+                    .andExpect(jsonPath("$[?(@.couponUserId == " + couponUserId + ")].userId", contains(2)));
 
             // 4. 중복 발급 시도 - 실패해야 함
             mockMvc.perform(post("/api/coupons/issue")
@@ -325,11 +325,12 @@ class CouponControllerIntegrationTest {
         @Test
         @DisplayName("여러 사용자가 동일 쿠폰을 발급받을 수 있다")
         void multipleCouponIssuanceScenario() throws Exception {
-            // given
+            // given: coupon 3은 초기 데이터로 user 1, 4에게 발급됨
             Integer couponId = 3;
 
-            // when: 여러 사용자가 동일 쿠폰 발급
-            for (int userId = 1; userId <= 3; userId++) {
+            // when: 여러 사용자가 동일 쿠폰 발급 (user 2, 3, 5는 아직 발급받지 않음)
+            int[] userIds = {2, 3, 5};
+            for (int userId : userIds) {
                 IssueCouponRequest request = new IssueCouponRequest(
                         userId,
                         couponId

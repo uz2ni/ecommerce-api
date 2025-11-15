@@ -1,7 +1,11 @@
 package com.example.ecommerceapi.cart.presentation.controller;
 
+import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.cart.presentation.dto.AddCartItemRequest;
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
+import com.example.ecommerceapi.product.domain.repository.ProductRepository;
+import com.example.ecommerceapi.user.application.service.UserService;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -21,7 +25,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("CartController 통합 테스트")
-class CartControllerIntegrationTest {
+class CartControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;
@@ -32,11 +36,23 @@ class CartControllerIntegrationTest {
     @Autowired
     private CartItemRepository cartItemRepository;
 
+    @Autowired
+    private CartService cartService;
+
+    @Autowired
+    private UserService userService;
+
+    @Autowired
+    private ProductRepository productRepository;
+
     @BeforeEach
     void setUp() {
         // 각 테스트 전에 초기 상태로 리셋
         cartItemRepository.clear();
-        cartItemRepository.init();
+        userService.init();
+        productRepository.clear();
+        productRepository.init();
+        cartService.init();
     }
 
     @Nested

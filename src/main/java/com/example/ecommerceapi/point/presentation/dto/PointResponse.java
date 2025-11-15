@@ -10,6 +10,7 @@ public record PointResponse(
         Integer userId,
         String pointType,
         Integer pointAmount,
+        Integer pointBalance,
         LocalDateTime createdAt
 ) {
     public static PointResponse from(PointResult dto) {
@@ -18,6 +19,7 @@ public record PointResponse(
                 dto.userId(),
                 dto.pointType(),
                 dto.pointAmount(),
+                dto.pointBalance(),
                 dto.createdAt()
         );
     }

@@ -1,6 +1,8 @@
 package com.example.ecommerceapi.order.domain.entity;
 
 import com.example.ecommerceapi.common.exception.OrderException;
+import com.example.ecommerceapi.coupon.domain.entity.Coupon;
+import com.example.ecommerceapi.user.domain.entity.User;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -18,28 +20,28 @@ class OrderTest {
         @DisplayName("유효한 값으로 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithValidValues() {
             // given
-            Integer userId = 1;
+            User user = User.builder().userId(1).build();
             String deliveryUsername = "홍길동";
             String deliveryAddress = "서울시 강남구";
             Integer totalOrderAmount = 50000;
             Integer discountAmount = 5000;
-            Integer couponId = 1;
+            Coupon coupon = Coupon.builder().couponId(1).build();
 
             // when
             Order order = Order.createOrder(
-                    userId, deliveryUsername, deliveryAddress,
-                    totalOrderAmount, discountAmount, couponId
+                    user, deliveryUsername, deliveryAddress,
+                    totalOrderAmount, discountAmount, coupon
             );
 
             // then
             assertThat(order).isNotNull();
-            assertThat(order.getUserId()).isEqualTo(userId);
+            assertThat(order.getUser()).isEqualTo(user);
             assertThat(order.getDeliveryUsername()).isEqualTo(deliveryUsername);
             assertThat(order.getDeliveryAddress()).isEqualTo(deliveryAddress);
             assertThat(order.getTotalOrderAmount()).isEqualTo(totalOrderAmount);
             assertThat(order.getTotalDiscountAmount()).isEqualTo(discountAmount);
             assertThat(order.getFinalPaymentAmount()).isEqualTo(45000);
-            assertThat(order.getCouponId()).isEqualTo(couponId);
+            assertThat(order.getCoupon()).isEqualTo(coupon);
             assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
             assertThat(order.getUsedPoint()).isEqualTo(0);
             assertThat(order.getCreatedAt()).isNotNull();
@@ -50,12 +52,13 @@ class OrderTest {
         @DisplayName("할인 없이 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithoutDiscount() {
             // given
+            User user = User.builder().userId(1).build();
             Integer totalOrderAmount = 50000;
             Integer discountAmount = 0;
 
             // when
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     totalOrderAmount, discountAmount, null
             );
 
@@ -63,20 +66,21 @@ class OrderTest {
             assertThat(order.getTotalOrderAmount()).isEqualTo(totalOrderAmount);
             assertThat(order.getTotalDiscountAmount()).isEqualTo(0);
             assertThat(order.getFinalPaymentAmount()).isEqualTo(50000);
-            assertThat(order.getCouponId()).isNull();
+            assertThat(order.getCoupon()).isNull();
         }
 
         @Test
         @DisplayName("최종 결제 금액이 정확히 계산된다")
         void createOrder_ShouldCalculateFinalPaymentAmountCorrectly() {
             // given
+            User user = User.builder().userId(1).build();
             Integer totalOrderAmount = 100000;
             Integer discountAmount = 30000;
 
             // when
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
-                    totalOrderAmount, discountAmount, 1
+                    user, "홍길동", "서울시 강남구",
+                    totalOrderAmount, discountAmount, Coupon.builder().couponId(1).build()
             );
 
             // then
@@ -86,9 +90,12 @@ class OrderTest {
         @Test
         @DisplayName("주문 생성 시 초기 상태는 PENDING이다")
         void createOrder_ShouldHavePendingStatus() {
+            // given
+            User user = User.builder().userId(1).build();
+
             // when
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
 
@@ -105,8 +112,9 @@ class OrderTest {
         @DisplayName("PENDING 상태의 주문을 결제 완료 처리한다")
         void completePayment_ShouldChangeStatusToPaid_WhenPending() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
             assertThat(order.getOrderStatus()).isEqualTo(OrderStatus.PENDING);
@@ -123,8 +131,9 @@ class OrderTest {
         @DisplayName("이미 결제 완료된 주문은 예외가 발생한다")
         void completePayment_ShouldThrowException_WhenAlreadyPaid() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
             order.completePayment();
@@ -145,8 +154,9 @@ class OrderTest {
         @DisplayName("주문을 취소한다")
         void cancel_ShouldChangeStatusToCancelled() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
 
@@ -162,8 +172,9 @@ class OrderTest {
         @DisplayName("PAID 상태의 주문도 취소할 수 있다")
         void cancel_ShouldCancelPaidOrder() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
             order.completePayment();
@@ -185,8 +196,9 @@ class OrderTest {
         @DisplayName("PENDING 상태는 결제 가능하다")
         void validatePaymentAvailable_ShouldPass_WhenPending() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
 
@@ -199,8 +211,9 @@ class OrderTest {
         @DisplayName("PAID 상태는 결제 불가능하다")
         void validatePaymentAvailable_ShouldThrowException_WhenPaid() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
             order.completePayment();
@@ -215,8 +228,9 @@ class OrderTest {
         @DisplayName("CANCELLED 상태는 결제 불가능하다")
         void validatePaymentAvailable_ShouldThrowException_WhenCancelled() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
             order.cancel();
@@ -231,8 +245,9 @@ class OrderTest {
         @DisplayName("FAILED 상태는 결제 불가능하다")
         void validatePaymentAvailable_ShouldThrowException_WhenFailed() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
             order.markPaymentFailed();
@@ -252,9 +267,10 @@ class OrderTest {
         @DisplayName("쿠폰이 적용된 주문은 true를 반환한다")
         void hasCoupon_ShouldReturnTrue_WhenCouponApplied() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
-                    50000, 5000, 1
+                    user, "홍길동", "서울시 강남구",
+                    50000, 5000, Coupon.builder().couponId(1).build()
             );
 
             // when & then
@@ -265,8 +281,9 @@ class OrderTest {
         @DisplayName("쿠폰이 없는 주문은 false를 반환한다")
         void hasCoupon_ShouldReturnFalse_WhenNoCoupon() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
 
@@ -283,8 +300,9 @@ class OrderTest {
         @DisplayName("주문 상태를 FAILED로 변경한다")
         void markPaymentFailed_ShouldChangeStatusToFailed() {
             // given
+            User user = User.builder().userId(1).build();
             Order order = Order.createOrder(
-                    1, "홍길동", "서울시 강남구",
+                    user, "홍길동", "서울시 강남구",
                     50000, 0, null
             );
 
