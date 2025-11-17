@@ -13,7 +13,7 @@ public record CreateOrderResult(
     public static CreateOrderResult from(Order order) {
         return new CreateOrderResult(
                 order.getOrderId(),
-                order.getUserId(),
+                order.getUser().getUserId(),
                 order.getOrderStatus().name(),
                 order.getCreatedAt()
         );

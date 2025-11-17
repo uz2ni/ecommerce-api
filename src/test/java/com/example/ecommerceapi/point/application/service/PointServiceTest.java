@@ -63,7 +63,7 @@ class PointServiceTest {
 
         chargePoint = Point.builder()
                 .pointId(1)
-                .userId(1)
+                .user(testUser)
                 .pointType(PointType.CHARGE)
                 .pointAmount(5000)
                 .createdAt(LocalDateTime.now())
@@ -71,7 +71,7 @@ class PointServiceTest {
 
         usePoint = Point.builder()
                 .pointId(2)
-                .userId(1)
+                .user(testUser)
                 .pointType(PointType.USE)
                 .pointAmount(3000)
                 .createdAt(LocalDateTime.now())
@@ -132,13 +132,14 @@ class PointServiceTest {
         Integer beforeBalance = testUser.getPointBalance();
         Point savedPoint = Point.builder()
                 .pointId(1)
-                .userId(1)
+                .user(testUser)
                 .pointType(PointType.CHARGE)
                 .pointAmount(amount)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userValidator.validateAndGetUser(1)).willReturn(testUser);
+        given(userValidator.validateAndGetUserWithLock(1)).willReturn(testUser);
+        given(userRepository.save(any(User.class))).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
@@ -193,7 +194,7 @@ class PointServiceTest {
         // given
         Integer validAmount = 5000;
         willThrow(new UserException(com.example.ecommerceapi.common.exception.ErrorCode.USER_NOT_FOUND))
-                .given(userValidator).validateAndGetUser(999);
+                .given(userValidator).validateAndGetUserWithLock(999);
 
         // when & then
         assertThatThrownBy(() -> pointService.chargePoint(999, validAmount))
@@ -208,13 +209,13 @@ class PointServiceTest {
         Integer minAmount = 1000;
         Point savedPoint = Point.builder()
                 .pointId(1)
-                .userId(1)
+                .user(testUser)
                 .pointType(PointType.CHARGE)
                 .pointAmount(minAmount)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userValidator.validateAndGetUser(1)).willReturn(testUser);
+        given(userValidator.validateAndGetUserWithLock(1)).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
@@ -231,13 +232,13 @@ class PointServiceTest {
         Integer maxAmount = 1000000;
         Point savedPoint = Point.builder()
                 .pointId(1)
-                .userId(1)
+                .user(testUser)
                 .pointType(PointType.CHARGE)
                 .pointAmount(maxAmount)
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userValidator.validateAndGetUser(1)).willReturn(testUser);
+        given(userValidator.validateAndGetUserWithLock(1)).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when

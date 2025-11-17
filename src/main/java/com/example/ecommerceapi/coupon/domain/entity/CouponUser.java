@@ -2,27 +2,50 @@ package com.example.ecommerceapi.coupon.domain.entity;
 
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
+import com.example.ecommerceapi.user.domain.entity.User;
+import jakarta.persistence.*;
 import lombok.*;
 
 import java.time.LocalDateTime;
 
+@Entity
+@Table(name = "coupon_user", indexes = {
+    @Index(name = "idx_coupon_user_coupon_id", columnList = "coupon_id"),
+    @Index(name = "idx_coupon_user_user_id", columnList = "user_id"),
+    @Index(name = "idx_coupon_user_used", columnList = "used")
+})
 @Getter
 @Setter
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
 public class CouponUser {
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "coupon_user_id")
     private Integer couponUserId;
-    private Integer couponId;
-    private Integer userId;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "coupon_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private Coupon coupon;
+
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "user_id", nullable = false, foreignKey = @ForeignKey(ConstraintMode.NO_CONSTRAINT))
+    private User user;
+
+    @Column(nullable = false)
     private Boolean used;
+
+    @Column(name = "issued_at", nullable = false)
     private LocalDateTime issuedAt;
+
+    @Column(name = "used_at")
     private LocalDateTime usedAt;
 
-    public static CouponUser createIssuedCouponUser(Integer couponId, Integer userId) {
+    public static CouponUser createIssuedCouponUser(Coupon coupon, User user) {
         return CouponUser.builder()
-                .couponId(couponId)
-                .userId(userId)
+                .coupon(coupon)
+                .user(user)
                 .used(false)
                 .issuedAt(LocalDateTime.now())
                 .build();

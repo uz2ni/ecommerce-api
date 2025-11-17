@@ -1,7 +1,13 @@
 package com.example.ecommerceapi.order.domain.repository;
 
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
+import com.example.ecommerceapi.product.application.dto.PopularProductBySailsResult;
+import com.example.ecommerceapi.product.domain.entity.Product;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.repository.query.Param;
 
+import java.time.LocalDateTime;
 import java.util.List;
 import java.util.Optional;
 
@@ -40,4 +46,14 @@ public interface OrderItemRepository {
      * 모든 주문 항목 삭제 (테스트용)
      */
     void clear();
+
+
+    /**
+     * 판매수 기준 인기 상품 조회 (상위 N개)
+     */
+    List<PopularProductBySailsResult> findAllOrderByOrderQuantityDesc(
+            @Param("status") OrderStatus status,
+            @Param("startDate") LocalDateTime startDate,
+            Pageable pageable
+    );
 }

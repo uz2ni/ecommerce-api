@@ -23,7 +23,6 @@ class ProductTest {
                     .productPrice(10000)
                     .quantity(100)
                     .viewCount(50)
-                    .version(1)
                     .build();
 
             // when
@@ -44,7 +43,6 @@ class ProductTest {
                     .productPrice(10000)
                     .quantity(100)
                     .viewCount(0)
-                    .version(1)
                     .build();
 
             // when
@@ -65,7 +63,6 @@ class ProductTest {
                     .productPrice(10000)
                     .quantity(100)
                     .viewCount(10)
-                    .version(1)
                     .build();
 
             // when

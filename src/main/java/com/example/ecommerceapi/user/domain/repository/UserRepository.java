@@ -21,6 +21,11 @@ public interface UserRepository {
     User findById(Integer userId);
 
     /**
+     * ID로 사용자 조회 (락)
+     */
+    User findByIdWithLock(Integer userId);
+
+    /**
      * ID로 사용자의 포인트 잔액 조회
      */
     Integer findBalanceById(Integer userId);
@@ -28,12 +33,7 @@ public interface UserRepository {
     /**
      * 사용자 저장 (생성/수정)
      */
-    void save(User user);
-
-    /**
-     * 모든 사용자 삭제 (테스트용)
-     */
-    void clear();
+    User save(User user);
 
     /**
      * 초기 사용자 데이터 생성 (테스트용)

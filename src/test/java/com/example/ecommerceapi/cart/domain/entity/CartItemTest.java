@@ -1,6 +1,9 @@
 package com.example.ecommerceapi.cart.domain.entity;
 
 import com.example.ecommerceapi.common.exception.CartException;
+import com.example.ecommerceapi.product.domain.entity.Product;
+import com.example.ecommerceapi.user.domain.entity.User;
+import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
@@ -10,6 +13,27 @@ import static org.assertj.core.api.Assertions.*;
 @DisplayName("CartItem 엔티티 단위 테스트")
 class CartItemTest {
 
+    private User user;
+    private Product product;
+
+    @BeforeEach
+    void setUp() {
+        user = User.builder()
+                .userId(1)
+                .username("테스트 사용자")
+                .pointBalance(100000)
+                .build();
+
+        product = Product.builder()
+                .productId(1)
+                .productName("테스트 상품")
+                .description("테스트 상품 설명")
+                .productPrice(10000)
+                .quantity(100)
+                .viewCount(0)
+                .build();
+    }
+
     @Nested
     @DisplayName("장바구니 상품 생성 테스트")
     class CreateAddCartItemTest {
@@ -18,23 +42,19 @@ class CartItemTest {
         @DisplayName("유효한 값으로 장바구니 상품을 생성한다")
         void createAddCartItem_ShouldCreateCartItem_WithValidValues() {
             // given
-            Integer userId = 1;
-            Integer productId = 1;
-            String productName = "테스트 상품";
-            Integer productPrice = 10000;
             Integer quantity = 2;
 
             // when
             CartItem cartItem = CartItem.createAddCartItem(
-                    userId, productId, productName, productPrice, quantity
+                    user, product, quantity
             );
 
             // then
             assertThat(cartItem).isNotNull();
-            assertThat(cartItem.getUserId()).isEqualTo(userId);
-            assertThat(cartItem.getProductId()).isEqualTo(productId);
-            assertThat(cartItem.getProductName()).isEqualTo(productName);
-            assertThat(cartItem.getProductPrice()).isEqualTo(productPrice);
+            assertThat(cartItem.getUserId()).isEqualTo(1);
+            assertThat(cartItem.getProductId()).isEqualTo(1);
+            assertThat(cartItem.getProductName()).isEqualTo("테스트 상품");
+            assertThat(cartItem.getProductPrice()).isEqualTo(10000);
             assertThat(cartItem.getQuantity()).isEqualTo(quantity);
             assertThat(cartItem.getTotalPrice()).isEqualTo(20000);
             assertThat(cartItem.getCreatedAt()).isNotNull();
@@ -45,7 +65,7 @@ class CartItemTest {
         void createAddCartItem_ShouldCreateCartItem_WithQuantityOne() {
             // when
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 1
+                    user, product, 1
             );
 
             // then
@@ -58,7 +78,7 @@ class CartItemTest {
         void createAddCartItem_ShouldThrowException_WhenQuantityIsZero() {
             // when & then
             assertThatThrownBy(() ->
-                    CartItem.createAddCartItem(1, 1, "상품", 10000, 0)
+                    CartItem.createAddCartItem(user, product, 0)
             )
                     .isInstanceOf(CartException.class)
                     .hasMessage("수량은 1 이상이어야 합니다.");
@@ -69,7 +89,7 @@ class CartItemTest {
         void createAddCartItem_ShouldThrowException_WhenQuantityIsNegative() {
             // when & then
             assertThatThrownBy(() ->
-                    CartItem.createAddCartItem(1, 1, "상품", 10000, -1)
+                    CartItem.createAddCartItem(user, product, -1)
             )
                     .isInstanceOf(CartException.class)
                     .hasMessage("수량은 1 이상이어야 합니다.");
@@ -80,7 +100,7 @@ class CartItemTest {
         void createAddCartItem_ShouldThrowException_WhenQuantityIsNull() {
             // when & then
             assertThatThrownBy(() ->
-                    CartItem.createAddCartItem(1, 1, "상품", 10000, null)
+                    CartItem.createAddCartItem(user, product, null)
             )
                     .isInstanceOf(CartException.class)
                     .hasMessage("수량은 1 이상이어야 합니다.");
@@ -90,12 +110,19 @@ class CartItemTest {
         @DisplayName("총 금액이 정확히 계산된다")
         void createAddCartItem_ShouldCalculateTotalPriceCorrectly() {
             // given
-            Integer productPrice = 15000;
+            Product expensiveProduct = Product.builder()
+                    .productId(2)
+                    .productName("비싼 상품")
+                    .description("비싼 상품 설명")
+                    .productPrice(15000)
+                    .quantity(100)
+                    .viewCount(0)
+                    .build();
             Integer quantity = 3;
 
             // when
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", productPrice, quantity
+                    user, expensiveProduct, quantity
             );
 
             // then
@@ -112,7 +139,7 @@ class CartItemTest {
         void changeQuantityAndPrice_ShouldRecalculateTotalPrice() {
             // given
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 2
+                    user, product, 2
             );
             assertThat(cartItem.getTotalPrice()).isEqualTo(20000);
 
@@ -129,7 +156,7 @@ class CartItemTest {
         void changeQuantityAndPrice_ShouldChangeToOne() {
             // given
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 5
+                    user, product, 5
             );
 
             // when
@@ -145,7 +172,7 @@ class CartItemTest {
         void changeQuantityAndPrice_ShouldThrowException_WhenQuantityIsZero() {
             // given
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 2
+                    user, product, 2
             );
 
             // when & then
@@ -159,7 +186,7 @@ class CartItemTest {
         void changeQuantityAndPrice_ShouldThrowException_WhenQuantityIsNegative() {
             // given
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 2
+                    user, product, 2
             );
 
             // when & then
@@ -173,7 +200,7 @@ class CartItemTest {
         void changeQuantityAndPrice_ShouldThrowException_WhenQuantityIsNull() {
             // given
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 2
+                    user, product, 2
             );
 
             // when & then
@@ -187,7 +214,7 @@ class CartItemTest {
         void changeQuantityAndPrice_ShouldChangeMultipleTimes() {
             // given
             CartItem cartItem = CartItem.createAddCartItem(
-                    1, 1, "상품", 10000, 1
+                    user, product, 1
             );
 
             // when

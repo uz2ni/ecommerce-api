@@ -26,7 +26,7 @@ public record OrderResult(
 
         return new OrderResult(
                 order.getOrderId(),
-                order.getUserId(),
+                order.getUser().getUserId(),
                 order.getOrderStatus().name(),
                 order.getTotalOrderAmount(),
                 order.getTotalDiscountAmount(),
@@ -34,7 +34,7 @@ public record OrderResult(
                 order.getFinalPaymentAmount(),
                 order.getDeliveryUsername(),
                 order.getDeliveryAddress(),
-                order.getCouponId(),
+                order.getCoupon() != null ? order.getCoupon().getCouponId() : null,
                 order.getCreatedAt(),
                 order.getUpdatedAt(),
                 orderItemResults

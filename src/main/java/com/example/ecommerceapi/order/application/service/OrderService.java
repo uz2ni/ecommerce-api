@@ -2,7 +2,6 @@ package com.example.ecommerceapi.order.application.service;
 
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
-import com.example.ecommerceapi.common.aspect.WithLock;
 import com.example.ecommerceapi.common.exception.*;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
@@ -14,6 +13,7 @@ import com.example.ecommerceapi.order.application.dto.OrderResult;
 import com.example.ecommerceapi.order.application.dto.PaymentResult;
 import com.example.ecommerceapi.order.domain.entity.Order;
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
+import com.example.ecommerceapi.order.domain.entity.OrderStatus;
 import com.example.ecommerceapi.order.domain.repository.OrderItemRepository;
 import com.example.ecommerceapi.order.domain.repository.OrderRepository;
 import com.example.ecommerceapi.point.domain.entity.Point;
@@ -24,9 +24,9 @@ import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
+import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.context.annotation.Primary;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -34,7 +34,7 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Primary
+@Transactional
 @RequiredArgsConstructor
 public class OrderService {
 
@@ -52,23 +52,29 @@ public class OrderService {
 
     public CreateOrderResult createOrder(CreateOrderCommand command) {
         // 1. 사용자 검증
-        userValidator.validateAndGetUser(command.userId());
+        User user = userValidator.validateAndGetUser(command.userId());
 
-        // 2. 장바구니 조회 및 검증
+        // 2. 주문 중복 검증
+        boolean pendingOrderExists = orderRepository.existsByUserIdAndOrderStatus(user.getUserId(), OrderStatus.PENDING);
+        if (pendingOrderExists) {
+            throw new OrderException(ErrorCode.ORDER_ALREADY_EXISTS);
+        }
+
+        // 3. 장바구니 조회 및 검증
         List<CartItem> cartItems = cartItemRepository.findByUserId(command.userId());
         if (cartItems.isEmpty()) {
             throw new CartException(ErrorCode.CART_EMPTY);
         }
 
-        // 3. 각 상품의 재고 검증
+        // 4. 각 상품의 재고 검증
         for (CartItem cartItem : cartItems) {
             Product product = productValidator.validateAndGetProduct(cartItem.getProductId());
             product.validateStock(cartItem.getQuantity());
         }
 
-        // 4. 쿠폰 검증 (쿠폰 ID가 0이 아닌 경우에만)
+        // 5. 쿠폰 검증 (쿠폰 ID가 0이 아닌 경우에만)
         Integer discountAmount = 0;
-        Integer validCouponId = null;
+        Coupon validCoupon = null;
         if (command.couponId() != null && command.couponId() != 0) {
             // 쿠폰 존재 여부 확인
             Optional<Coupon> couponOpt = couponRepository.findById(command.couponId());
@@ -91,22 +97,22 @@ public class OrderService {
             couponUser.validateUsable();
 
             discountAmount = coupon.getDiscountAmount();
-            validCouponId = command.couponId();
+            validCoupon = coupon;
         }
 
-        // 5. 주문 총액 계산
+        // 6. 주문 총액 계산
         Integer totalOrderAmount = cartItems.stream()
                 .mapToInt(CartItem::getTotalPrice)
                 .sum();
 
         // 6. 주문 생성
         Order order = Order.createOrder(
-                command.userId(),
+                user,
                 command.deliveryUsername(),
                 command.deliveryAddress(),
                 totalOrderAmount,
                 discountAmount,
-                validCouponId
+                validCoupon
         );
         order = orderRepository.save(order);
 
@@ -115,11 +121,8 @@ public class OrderService {
         for (CartItem cartItem : cartItems) {
             Product product = productRepository.findById(cartItem.getProductId());
             OrderItem orderItem = OrderItem.createOrderItem(
-                    order.getOrderId(),
-                    product.getProductId(),
-                    product.getProductName(),
-                    product.getDescription(),
-                    product.getProductPrice(),
+                    order,
+                    product,
                     cartItem.getQuantity()
             );
             orderItem = orderItemRepository.save(orderItem);
@@ -143,7 +146,6 @@ public class OrderService {
         return OrderResult.buildGetOrder(order, orderItems);
     }
 
-    @WithLock(key = "'processPayment:' + #userId")
     public PaymentResult processPayment(Integer orderId, Integer userId) {
 
         Order order = orderRepository.findById(orderId)
@@ -167,14 +169,14 @@ public class OrderService {
             });
 
             // 2. 포인트 사용 이력 저장
-            Point point = Point.createUseHistory(userId, paymentAmount);
+            Point point = Point.createUseHistory(user, paymentAmount);
             pointRepository.save(point);
             compensationStack.push(() -> pointRepository.delete(point.getPointId()));
 
-            // 3. 상품 재고 차감
+            // 3. 상품 재고 차감 (비관적 락 사용)
             List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
             for (OrderItem item : items) {
-                Product product = productRepository.findById(item.getProductId());
+                Product product = productRepository.findByIdWithLock(item.getProduct().getProductId());
                 product.decreaseStock(item.getOrderQuantity());
                 productRepository.save(product);
 
@@ -187,7 +189,7 @@ public class OrderService {
             // 4. 쿠폰 사용 처리
             if (order.hasCoupon()) {
                 CouponUser couponUser = couponUserRepository
-                        .findByCouponIdAndUserId(order.getCouponId(), userId)
+                        .findByCouponIdAndUserId(order.getCoupon().getCouponId(), userId)
                         .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_ISSUED));
 
                 couponUser.markAsUsed();

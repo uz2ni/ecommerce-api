@@ -21,14 +21,16 @@ public record PopularProductResult(
         );
     }
 
-    public static PopularProductResult fromWithSales(Product product, Integer salesCount) {
-        return new PopularProductResult(
-                product.getProductId(),
-                product.getProductName(),
-                product.getProductPrice(),
-                salesCount,
-                product.getViewCount()
-        );
+    public static List<PopularProductResult> fromWithSalesList(List<PopularProductBySailsResult> results) {
+        return results.stream()
+                .map(result -> new PopularProductResult(
+                        result.getProduct().getProductId(),
+                        result.getProduct().getProductName(),
+                        result.getProduct().getProductPrice(),
+                        result.getSalesCount(),
+                        result.getProduct().getViewCount()
+                ))
+                .toList();
     }
 
     public static List<PopularProductResult> fromList(List<Product> product) {
