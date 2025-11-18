@@ -54,6 +54,7 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(0)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();
@@ -107,6 +108,7 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(9)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();
@@ -163,6 +165,7 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(0)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();

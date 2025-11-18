@@ -51,6 +51,11 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
     }
 
     @Override
+    public Optional<CouponUser> findByCouponIdAndUserIdWithOptimisticLock(Integer couponId, Integer userId) {
+        return jpaCouponUserRepository.findByCouponIdAndUserIdWithOptimisticLock(couponId, userId);
+    }
+
+    @Override
     public List<CouponUser> findByUserId(Integer userId) {
         return jpaCouponUserRepository.findByUser_UserId(userId);
     }
@@ -71,9 +76,9 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
         couponUserTableUtils.resetCouponUserTable();
 
         // 2. 쿠폰 객체 생성
-        Coupon coupon1 = Coupon.builder().couponId(1).build();
-        Coupon coupon2 = Coupon.builder().couponId(2).build();
-        Coupon coupon3 = Coupon.builder().couponId(3).build();
+        Coupon coupon1 = Coupon.builder().couponId(1).version(1).build();
+        Coupon coupon2 = Coupon.builder().couponId(2).version(1).build();
+        Coupon coupon3 = Coupon.builder().couponId(3).version(1).build();
 
         // 3. 초기 쿠폰 발급 이력 생성
         // 쿠폰 1 발급 이력
@@ -83,6 +88,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(true)
                 .issuedAt(LocalDateTime.now().minusDays(5))
                 .usedAt(LocalDateTime.now().minusDays(3))
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
@@ -91,6 +97,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(4))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
@@ -99,6 +106,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(2))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         // 쿠폰 2 발급 이력
@@ -108,6 +116,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(10))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
@@ -116,6 +125,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(9))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
@@ -124,6 +134,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(8))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         // 쿠폰 3 발급 이력
@@ -133,6 +144,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(3))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
@@ -141,6 +153,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(2))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         log.info("초기 쿠폰 발급 이력 데이터 생성 완료");

@@ -27,6 +27,9 @@ import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
+import org.springframework.retry.annotation.Backoff;
+import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 
 import java.util.*;
@@ -146,6 +149,24 @@ public class OrderService {
         return OrderResult.buildGetOrder(order, orderItems);
     }
 
+    /**
+     * 쿠폰 사용 처리 (낙관적 락 사용)
+     * OptimisticLockException 발생 시 최대 3번 재시도 (100ms 간격)
+     */
+    @Retryable(
+            retryFor = {ObjectOptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class},
+            maxAttempts = 3,
+            backoff = @Backoff(delay = 100)
+    )
+    private CouponUser useCouponWithOptimisticLock(Integer couponId, Integer userId) {
+        CouponUser couponUser = couponUserRepository
+                .findByCouponIdAndUserIdWithOptimisticLock(couponId, userId)
+                .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_ISSUED));
+
+        couponUser.markAsUsed();
+        return couponUserRepository.save(couponUser);
+    }
+
     public PaymentResult processPayment(Integer orderId, Integer userId) {
 
         Order order = orderRepository.findById(orderId)
@@ -186,15 +207,9 @@ public class OrderService {
                 });
             }
 
-            // 4. 쿠폰 사용 처리
+            // 4. 쿠폰 사용 처리 (낙관적 락 사용)
             if (order.hasCoupon()) {
-                CouponUser couponUser = couponUserRepository
-                        .findByCouponIdAndUserId(order.getCoupon().getCouponId(), userId)
-                        .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_ISSUED));
-
-                couponUser.markAsUsed();
-                couponUserRepository.save(couponUser);
-
+                CouponUser couponUser = useCouponWithOptimisticLock(order.getCoupon().getCouponId(), userId);
                 compensationStack.push(() -> {
                     couponUser.markAsUnused();
                     couponUserRepository.save(couponUser);

@@ -42,6 +42,10 @@ public class CouponUser {
     @Column(name = "used_at")
     private LocalDateTime usedAt;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     public static CouponUser createIssuedCouponUser(Coupon coupon, User user) {
         return CouponUser.builder()
                 .coupon(coupon)

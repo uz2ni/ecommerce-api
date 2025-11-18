@@ -85,6 +85,7 @@ class CouponServiceTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
 
         expiredCoupon = Coupon.builder()
@@ -95,6 +96,7 @@ class CouponServiceTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().minusDays(1))
                 .createdAt(LocalDateTime.now().minusDays(30))
+                .version(1)
                 .build();
 
         soldOutCoupon = Coupon.builder()
@@ -105,6 +107,7 @@ class CouponServiceTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
 
         couponUser1 = CouponUser.builder()
@@ -113,6 +116,7 @@ class CouponServiceTest {
                 .user(user)
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(5))
+                .version(1)
                 .build();
 
         couponUser2 = CouponUser.builder()
@@ -122,6 +126,7 @@ class CouponServiceTest {
                 .used(true)
                 .issuedAt(LocalDateTime.now().minusDays(4))
                 .usedAt(LocalDateTime.now().minusDays(2))
+                .version(1)
                 .build();
     }
 
@@ -302,6 +307,7 @@ class CouponServiceTest {
                     .issuedQuantity(9)
                     .expiredAt(LocalDateTime.now().plusDays(30))
                     .createdAt(LocalDateTime.now())
+                    .version(1)
                     .build();
 
             IssueCouponCommand command = new IssueCouponCommand(
