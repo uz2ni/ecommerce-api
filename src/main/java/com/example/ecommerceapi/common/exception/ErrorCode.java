@@ -53,6 +53,7 @@ public enum ErrorCode {
     POINT_INSUFFICIENT_BALANCE("PT01", "포인트 잔액이 부족합니다.", 409),
     POINT_INVALID_AMOUNT("PT02", "포인트 금액이 유효하지 않습니다.", 400),
     POINT_CHARGE_IN_PROGRESS("PT03", "포인트 충전 요청이 처리 중입니다. 잠시 후 다시 시도해주세요.", 409),
+    POINT_RACE_CONDITION("PT04", "포인트 충전 요청이 중복됩니다. 잠시 후 다시 시도해주세요.", 409),
 
     /**
      * 동시성 제어(LK__)

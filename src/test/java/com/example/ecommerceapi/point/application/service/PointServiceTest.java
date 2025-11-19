@@ -59,6 +59,7 @@ class PointServiceTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(10000)
+                .version(0)
                 .build();
 
         chargePoint = Point.builder()
@@ -138,7 +139,7 @@ class PointServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userValidator.validateAndGetUserWithLock(1)).willReturn(testUser);
+        given(userRepository.findByIdWithOptimisticLock(1)).willReturn(testUser);
         given(userRepository.save(any(User.class))).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
@@ -193,8 +194,7 @@ class PointServiceTest {
     void chargePoint_ShouldThrowException_WhenUserNotFound() {
         // given
         Integer validAmount = 5000;
-        willThrow(new UserException(com.example.ecommerceapi.common.exception.ErrorCode.USER_NOT_FOUND))
-                .given(userValidator).validateAndGetUserWithLock(999);
+        given(userRepository.findByIdWithOptimisticLock(999)).willReturn(null);
 
         // when & then
         assertThatThrownBy(() -> pointService.chargePoint(999, validAmount))
@@ -215,7 +215,7 @@ class PointServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userValidator.validateAndGetUserWithLock(1)).willReturn(testUser);
+        given(userRepository.findByIdWithOptimisticLock(1)).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
@@ -238,7 +238,7 @@ class PointServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userValidator.validateAndGetUserWithLock(1)).willReturn(testUser);
+        given(userRepository.findByIdWithOptimisticLock(1)).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when

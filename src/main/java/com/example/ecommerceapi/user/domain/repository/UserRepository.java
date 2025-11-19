@@ -21,9 +21,14 @@ public interface UserRepository {
     User findById(Integer userId);
 
     /**
-     * ID로 사용자 조회 (락)
+     * ID로 사용자 조회 (비관적 락)
      */
     User findByIdWithLock(Integer userId);
+
+    /**
+     * ID로 사용자 조회 (낙관적 락)
+     */
+    User findByIdWithOptimisticLock(Integer userId);
 
     /**
      * ID로 사용자의 포인트 잔액 조회

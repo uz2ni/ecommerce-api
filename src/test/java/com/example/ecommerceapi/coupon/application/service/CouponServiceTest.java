@@ -69,12 +69,14 @@ class CouponServiceTest {
                 .userId(1)
                 .username("테스트 사용자")
                 .pointBalance(100000)
+                .version(0)
                 .build();
 
         user2 = User.builder()
                 .userId(2)
                 .username("테스트 사용자2")
                 .pointBalance(200000)
+                .version(0)
                 .build();
 
         availableCoupon = Coupon.builder()
@@ -112,7 +114,7 @@ class CouponServiceTest {
 
         couponUser1 = CouponUser.builder()
                 .couponUserId(1)
-                .coupon(Coupon.builder().couponId(1).build())
+                .coupon(Coupon.builder().couponId(1).version(1).build())
                 .user(user)
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(5))
@@ -121,7 +123,7 @@ class CouponServiceTest {
 
         couponUser2 = CouponUser.builder()
                 .couponUserId(2)
-                .coupon(Coupon.builder().couponId(1).build())
+                .coupon(Coupon.builder().couponId(1).version(1).build())
                 .user(user2)
                 .used(true)
                 .issuedAt(LocalDateTime.now().minusDays(4))
@@ -345,8 +347,8 @@ class CouponServiceTest {
         void getCouponUsageHistory_ShouldReturnUsageHistory() {
             // given
             List<CouponUser> couponUsers = Arrays.asList(couponUser1, couponUser2);
-            User user1 = User.builder().userId(1).username("사용자1").build();
-            User user2 = User.builder().userId(2).username("사용자2").build();
+            User user1 = User.builder().userId(1).username("사용자1").version(0).build();
+            User user2 = User.builder().userId(2).username("사용자2").version(0).build();
 
             given(couponValidator.validateAndGetCoupon(1)).willReturn(availableCoupon);
             given(couponUserRepository.findByCouponId(1)).willReturn(couponUsers);

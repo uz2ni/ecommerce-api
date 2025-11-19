@@ -24,13 +24,14 @@ import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Propagation;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -151,14 +152,14 @@ public class OrderService {
 
     /**
      * 쿠폰 사용 처리 (낙관적 락 사용)
-     * OptimisticLockException 발생 시 최대 3번 재시도 (100ms 간격)
      */
     @Retryable(
             retryFor = {ObjectOptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class},
-            maxAttempts = 3,
+            maxAttempts = 5,
             backoff = @Backoff(delay = 100)
     )
-    private CouponUser useCouponWithOptimisticLock(Integer couponId, Integer userId) {
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public CouponUser useCouponWithOptimisticLock(Integer couponId, Integer userId) {
         CouponUser couponUser = couponUserRepository
                 .findByCouponIdAndUserIdWithOptimisticLock(couponId, userId)
                 .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_ISSUED));
@@ -167,23 +168,40 @@ public class OrderService {
         return couponUserRepository.save(couponUser);
     }
 
+    /**
+     * 포인트 차감 처리 (낙관적 락 사용)
+     */
+    @Retryable(
+            retryFor = {ObjectOptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class},
+            maxAttempts = 5,
+            backoff = @Backoff(delay = 100)
+    )
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    public User deductPointsWithOptimisticLock(Integer userId, Integer amount) {
+        User user = userRepository.findByIdWithOptimisticLock(userId);
+        if (user == null) {
+            throw new UserException(ErrorCode.USER_NOT_FOUND);
+        }
+
+        user.usePoints(amount);
+        return userRepository.save(user);
+    }
+
+    @Transactional(propagation = Propagation.REQUIRES_NEW)
     public PaymentResult processPayment(Integer orderId, Integer userId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
         order.validatePaymentAvailable();
 
-        User user = userValidator.validateAndGetUser(userId);
-
         // 보상 트랜잭션을 위한 스택
         // (Stack은 레거시,성능낮음 문제로 속도 빠른 Deque 채택)
         Deque<Runnable> compensationStack = new ArrayDeque<>();
 
         try {
-            // 1. 포인트 차감
+            // 1. 포인트 차감 (낙관적 락 사용)
             Integer paymentAmount = order.getFinalPaymentAmount();
-            user.usePoints(paymentAmount);
-            userRepository.save(user);
+            User user = deductPointsWithOptimisticLock(userId, paymentAmount);
             compensationStack.push(() -> {
                 user.addPoints(paymentAmount);
                 userRepository.save(user);

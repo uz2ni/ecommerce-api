@@ -21,7 +21,7 @@ class CouponUserTest {
         void createIssuedCouponUser_ShouldCreateCouponUser_WithValidValues() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
@@ -40,7 +40,7 @@ class CouponUserTest {
         void createIssuedCouponUser_ShouldBeUnused() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
@@ -55,7 +55,7 @@ class CouponUserTest {
         void createIssuedCouponUser_ShouldSetIssuedAtToNow() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             LocalDateTime before = LocalDateTime.now().minusSeconds(1);
 
             // when
@@ -77,7 +77,7 @@ class CouponUserTest {
         void markAsUsed_ShouldSetUsedToTrue() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
             assertThat(couponUser.getUsed()).isFalse();
 
@@ -93,7 +93,7 @@ class CouponUserTest {
         void markAsUsed_ShouldSetUsedAt() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
             assertThat(couponUser.getUsedAt()).isNull();
 
@@ -114,7 +114,7 @@ class CouponUserTest {
         void markAsUsed_ShouldWorkOnAlreadyUsedCoupon() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
             couponUser.markAsUsed();
             LocalDateTime firstUsedAt = couponUser.getUsedAt();
@@ -144,7 +144,7 @@ class CouponUserTest {
         void builder_ShouldCreateCouponUser() {
             // given
             Coupon coupon = Coupon.builder().couponId(10).version(1).build();
-            User user = User.builder().userId(20).build();
+            User user = User.builder().userId(20).version(0).build();
             LocalDateTime now = LocalDateTime.now();
 
             // when
@@ -155,6 +155,7 @@ class CouponUserTest {
                     .used(true)
                     .issuedAt(now)
                     .usedAt(now.plusDays(1))
+                    .version(1)
                     .build();
 
             // then
@@ -171,7 +172,7 @@ class CouponUserTest {
         void builder_ShouldCreateUnusedCoupon() {
             // given
             Coupon coupon = Coupon.builder().couponId(1).version(1).build();
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             CouponUser couponUser = CouponUser.builder()
@@ -179,6 +180,7 @@ class CouponUserTest {
                     .user(user)
                     .used(false)
                     .issuedAt(LocalDateTime.now())
+                    .version(1)
                     .build();
 
             // then

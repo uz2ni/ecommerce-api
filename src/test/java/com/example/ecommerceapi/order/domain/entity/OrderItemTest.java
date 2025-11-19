@@ -21,7 +21,7 @@ class OrderItemTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .user(User.builder().userId(1).build())
+                    .user(User.builder().userId(1).version(0).build())
                     .build();
             Product product = Product.builder()
                     .productId(1)
@@ -54,7 +54,7 @@ class OrderItemTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .user(User.builder().userId(1).build())
+                    .user(User.builder().userId(1).version(0).build())
                     .build();
             Product product = Product.builder()
                     .productId(1)
@@ -80,7 +80,7 @@ class OrderItemTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .user(User.builder().userId(1).build())
+                    .user(User.builder().userId(1).version(0).build())
                     .build();
             Product product = Product.builder()
                     .productId(1)
@@ -106,7 +106,7 @@ class OrderItemTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .user(User.builder().userId(1).build())
+                    .user(User.builder().userId(1).version(0).build())
                     .build();
 
             Product product1 = Product.builder()
@@ -149,7 +149,7 @@ class OrderItemTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .user(User.builder().userId(1).build())
+                    .user(User.builder().userId(1).version(0).build())
                     .build();
 
             Product product1 = Product.builder()
@@ -191,7 +191,7 @@ class OrderItemTest {
             // given
             Order order = Order.builder()
                     .orderId(1)
-                    .user(User.builder().userId(1).build())
+                    .user(User.builder().userId(1).version(0).build())
                     .build();
 
             Integer orderQuantity = 10;

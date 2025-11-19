@@ -17,6 +17,7 @@ class UserTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(10000)
+                .version(0)
                 .build();
 
         // when
@@ -34,6 +35,7 @@ class UserTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(10000)
+                .version(0)
                 .build();
 
         // when
@@ -51,6 +53,7 @@ class UserTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(5000)
+                .version(0)
                 .build();
 
         // when & then
@@ -67,6 +70,7 @@ class UserTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(10000)
+                .version(0)
                 .build();
 
         // when
@@ -84,6 +88,7 @@ class UserTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(5000)
+                .version(0)
                 .build();
 
         // when

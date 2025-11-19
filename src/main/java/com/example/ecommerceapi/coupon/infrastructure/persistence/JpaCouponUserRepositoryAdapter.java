@@ -84,7 +84,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
         // 쿠폰 1 발급 이력
         save(CouponUser.builder()
                 .coupon(coupon1)
-                .user(User.builder().userId(1).build())
+                .user(User.builder().userId(1).version(0).build())
                 .used(true)
                 .issuedAt(LocalDateTime.now().minusDays(5))
                 .usedAt(LocalDateTime.now().minusDays(3))
@@ -93,7 +93,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
 
         save(CouponUser.builder()
                 .coupon(coupon1)
-                .user(User.builder().userId(2).build())
+                .user(User.builder().userId(2).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(4))
                 .usedAt(null)
@@ -102,7 +102,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
 
         save(CouponUser.builder()
                 .coupon(coupon1)
-                .user(User.builder().userId(3).build())
+                .user(User.builder().userId(3).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(2))
                 .usedAt(null)
@@ -112,7 +112,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
         // 쿠폰 2 발급 이력
         save(CouponUser.builder()
                 .coupon(coupon2)
-                .user(User.builder().userId(1).build())
+                .user(User.builder().userId(1).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(10))
                 .usedAt(null)
@@ -121,7 +121,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
 
         save(CouponUser.builder()
                 .coupon(coupon2)
-                .user(User.builder().userId(2).build())
+                .user(User.builder().userId(2).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(9))
                 .usedAt(null)
@@ -130,7 +130,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
 
         save(CouponUser.builder()
                 .coupon(coupon2)
-                .user(User.builder().userId(3).build())
+                .user(User.builder().userId(3).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(8))
                 .usedAt(null)
@@ -140,7 +140,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
         // 쿠폰 3 발급 이력
         save(CouponUser.builder()
                 .coupon(coupon3)
-                .user(User.builder().userId(1).build())
+                .user(User.builder().userId(1).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(3))
                 .usedAt(null)
@@ -149,7 +149,7 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
 
         save(CouponUser.builder()
                 .coupon(coupon3)
-                .user(User.builder().userId(4).build())
+                .user(User.builder().userId(4).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(2))
                 .usedAt(null)

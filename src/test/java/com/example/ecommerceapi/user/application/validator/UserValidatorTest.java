@@ -32,6 +32,7 @@ class UserValidatorTest {
                 .userId(1)
                 .username("testUser")
                 .pointBalance(10000)
+                .version(0)
                 .build();
     }
 

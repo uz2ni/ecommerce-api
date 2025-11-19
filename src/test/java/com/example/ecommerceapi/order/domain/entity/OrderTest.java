@@ -20,7 +20,7 @@ class OrderTest {
         @DisplayName("유효한 값으로 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithValidValues() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             String deliveryUsername = "홍길동";
             String deliveryAddress = "서울시 강남구";
             Integer totalOrderAmount = 50000;
@@ -52,7 +52,7 @@ class OrderTest {
         @DisplayName("할인 없이 주문을 생성한다")
         void createOrder_ShouldCreateOrder_WithoutDiscount() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Integer totalOrderAmount = 50000;
             Integer discountAmount = 0;
 
@@ -73,7 +73,7 @@ class OrderTest {
         @DisplayName("최종 결제 금액이 정확히 계산된다")
         void createOrder_ShouldCalculateFinalPaymentAmountCorrectly() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Integer totalOrderAmount = 100000;
             Integer discountAmount = 30000;
 
@@ -91,7 +91,7 @@ class OrderTest {
         @DisplayName("주문 생성 시 초기 상태는 PENDING이다")
         void createOrder_ShouldHavePendingStatus() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             Order order = Order.createOrder(
@@ -112,7 +112,7 @@ class OrderTest {
         @DisplayName("PENDING 상태의 주문을 결제 완료 처리한다")
         void completePayment_ShouldChangeStatusToPaid_WhenPending() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -131,7 +131,7 @@ class OrderTest {
         @DisplayName("이미 결제 완료된 주문은 예외가 발생한다")
         void completePayment_ShouldThrowException_WhenAlreadyPaid() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -154,7 +154,7 @@ class OrderTest {
         @DisplayName("주문을 취소한다")
         void cancel_ShouldChangeStatusToCancelled() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -172,7 +172,7 @@ class OrderTest {
         @DisplayName("PAID 상태의 주문도 취소할 수 있다")
         void cancel_ShouldCancelPaidOrder() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -196,7 +196,7 @@ class OrderTest {
         @DisplayName("PENDING 상태는 결제 가능하다")
         void validatePaymentAvailable_ShouldPass_WhenPending() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -211,7 +211,7 @@ class OrderTest {
         @DisplayName("PAID 상태는 결제 불가능하다")
         void validatePaymentAvailable_ShouldThrowException_WhenPaid() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -228,7 +228,7 @@ class OrderTest {
         @DisplayName("CANCELLED 상태는 결제 불가능하다")
         void validatePaymentAvailable_ShouldThrowException_WhenCancelled() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -245,7 +245,7 @@ class OrderTest {
         @DisplayName("FAILED 상태는 결제 불가능하다")
         void validatePaymentAvailable_ShouldThrowException_WhenFailed() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -267,7 +267,7 @@ class OrderTest {
         @DisplayName("쿠폰이 적용된 주문은 true를 반환한다")
         void hasCoupon_ShouldReturnTrue_WhenCouponApplied() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 5000, Coupon.builder().couponId(1).version(1).build()
@@ -281,7 +281,7 @@ class OrderTest {
         @DisplayName("쿠폰이 없는 주문은 false를 반환한다")
         void hasCoupon_ShouldReturnFalse_WhenNoCoupon() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null
@@ -300,7 +300,7 @@ class OrderTest {
         @DisplayName("주문 상태를 FAILED로 변경한다")
         void markPaymentFailed_ShouldChangeStatusToFailed() {
             // given
-            User user = User.builder().userId(1).build();
+            User user = User.builder().userId(1).version(0).build();
             Order order = Order.createOrder(
                     user, "홍길동", "서울시 강남구",
                     50000, 0, null

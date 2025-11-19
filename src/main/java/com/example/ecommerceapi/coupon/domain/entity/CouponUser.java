@@ -52,6 +52,7 @@ public class CouponUser {
                 .user(user)
                 .used(false)
                 .issuedAt(LocalDateTime.now())
+                .version(0)
                 .build();
     }
 
