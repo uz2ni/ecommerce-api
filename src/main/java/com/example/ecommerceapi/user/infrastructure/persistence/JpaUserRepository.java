@@ -24,14 +24,6 @@ public interface JpaUserRepository extends JpaRepository<User, Integer> {
     Optional<User> findByIdWithLock(@Param("userId") Integer userId);
 
     /**
-     * ID로 사용자 조회 (낙관적 락 적용)
-     * 결제 시 포인트 차감 등 동시성 제어를 위해 사용
-     */
-    @Lock(LockModeType.OPTIMISTIC)
-    @Query("SELECT u FROM User u WHERE u.userId = :userId")
-    Optional<User> findByIdWithOptimisticLock(@Param("userId") Integer userId);
-
-    /**
      * ID로 사용자의 포인트 잔액만 조회
      */
     @Query("SELECT u.pointBalance FROM User u WHERE u.userId = :userId")

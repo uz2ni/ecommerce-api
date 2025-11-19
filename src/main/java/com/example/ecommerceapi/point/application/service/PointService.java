@@ -18,7 +18,6 @@ import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Recover;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -26,7 +25,6 @@ import java.util.stream.Collectors;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class PointService {
 
@@ -41,6 +39,7 @@ public class PointService {
     private final UserValidator userValidator;
     private final PointTableUtils pointTableUtils;
 
+    @Transactional(readOnly = true)
     public List<PointResult> getPointHistory(Integer userId) {
         // 사용자 검증
         User user = userValidator.validateAndGetUser(userId);
@@ -53,7 +52,7 @@ public class PointService {
     /**
      * 포인트 충전 (낙관적 락 사용)
      */
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PointResult chargePoint(Integer userId, Integer amount) {
 
         // 1. 금액 유효성 검증
@@ -61,8 +60,6 @@ public class PointService {
 
         // 2. 사용자 조회 (낙관적 락 적용)
         User user = userRepository.findById(userId);
-        // User user = userRepository.findByIdWithOptimisticLock(userId);
-        // User user = userRepository.findByIdWithLock(userId);
         if (user == null) {
             throw new UserException(ErrorCode.USER_NOT_FOUND);
         }
@@ -84,12 +81,13 @@ public class PointService {
             maxAttempts = 5,
             backoff = @Backoff(delay = 100)
     )
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected void chargePointsWithRetry(User user, Integer amount) {
+    @Transactional
+    public void chargePointsWithRetry(User user, Integer amount) {
         user.chargePoints(amount);
         userRepository.save(user);
     }
 
+    @Transactional
     public void init() {
         // 1. 테이블 초기화
         pointTableUtils.resetPointTable();

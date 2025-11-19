@@ -139,7 +139,7 @@ class PointServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userRepository.findByIdWithOptimisticLock(1)).willReturn(testUser);
+        given(userRepository.findById(1)).willReturn(testUser);
         given(userRepository.save(any(User.class))).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
@@ -194,7 +194,7 @@ class PointServiceTest {
     void chargePoint_ShouldThrowException_WhenUserNotFound() {
         // given
         Integer validAmount = 5000;
-        given(userRepository.findByIdWithOptimisticLock(999)).willReturn(null);
+        given(userRepository.findById(999)).willReturn(null);
 
         // when & then
         assertThatThrownBy(() -> pointService.chargePoint(999, validAmount))
@@ -215,7 +215,7 @@ class PointServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userRepository.findByIdWithOptimisticLock(1)).willReturn(testUser);
+        given(userRepository.findById(1)).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when
@@ -238,7 +238,7 @@ class PointServiceTest {
                 .createdAt(LocalDateTime.now())
                 .build();
 
-        given(userRepository.findByIdWithOptimisticLock(1)).willReturn(testUser);
+        given(userRepository.findById(1)).willReturn(testUser);
         given(pointRepository.save(any(Point.class))).willReturn(savedPoint);
 
         // when

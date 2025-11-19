@@ -39,6 +39,9 @@ public class Point {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Version
+    private Integer version;
+
     /**
      * 포인트 충전 이력을 생성합니다.
      * @param user 사용자

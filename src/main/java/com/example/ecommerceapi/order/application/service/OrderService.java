@@ -30,15 +30,14 @@ import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.retry.annotation.Backoff;
 import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Propagation;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Optional;
 
 @Slf4j
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class OrderService {
 
@@ -54,6 +53,7 @@ public class OrderService {
     private final PointRepository pointRepository;
 
 
+    @Transactional
     public CreateOrderResult createOrder(CreateOrderCommand command) {
         // 1. 사용자 검증
         User user = userValidator.validateAndGetUser(command.userId());
@@ -136,6 +136,7 @@ public class OrderService {
         return CreateOrderResult.from(order);
     }
 
+    @Transactional(readOnly = true)
     public OrderResult getOrder(Integer orderId) {
         // 1. 주문 조회
         Optional<Order> orderOpt = orderRepository.findById(orderId);
@@ -151,17 +152,12 @@ public class OrderService {
     }
 
     /**
-     * 쿠폰 사용 처리 (낙관적 락 사용)
+     * 쿠폰 사용 처리
      */
-    @Retryable(
-            retryFor = {ObjectOptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class},
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 100)
-    )
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public CouponUser useCouponWithOptimisticLock(Integer couponId, Integer userId) {
         CouponUser couponUser = couponUserRepository
-                .findByCouponIdAndUserIdWithOptimisticLock(couponId, userId)
+                .findByCouponIdAndUserId(couponId, userId)
                 .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_ISSUED));
 
         couponUser.markAsUsed();
@@ -169,16 +165,11 @@ public class OrderService {
     }
 
     /**
-     * 포인트 차감 처리 (낙관적 락 사용)
+     * 포인트 차감 처리
      */
-    @Retryable(
-            retryFor = {ObjectOptimisticLockingFailureException.class, jakarta.persistence.OptimisticLockException.class},
-            maxAttempts = 5,
-            backoff = @Backoff(delay = 100)
-    )
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public User deductPointsWithOptimisticLock(Integer userId, Integer amount) {
-        User user = userRepository.findByIdWithOptimisticLock(userId);
+        User user = userRepository.findById(userId);
         if (user == null) {
             throw new UserException(ErrorCode.USER_NOT_FOUND);
         }
@@ -187,30 +178,21 @@ public class OrderService {
         return userRepository.save(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PaymentResult processPayment(Integer orderId, Integer userId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
         order.validatePaymentAvailable();
 
-        // 보상 트랜잭션을 위한 스택
-        // (Stack은 레거시,성능낮음 문제로 속도 빠른 Deque 채택)
-        Deque<Runnable> compensationStack = new ArrayDeque<>();
-
         try {
             // 1. 포인트 차감 (낙관적 락 사용)
             Integer paymentAmount = order.getFinalPaymentAmount();
             User user = deductPointsWithOptimisticLock(userId, paymentAmount);
-            compensationStack.push(() -> {
-                user.addPoints(paymentAmount);
-                userRepository.save(user);
-            });
 
             // 2. 포인트 사용 이력 저장
             Point point = Point.createUseHistory(user, paymentAmount);
             pointRepository.save(point);
-            compensationStack.push(() -> pointRepository.delete(point.getPointId()));
 
             // 3. 상품 재고 차감 (비관적 락 사용)
             List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
@@ -218,50 +200,24 @@ public class OrderService {
                 Product product = productRepository.findByIdWithLock(item.getProduct().getProductId());
                 product.decreaseStock(item.getOrderQuantity());
                 productRepository.save(product);
-
-                compensationStack.push(() -> {
-                    product.increaseStock(item.getOrderQuantity());
-                    productRepository.save(product);
-                });
             }
 
             // 4. 쿠폰 사용 처리 (낙관적 락 사용)
             if (order.hasCoupon()) {
-                CouponUser couponUser = useCouponWithOptimisticLock(order.getCoupon().getCouponId(), userId);
-                compensationStack.push(() -> {
-                    couponUser.markAsUnused();
-                    couponUserRepository.save(couponUser);
-                });
+                useCouponWithOptimisticLock(order.getCoupon().getCouponId(), userId);
             }
 
             // 5. 장바구니 삭제
-            // 복원용 장바구니 아이템 보관
-            List<CartItem> backupCartItems = cartItemRepository.findByUserId(userId)
-                    .stream()
-                    .map(CartItem::deepCopy) // 깊은 복사 필요
-                    .collect(Collectors.toList());
             cartItemRepository.deleteByUserId(userId);
-            compensationStack.push(() -> backupCartItems.forEach(cartItemRepository::save));
 
             // 6. 주문 상태 변경
             order.completePayment();
             orderRepository.save(order);
-            compensationStack.push(() -> {
-                order.markPaymentFailed();
-                orderRepository.save(order);
-            });
 
             return PaymentResult.from(order, user.getPointBalance());
         }
         catch (Exception e) {
             log.error("결제 처리 중 오류 발생. 주문ID: {}, 사용자ID: {}", orderId, userId, e);
-            // 실패 시 보상 트랜잭션 역순 실행
-            while (!compensationStack.isEmpty()) {
-                try { compensationStack.pop().run(); }
-                catch (Exception compensationException) {
-                    log.warn("보상 트랜잭션 실행 중 오류 발생", compensationException);
-                }
-            }
 
             // 원래 예외가 비즈니스 예외면 그대로 던지기
             if (e instanceof BusinessException) {

@@ -41,15 +41,6 @@ public class JpaUserRepositoryAdapter implements UserRepository {
         return jpaUserRepository.findByIdWithLock(userId).orElse(null);
     }
 
-    /**
-     * 동시성 제어가 필요한 경우 사용하는 조회 메서드
-     * 낙관적 락(OPTIMISTIC)을 적용하여 버전 관리
-     */
-    @Override
-    public User findByIdWithOptimisticLock(Integer userId) {
-        return jpaUserRepository.findByIdWithOptimisticLock(userId).orElse(null);
-    }
-
     @Override
     public Integer findBalanceById(Integer userId) {
         return jpaUserRepository.findBalanceByUserId(userId).orElse(null);

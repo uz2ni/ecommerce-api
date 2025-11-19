@@ -51,11 +51,6 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
     }
 
     @Override
-    public Optional<CouponUser> findByCouponIdAndUserIdWithOptimisticLock(Integer couponId, Integer userId) {
-        return jpaCouponUserRepository.findByCouponIdAndUserIdWithOptimisticLock(couponId, userId);
-    }
-
-    @Override
     public List<CouponUser> findByUserId(Integer userId) {
         return jpaCouponUserRepository.findByUser_UserId(userId);
     }

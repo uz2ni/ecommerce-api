@@ -512,11 +512,10 @@ class OrderServiceTest {
                     .build();
 
             given(orderRepository.findById(1)).willReturn(Optional.of(order));
-            given(userRepository.findByIdWithOptimisticLock(1)).willReturn(user);
+            given(userRepository.findById(1)).willReturn(user);
             given(userRepository.save(any(User.class))).willReturn(user);
             given(orderItemRepository.findByOrderId(1)).willReturn(Arrays.asList(orderItem));
             given(productRepository.findByIdWithLock(1)).willReturn(product1);
-            given(cartItemRepository.findByUserId(1)).willReturn(Arrays.asList(cartItem1));
             given(orderRepository.save(any(Order.class))).willReturn(order);
 
             // when
@@ -583,7 +582,7 @@ class OrderServiceTest {
                     .build();
 
             given(orderRepository.findById(1)).willReturn(Optional.of(order));
-            given(userRepository.findByIdWithOptimisticLock(1)).willReturn(poorUser);
+            given(userRepository.findById(1)).willReturn(poorUser);
 
             // when & then
             assertThatThrownBy(() -> orderService.processPayment(1, 1))

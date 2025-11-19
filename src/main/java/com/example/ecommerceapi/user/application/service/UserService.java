@@ -6,15 +6,14 @@ import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import com.example.ecommerceapi.user.infrastructure.persistence.UserTableUtils;
-import jakarta.transaction.Transactional;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class UserService {
 
@@ -22,23 +21,29 @@ public class UserService {
     private final UserValidator userValidator;
     private final UserTableUtils userTableUtils;
 
+
+    @Transactional(readOnly = true)
     public List<UserResult> getAllUsers() {
         return userRepository.findAll().stream()
                 .map(UserResult::from)
                 .collect(Collectors.toList());
     }
 
+
+    @Transactional(readOnly = true)
     public UserResult getUser(Integer userId) {
         User user = userValidator.validateAndGetUser(userId);
         return UserResult.from(user);
     }
 
+    @Transactional(readOnly = true)
     public UserPointBalanceResult getPointBalance(Integer userId) {
         userValidator.validateAndGetUser(userId);
         Integer balance = userRepository.findBalanceById(userId);
         return UserPointBalanceResult.from(userId, balance);
     }
 
+    @Transactional
     public void init() {
         // 1. 테이블 초기화
         userTableUtils.resetUserTable();

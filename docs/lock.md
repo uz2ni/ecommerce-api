@@ -106,9 +106,10 @@ public interface CouponRepository {
 
 // CouponService.java
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class CouponService {
 
+    @Transactional
     public IssueCouponResult issueCoupon(IssueCouponCommand command) {
         // 1. 회원 존재 검증
         User user = userValidator.validateAndGetUser(command.userId());
@@ -124,16 +125,18 @@ public class CouponService {
             throw new CouponException(ErrorCode.COUPON_ALREADY_ISSUED);
         }
 
-        // 4. 쿠폰 발급 가능 여부 검증 및 발급 수량 증가
+        // 4. 쿠폰 발급 가능 여부 검증 (수량, 만료일)
+        // 도메인 엔티티의 issueCoupon() 메서드가 검증을 수행하고 발급 수량을 증가시킴
         coupon.issueCoupon();
 
-        // 5. 쿠폰 업데이트
+        // 5. 쿠폰 업데이트 (발급 수량 증가)
         couponRepository.save(coupon);
 
         // 6. 쿠폰 발급 이력 생성
         CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
         couponUser = couponUserRepository.save(couponUser);
 
+        // 7. 결과 반환
         return IssueCouponResult.from(couponUser);
     }
 }
@@ -144,6 +147,12 @@ public class CouponService {
 - 낙관적 락 사용 시 충돌 즉시 실패 → 사용자가 반복 재시도 (나쁜 UX)
 - 비관적 락은 순차 처리로 대기하지만 선착순 기회 보장 및 정확한 품절 안내 가능
 - 재고 초과 발급은 절대 허용 불가
+
+**구현 방식:**
+- `@Lock(LockModeType.PESSIMISTIC_WRITE)`를 사용한 비관적 쓰기 락
+- 쿠폰 조회 시 `findByIdWithPessimisticLock` 메서드로 락 획득
+- 중복 발급 확인 시에도 `findByCouponIdAndUserIdWithPessimisticLock`로 락 획득
+- 트랜잭션 커밋 시까지 락 유지하여 순차적 발급 보장
 
 ### 3.3 비관적 락: 재고 차감
 
@@ -160,21 +169,24 @@ public interface ProductRepository {
 
 // OrderService.java
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class OrderService {
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PaymentResult processPayment(Integer orderId, Integer userId) {
 
         Order order = orderRepository.findById(orderId)
                 .orElseThrow(() -> new OrderException(ErrorCode.ORDER_NOT_FOUND));
         order.validatePaymentAvailable();
 
-        // 보상 트랜잭션을 위한 스택
-        Deque<Runnable> compensationStack = new ArrayDeque<>();
-
         try {
-            // ... (포인트 차감 등 다른 처리)
+            // 1. 포인트 차감
+            Integer paymentAmount = order.getFinalPaymentAmount();
+            User user = deductPointsWithOptimisticLock(userId, paymentAmount);
+
+            // 2. 포인트 사용 이력 저장
+            Point point = Point.createUseHistory(user, paymentAmount);
+            pointRepository.save(point);
 
             // 3. 상품 재고 차감 (비관적 락 사용)
             List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
@@ -182,25 +194,30 @@ public class OrderService {
                 Product product = productRepository.findByIdWithLock(item.getProduct().getProductId());
                 product.decreaseStock(item.getOrderQuantity());
                 productRepository.save(product);
-
-                compensationStack.push(() -> {
-                    product.increaseStock(item.getOrderQuantity());
-                    productRepository.save(product);
-                });
             }
 
-            // ... (쿠폰 사용, 장바구니 삭제 등)
+            // 4. 쿠폰 사용 처리
+            if (order.hasCoupon()) {
+                useCouponWithOptimisticLock(order.getCoupon().getCouponId(), userId);
+            }
+
+            // 5. 장바구니 삭제
+            cartItemRepository.deleteByUserId(userId);
+
+            // 6. 주문 상태 변경
+            order.completePayment();
+            orderRepository.save(order);
 
             return PaymentResult.from(order, user.getPointBalance());
         }
         catch (Exception e) {
-            // 실패 시 보상 트랜잭션 역순 실행
-            while (!compensationStack.isEmpty()) {
-                try { compensationStack.pop().run(); }
-                catch (Exception compensationException) {
-                    log.warn("보상 트랜잭션 실행 중 오류 발생", compensationException);
-                }
+            log.error("결제 처리 중 오류 발생. 주문ID: {}, 사용자ID: {}", orderId, userId, e);
+
+            // 원래 예외가 비즈니스 예외면 그대로 던지기
+            if (e instanceof BusinessException) {
+                throw e;
             }
+            // 예상치 못한 시스템 예외는 OrderException으로 감싸기
             throw new OrderException(ErrorCode.ORDER_PAY_FAILED, e);
         }
     }
@@ -212,6 +229,12 @@ public class OrderService {
 - 과매 발생 시 비즈니스 리스크가 큼 (고객 불만, 환불 처리 등)
 - 낙관적 락 사용 시 충돌 빈번하여 재시도 과다 발생 → 시스템 부하
 - 재고 관리 정확성이 성능보다 중요
+
+**구현 방식:**
+- `@Lock(LockModeType.PESSIMISTIC_WRITE)`를 사용한 비관적 쓰기 락
+- 재고 차감 시 `findByIdWithLock` 메서드로 락 획득
+- 트랜잭션 커밋 시까지 락 유지
+- 실패 시 `@Transactional` 롤백으로 자동 복원
 
 ### 3.4 낙관적 락: 쿠폰 사용
 
@@ -247,40 +270,29 @@ public class CouponUser {
 
 // OrderService.java
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class OrderService {
 
     /**
-     * 쿠폰 사용 처리 (낙관적 락 사용)
+     * 쿠폰 사용 처리
      */
-    @Retryable(
-        retryFor = {ObjectOptimisticLockingFailureException.class,
-                    jakarta.persistence.OptimisticLockException.class},
-        maxAttempts = 5,
-        backoff = @Backoff(delay = 100)
-    )
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public CouponUser useCouponWithOptimisticLock(Integer couponId, Integer userId) {
         CouponUser couponUser = couponUserRepository
-                .findByCouponIdAndUserIdWithOptimisticLock(couponId, userId)
+                .findByCouponIdAndUserId(couponId, userId)
                 .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_ISSUED));
 
         couponUser.markAsUsed();
         return couponUserRepository.save(couponUser);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PaymentResult processPayment(Integer orderId, Integer userId) {
         // ...
 
-        // 4. 쿠폰 사용 처리 (낙관적 락 사용)
+        // 4. 쿠폰 사용 처리
         if (order.hasCoupon()) {
-            CouponUser couponUser = useCouponWithOptimisticLock(
-                order.getCoupon().getCouponId(), userId);
-            compensationStack.push(() -> {
-                couponUser.markAsUnused();
-                couponUserRepository.save(couponUser);
-            });
+            useCouponWithOptimisticLock(order.getCoupon().getCouponId(), userId);
         }
 
         // ...
@@ -291,8 +303,14 @@ public class OrderService {
 **선택 이유:**
 - 사용자가 자신의 쿠폰을 동시에 여러 주문에서 사용할 확률 매우 낮음
 - 빠른 결제 처리가 사용자 경험에 중요
-- 혹시 충돌 발생해도 재시도로 해결 가능
+- `@Version` 필드를 통한 자동 낙관적 락으로 데이터 정합성 보장
+- 충돌 발생 시 트랜잭션 롤백으로 안전하게 처리
 - DB 락 미사용으로 성능 이점
+
+**구현 방식:**
+- `@Version` 필드를 활용하여 JPA가 자동으로 낙관적 락 적용
+- 명시적인 `@Lock(LockModeType.OPTIMISTIC)` 불필요
+- 일반 조회 메서드(`findByCouponIdAndUserId`)만으로도 낙관적 락 동작
 
 ### 3.5 낙관적 락: 포인트 차감
 
@@ -329,21 +347,15 @@ public class User {
 
 // OrderService.java
 @Service
-@Transactional
+@RequiredArgsConstructor
 public class OrderService {
 
     /**
-     * 포인트 차감 처리 (낙관적 락 사용)
+     * 포인트 차감 처리
      */
-    @Retryable(
-        retryFor = {ObjectOptimisticLockingFailureException.class,
-                    jakarta.persistence.OptimisticLockException.class},
-        maxAttempts = 5,
-        backoff = @Backoff(delay = 100)
-    )
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public User deductPointsWithOptimisticLock(Integer userId, Integer amount) {
-        User user = userRepository.findByIdWithOptimisticLock(userId);
+        User user = userRepository.findById(userId);
         if (user == null) {
             throw new UserException(ErrorCode.USER_NOT_FOUND);
         }
@@ -352,22 +364,17 @@ public class OrderService {
         return userRepository.save(user);
     }
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PaymentResult processPayment(Integer orderId, Integer userId) {
         // ...
 
-        // 1. 포인트 차감 (낙관적 락 사용)
+        // 1. 포인트 차감
         Integer paymentAmount = order.getFinalPaymentAmount();
         User user = deductPointsWithOptimisticLock(userId, paymentAmount);
-        compensationStack.push(() -> {
-            user.addPoints(paymentAmount);
-            userRepository.save(user);
-        });
 
         // 2. 포인트 사용 이력 저장
         Point point = Point.createUseHistory(user, paymentAmount);
         pointRepository.save(point);
-        compensationStack.push(() -> pointRepository.delete(point.getPointId()));
 
         // ...
     }
@@ -377,8 +384,14 @@ public class OrderService {
 **선택 이유:**
 - 한 사용자가 동시에 여러 결제 진행하는 경우 드뭄
 - 결제 프로세스에서 빠른 응답이 중요
+- `@Version` 필드를 통한 자동 낙관적 락으로 데이터 정합성 보장
+- 충돌 발생 시 트랜잭션 롤백으로 안전하게 처리
 - 비관적 락 사용 시 불필요한 대기 시간 발생
-- 충돌 발생 시 재시도로 해결 가능
+
+**구현 방식:**
+- `@Version` 필드를 활용하여 JPA가 자동으로 낙관적 락 적용
+- 명시적인 `@Lock(LockModeType.OPTIMISTIC)` 불필요
+- 일반 조회 메서드(`findById`)만으로도 낙관적 락 동작
 
 ### 3.6 낙관적 락: 포인트 충전
 
@@ -406,7 +419,7 @@ public class User {
 @Transactional
 public class PointService {
 
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
+    @Transactional
     public PointResult chargePoint(Integer userId, Integer amount) {
 
         // 1. 금액 유효성 검증
@@ -436,8 +449,8 @@ public class PointService {
         maxAttempts = 5,
         backoff = @Backoff(delay = 100)
     )
-    @Transactional(propagation = Propagation.REQUIRES_NEW)
-    protected void chargePointsWithRetry(User user, Integer amount) {
+    @Transactional
+    public void chargePointsWithRetry(User user, Integer amount) {
         user.chargePoints(amount);
         userRepository.save(user);
     }
@@ -455,13 +468,15 @@ public class PointService {
 **선택 이유:**
 - 중복 클릭을 제외하면 동시성 거의 발생하지 않음
 - 충전 실패 시 사용자가 재시도 가능한 작업
+- `@Version` 필드를 통한 자동 낙관적 락으로 데이터 정합성 보장
 - 비관적 락은 성능상 오버헤드
 - 빠른 응답이 사용자 경험 향상
 
-**변경 사항:**
-- 기존: 비관적 락 사용
-- 변경: 낙관적 락으로 전환
-- 이유: 동시성 빈도가 매우 낮고 성능 이점이 큼
+**구현 방식:**
+- `@Retryable` 어노테이션을 사용하여 충돌 시 자동 재시도
+- `@Version` 필드를 활용하여 JPA가 자동으로 낙관적 락 적용
+- 충전 작업만 별도 메서드(`chargePointsWithRetry`)로 분리하여 재시도 범위 최소화
+- 최대 5회 재시도, 100ms 지연
 
 ## 4. 적용 결과
 
@@ -520,14 +535,14 @@ public class PointService {
   - 각 주문 상태: PAID
   - **검증 완료**: 비관적 락으로 재고 차감 정확성 보장
 
-**테스트 케이스 3: 포인트 부족 시 보상 트랜잭션**
+**테스트 케이스 3: 포인트 부족 시 트랜잭션 롤백**
 - **시나리오**: 포인트가 부족한 상태에서 결제 시도
 - **결과**:
   - 결제 실패 (예상된 동작)
   - 포인트: 원래 잔액 유지 (롤백)
   - 재고: 차감 전 상태로 복원 (롤백)
   - 주문 상태: PENDING 유지
-  - **검증 완료**: 보상 트랜잭션 정상 작동
+  - **검증 완료**: `@Transactional` 롤백으로 자동 복원
 
 #### 4.1.3 쿠폰 사용 (낙관적 락)
 
@@ -535,11 +550,11 @@ public class PointService {
 
 **테스트 내용:**
 - 결제 프로세스 내에서 쿠폰 사용 처리
-- `@Retryable` 설정: maxAttempts=5, backoff=100ms
+- `@Version` 필드를 통한 자동 낙관적 락 적용
 - **결과**:
   - 쿠폰 중복 사용 방지 100%
-  - 충돌 발생 시 자동 재시도로 성공
-  - 재시도 실패율: 0% (모든 충돌 재시도로 해결)
+  - `@Transactional` 롤백으로 충돌 안전하게 처리
+  - 동시성이 낮아 충돌 발생 거의 없음
 
 #### 4.1.4 포인트 차감 (낙관적 락)
 
@@ -547,11 +562,11 @@ public class PointService {
 
 **테스트 내용:**
 - 결제 프로세스 내에서 포인트 차감 처리
-- `@Retryable` 설정: maxAttempts=5, backoff=100ms
+- `@Version` 필드를 통한 자동 낙관적 락 적용
 - **결과**:
   - 음수 잔액 발생 0건
   - 모든 결제에서 정확한 포인트 차감
-  - 충돌 발생 시 자동 재시도로 성공
+  - `@Transactional` 롤백으로 데이터 정합성 보장
 
 #### 4.1.5 포인트 충전 (낙관적 락)
 

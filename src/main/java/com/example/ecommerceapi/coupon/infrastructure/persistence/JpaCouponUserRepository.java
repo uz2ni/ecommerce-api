@@ -34,14 +34,6 @@ public interface JpaCouponUserRepository extends JpaRepository<CouponUser, Integ
     Optional<CouponUser> findByCouponIdAndUserIdWithPessimisticLock(@Param("couponId") Integer couponId, @Param("userId") Integer userId);
 
     /**
-     * 낙관적 락을 사용하여 쿠폰 ID와 사용자 ID로 발급 이력 조회
-     * 결제 시 쿠폰 사용 처리 등 동시성 제어를 위해 사용
-     */
-    @Lock(LockModeType.OPTIMISTIC)
-    @Query("SELECT cu FROM CouponUser cu WHERE cu.coupon.couponId = :couponId AND cu.user.userId = :userId")
-    Optional<CouponUser> findByCouponIdAndUserIdWithOptimisticLock(@Param("couponId") Integer couponId, @Param("userId") Integer userId);
-
-    /**
      * 사용자 ID로 발급 이력 목록 조회
      */
     List<CouponUser> findByUser_UserId(Integer userId);

@@ -26,11 +26,6 @@ public interface UserRepository {
     User findByIdWithLock(Integer userId);
 
     /**
-     * ID로 사용자 조회 (낙관적 락)
-     */
-    User findByIdWithOptimisticLock(Integer userId);
-
-    /**
      * ID로 사용자의 포인트 잔액 조회
      */
     Integer findBalanceById(Integer userId);
