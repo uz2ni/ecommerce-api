@@ -22,6 +22,7 @@ class CartItemTest {
                 .userId(1)
                 .username("테스트 사용자")
                 .pointBalance(100000)
+                .version(0)
                 .build();
 
         product = Product.builder()

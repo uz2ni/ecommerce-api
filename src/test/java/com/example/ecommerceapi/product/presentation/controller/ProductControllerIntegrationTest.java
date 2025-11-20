@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.product.presentation.controller;
 
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
@@ -19,7 +20,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("ProductController 통합 테스트")
-class ProductControllerIntegrationTest {
+class ProductControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

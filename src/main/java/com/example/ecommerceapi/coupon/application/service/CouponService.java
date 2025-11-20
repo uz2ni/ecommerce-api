@@ -22,7 +22,6 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@Transactional
 @RequiredArgsConstructor
 public class CouponService {
 
@@ -35,6 +34,7 @@ public class CouponService {
     /**
      * 쿠폰 정보 목록 조회
      */
+    @Transactional(readOnly = true)
     public List<CouponResult> getAllCoupons() {
         List<Coupon> coupons = couponRepository.findAll();
         return CouponResult.fromList(coupons);
@@ -48,6 +48,7 @@ public class CouponService {
      * - 쿠폰이 만료되면 실패
      * - 쿠폰 동시 접근 시, 순차적 발급(비관적 락을 통한 동시성 제어)
      */
+    @Transactional
     public IssueCouponResult issueCoupon(IssueCouponCommand command) {
         // 1. 회원 존재 검증
         User user = userValidator.validateAndGetUser(command.userId());
@@ -82,6 +83,7 @@ public class CouponService {
     /**
      * 쿠폰 사용 이력 조회
      */
+    @Transactional(readOnly = true)
     public List<CouponUserResult> getCouponUsageHistory(Integer couponId) {
         // 1. 쿠폰 존재 검증
         couponValidator.validateAndGetCoupon(couponId);
@@ -99,6 +101,7 @@ public class CouponService {
     /**
      * 초기 쿠폰 데이터 생성
      */
+    @Transactional
     public void init() {
         couponRepository.init();
         couponUserRepository.init();

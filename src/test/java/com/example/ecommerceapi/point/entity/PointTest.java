@@ -18,7 +18,7 @@ class PointTest {
     @DisplayName("포인트 충전 이력을 생성한다")
     void createChargeHistory_ShouldCreatePointWithChargeType() {
         // given
-        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).build();
+        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).version(0).build();
         Integer amount = 10000;
         LocalDateTime beforeCreation = LocalDateTime.now();
 
@@ -37,7 +37,7 @@ class PointTest {
     @DisplayName("포인트 사용 이력을 생성한다")
     void createUseHistory_ShouldCreatePointWithUseType() {
         // given
-        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).build();
+        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).version(0).build();
         Integer amount = 5000;
         LocalDateTime beforeCreation = LocalDateTime.now();
 
@@ -56,7 +56,7 @@ class PointTest {
     @DisplayName("포인트 환불 이력을 생성한다")
     void createRefundHistory_ShouldCreatePointWithRefundType() {
         // given
-        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).build();
+        User user = User.builder().userId(1).username("테스트유저").pointBalance(10000).version(0).build();
         Integer amount = 3000;
         LocalDateTime beforeCreation = LocalDateTime.now();
 

@@ -23,6 +23,7 @@ class CouponTest {
             Coupon coupon = Coupon.builder()
                     .totalQuantity(50)
                     .issuedQuantity(10)
+                    .version(1)
                     .build();
 
             // when
@@ -39,6 +40,7 @@ class CouponTest {
             Coupon coupon = Coupon.builder()
                     .totalQuantity(10)
                     .issuedQuantity(10)
+                    .version(1)
                     .build();
 
             // when
@@ -55,6 +57,7 @@ class CouponTest {
             Coupon coupon = Coupon.builder()
                     .totalQuantity(100)
                     .issuedQuantity(0)
+                    .version(1)
                     .build();
 
             // when
@@ -75,6 +78,7 @@ class CouponTest {
             // given
             Coupon coupon = Coupon.builder()
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when
@@ -90,6 +94,7 @@ class CouponTest {
             // given
             Coupon coupon = Coupon.builder()
                     .expiredAt(LocalDateTime.now().minusDays(1))
+                    .version(1)
                     .build();
 
             // when
@@ -105,6 +110,7 @@ class CouponTest {
             // given
             Coupon coupon = Coupon.builder()
                     .expiredAt(null)
+                    .version(1)
                     .build();
 
             // when
@@ -127,6 +133,7 @@ class CouponTest {
                     .totalQuantity(50)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when
@@ -144,6 +151,7 @@ class CouponTest {
                     .totalQuantity(10)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when
@@ -161,6 +169,7 @@ class CouponTest {
                     .totalQuantity(50)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().minusDays(1))
+                    .version(1)
                     .build();
 
             // when
@@ -178,6 +187,7 @@ class CouponTest {
                     .totalQuantity(10)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().minusDays(1))
+                    .version(1)
                     .build();
 
             // when
@@ -200,6 +210,7 @@ class CouponTest {
                     .totalQuantity(50)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when
@@ -218,6 +229,7 @@ class CouponTest {
                     .totalQuantity(50)
                     .issuedQuantity(49)
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when
@@ -237,6 +249,7 @@ class CouponTest {
                     .totalQuantity(10)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when & then
@@ -253,6 +266,7 @@ class CouponTest {
                     .totalQuantity(50)
                     .issuedQuantity(10)
                     .expiredAt(LocalDateTime.now().minusDays(1))
+                    .version(1)
                     .build();
 
             // when & then
@@ -269,6 +283,7 @@ class CouponTest {
                     .totalQuantity(10)
                     .issuedQuantity(0)
                     .expiredAt(LocalDateTime.now().plusDays(10))
+                    .version(1)
                     .build();
 
             // when

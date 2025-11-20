@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.coupon.application.service;
 
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.coupon.application.dto.IssueCouponCommand;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
@@ -23,7 +24,7 @@ import static org.assertj.core.api.Assertions.assertThat;
 
 @SpringBootTest
 @DisplayName("CouponService 동시성 통합 테스트")
-class CouponServiceConcurrencyIntegrationTest {
+class CouponServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private CouponService couponService;
@@ -54,6 +55,7 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(0)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();
@@ -107,6 +109,7 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(9)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();
@@ -163,6 +166,7 @@ class CouponServiceConcurrencyIntegrationTest {
                 .issuedQuantity(0)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
         coupon = couponRepository.save(coupon);
         Integer couponId = coupon.getCouponId();

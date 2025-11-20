@@ -5,7 +5,6 @@ import com.example.ecommerceapi.cart.application.service.CartService;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.AbstractIntegrationTest;
-import com.example.ecommerceapi.common.exception.OrderException;
 import com.example.ecommerceapi.common.exception.PointException;
 import com.example.ecommerceapi.order.application.dto.CreateOrderCommand;
 import com.example.ecommerceapi.order.application.dto.CreateOrderResult;
@@ -109,6 +108,8 @@ class OrderServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
                     orderService.processPayment(orderId, userId);
                     successCount.incrementAndGet();
                 } catch (Exception e) {
+                    System.out.println("exception: " + e.getMessage());
+                    System.out.println("class name: " + e.getClass().getName() + ", " + e.getClass().getSimpleName());
                     failCount.incrementAndGet();
                 } finally {
                     latch.countDown();

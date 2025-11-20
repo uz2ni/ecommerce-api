@@ -20,8 +20,8 @@ class CouponUserTest {
         @DisplayName("유효한 값으로 쿠폰 발급 이력을 생성한다")
         void createIssuedCouponUser_ShouldCreateCouponUser_WithValidValues() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
@@ -39,8 +39,8 @@ class CouponUserTest {
         @DisplayName("생성된 쿠폰은 미사용 상태이다")
         void createIssuedCouponUser_ShouldBeUnused() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
@@ -54,8 +54,8 @@ class CouponUserTest {
         @DisplayName("발급 시간은 현재 시간이다")
         void createIssuedCouponUser_ShouldSetIssuedAtToNow() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
             LocalDateTime before = LocalDateTime.now().minusSeconds(1);
 
             // when
@@ -76,8 +76,8 @@ class CouponUserTest {
         @DisplayName("쿠폰을 사용 처리하면 used가 true가 된다")
         void markAsUsed_ShouldSetUsedToTrue() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
             assertThat(couponUser.getUsed()).isFalse();
 
@@ -92,8 +92,8 @@ class CouponUserTest {
         @DisplayName("쿠폰을 사용 처리하면 usedAt이 설정된다")
         void markAsUsed_ShouldSetUsedAt() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
             assertThat(couponUser.getUsedAt()).isNull();
 
@@ -113,8 +113,8 @@ class CouponUserTest {
         @DisplayName("이미 사용된 쿠폰도 다시 사용 처리할 수 있다")
         void markAsUsed_ShouldWorkOnAlreadyUsedCoupon() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
             CouponUser couponUser = CouponUser.createIssuedCouponUser(coupon, user);
             couponUser.markAsUsed();
             LocalDateTime firstUsedAt = couponUser.getUsedAt();
@@ -143,8 +143,8 @@ class CouponUserTest {
         @DisplayName("빌더로 쿠폰 발급 이력을 생성할 수 있다")
         void builder_ShouldCreateCouponUser() {
             // given
-            Coupon coupon = Coupon.builder().couponId(10).build();
-            User user = User.builder().userId(20).build();
+            Coupon coupon = Coupon.builder().couponId(10).version(1).build();
+            User user = User.builder().userId(20).version(0).build();
             LocalDateTime now = LocalDateTime.now();
 
             // when
@@ -155,6 +155,7 @@ class CouponUserTest {
                     .used(true)
                     .issuedAt(now)
                     .usedAt(now.plusDays(1))
+                    .version(1)
                     .build();
 
             // then
@@ -170,8 +171,8 @@ class CouponUserTest {
         @DisplayName("빌더로 미사용 쿠폰을 생성할 수 있다")
         void builder_ShouldCreateUnusedCoupon() {
             // given
-            Coupon coupon = Coupon.builder().couponId(1).build();
-            User user = User.builder().userId(1).build();
+            Coupon coupon = Coupon.builder().couponId(1).version(1).build();
+            User user = User.builder().userId(1).version(0).build();
 
             // when
             CouponUser couponUser = CouponUser.builder()
@@ -179,6 +180,7 @@ class CouponUserTest {
                     .user(user)
                     .used(false)
                     .issuedAt(LocalDateTime.now())
+                    .version(1)
                     .build();
 
             // then
