@@ -33,6 +33,7 @@ public class CartService {
     private final UserRepository userRepository;
     private final ProductRepository productRepository;
 
+    @Transactional(readOnly = true)
     public List<CartItemResult> getCartItems(Integer userId) {
         // 1. 회원 존재 검증
         userValidator.validateAndGetUser(userId);

@@ -71,76 +71,84 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
         couponUserTableUtils.resetCouponUserTable();
 
         // 2. 쿠폰 객체 생성
-        Coupon coupon1 = Coupon.builder().couponId(1).build();
-        Coupon coupon2 = Coupon.builder().couponId(2).build();
-        Coupon coupon3 = Coupon.builder().couponId(3).build();
+        Coupon coupon1 = Coupon.builder().couponId(1).version(1).build();
+        Coupon coupon2 = Coupon.builder().couponId(2).version(1).build();
+        Coupon coupon3 = Coupon.builder().couponId(3).version(1).build();
 
         // 3. 초기 쿠폰 발급 이력 생성
         // 쿠폰 1 발급 이력
         save(CouponUser.builder()
                 .coupon(coupon1)
-                .user(User.builder().userId(1).build())
+                .user(User.builder().userId(1).version(0).build())
                 .used(true)
                 .issuedAt(LocalDateTime.now().minusDays(5))
                 .usedAt(LocalDateTime.now().minusDays(3))
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
                 .coupon(coupon1)
-                .user(User.builder().userId(2).build())
+                .user(User.builder().userId(2).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(4))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
                 .coupon(coupon1)
-                .user(User.builder().userId(3).build())
+                .user(User.builder().userId(3).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(2))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         // 쿠폰 2 발급 이력
         save(CouponUser.builder()
                 .coupon(coupon2)
-                .user(User.builder().userId(1).build())
+                .user(User.builder().userId(1).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(10))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
                 .coupon(coupon2)
-                .user(User.builder().userId(2).build())
+                .user(User.builder().userId(2).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(9))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
                 .coupon(coupon2)
-                .user(User.builder().userId(3).build())
+                .user(User.builder().userId(3).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(8))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         // 쿠폰 3 발급 이력
         save(CouponUser.builder()
                 .coupon(coupon3)
-                .user(User.builder().userId(1).build())
+                .user(User.builder().userId(1).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(3))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         save(CouponUser.builder()
                 .coupon(coupon3)
-                .user(User.builder().userId(4).build())
+                .user(User.builder().userId(4).version(0).build())
                 .used(false)
                 .issuedAt(LocalDateTime.now().minusDays(2))
                 .usedAt(null)
+                .version(1)
                 .build());
 
         log.info("초기 쿠폰 발급 이력 데이터 생성 완료");

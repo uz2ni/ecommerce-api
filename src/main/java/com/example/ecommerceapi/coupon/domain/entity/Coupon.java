@@ -40,6 +40,10 @@ public class Coupon {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
+    @Version
+    @Column(name = "version")
+    private Integer version;
+
     public Integer getRemainingQuantity() {
         return totalQuantity - issuedQuantity;
     }

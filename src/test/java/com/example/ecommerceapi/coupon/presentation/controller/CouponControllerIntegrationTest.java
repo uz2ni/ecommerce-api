@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.coupon.presentation.controller;
 
+import com.example.ecommerceapi.common.AbstractIntegrationTest;
 import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
 import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.coupon.presentation.dto.IssueCouponRequest;
@@ -23,7 +24,7 @@ import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.
 @SpringBootTest
 @AutoConfigureMockMvc
 @DisplayName("CouponController 통합 테스트")
-class CouponControllerIntegrationTest {
+class CouponControllerIntegrationTest extends AbstractIntegrationTest {
 
     @Autowired
     private MockMvc mockMvc;

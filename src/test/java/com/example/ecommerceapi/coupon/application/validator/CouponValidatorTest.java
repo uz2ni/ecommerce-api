@@ -39,6 +39,7 @@ class CouponValidatorTest {
                 .issuedQuantity(10)
                 .expiredAt(LocalDateTime.now().plusDays(30))
                 .createdAt(LocalDateTime.now())
+                .version(1)
                 .build();
     }
 

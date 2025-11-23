@@ -43,12 +43,14 @@ class UserServiceTest {
                 .userId(1)
                 .username("user1")
                 .pointBalance(10000)
+                .version(0)
                 .build();
 
         user2 = User.builder()
                 .userId(2)
                 .username("user2")
                 .pointBalance(20000)
+                .version(0)
                 .build();
     }
 
