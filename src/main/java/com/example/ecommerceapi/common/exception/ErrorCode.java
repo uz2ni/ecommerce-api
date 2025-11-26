@@ -59,6 +59,7 @@ public enum ErrorCode {
      * 동시성 제어(LK__)
      */
     LOCK_TIMEOUT("LK01", "동시성 제어 락 획득에 실패했습니다.", 409),
+    LOCK_NOT_SUPPORTED("LK02", "단일 키로 호출을 지원하지 않습니다. 멀티키 방식을 사용해주세요.", 400),
 
     /**
      * 서버, 그 외

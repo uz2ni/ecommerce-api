@@ -10,7 +10,7 @@ import java.util.concurrent.TimeUnit;
 
 /**
  * Spin Lock 방식의 분산 락 전략입니다.
- * 짧은 간격으로 폴링하여 락 획득을 시도합니다.
+ * Redisson의 SpinLock 구현을 활용하여 락 획득을 시도합니다.
  * 락 보유 시간이 매우 짧을 것으로 예상될 때 적합합니다.
  */
 @Slf4j
@@ -19,38 +19,27 @@ import java.util.concurrent.TimeUnit;
 public class SpinLockStrategy implements LockStrategy {
 
     private static final String LOCK_PREFIX = "spin-lock:";
-    private static final long SPIN_INTERVAL_MS = 50; // 50ms 간격으로 재시도
 
     private final RedissonClient redissonClient;
 
     @Override
     public boolean tryLock(String key, long waitTime, long leaseTime, TimeUnit timeUnit) throws InterruptedException {
-        RLock lock = redissonClient.getLock(LOCK_PREFIX + key);
-        long waitTimeMs = timeUnit.toMillis(waitTime);
-        long startTime = System.currentTimeMillis();
+        RLock spinLock = redissonClient.getSpinLock(LOCK_PREFIX + key);
+        boolean acquired = spinLock.tryLock(waitTime, leaseTime, timeUnit);
 
-        // Spin 방식: 짧은 간격으로 반복적으로 락 획득 시도
-        while (System.currentTimeMillis() - startTime < waitTimeMs) {
-            boolean acquired = lock.tryLock(0, leaseTime, timeUnit);
-
-            if (acquired) {
-                log.debug("[SpinLock] Lock acquired: {} after {}ms", key, System.currentTimeMillis() - startTime);
-                return true;
-            }
-
-            // SPIN_INTERVAL_MS 만큼 대기 후 재시도
-            Thread.sleep(SPIN_INTERVAL_MS);
+        if (acquired) {
+            log.debug("[SpinLock] Lock acquired: {}", key);
+        } else {
+            log.debug("[SpinLock] Failed to acquire lock: {}", key);
         }
-
-        log.debug("[SpinLock] Failed to acquire lock: {} after {}ms", key, waitTimeMs);
-        return false;
+        return acquired;
     }
 
     @Override
     public void unlock(String key) {
-        RLock lock = redissonClient.getLock(LOCK_PREFIX + key);
-        if (lock.isHeldByCurrentThread()) {
-            lock.unlock();
+        RLock spinLock = redissonClient.getSpinLock(LOCK_PREFIX + key);
+        if (spinLock.isHeldByCurrentThread()) {
+            spinLock.unlock();
             log.debug("[SpinLock] Lock released: {}", key);
         }
     }

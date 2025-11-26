@@ -25,5 +25,13 @@ public enum LockType {
      * - 대기,이벤트 기반 재시도 처리
      * - 긴 대기 시간에 적합, CPU 절약
      */
-    PUB_SUB
+    PUB_SUB,
+
+    /**
+     * Multi Lock 방식
+     * - 여러 리소스에 대한 동시 락 획득
+     * - 모든 락을 획득해야 성공
+     * - 데드락 방지 메커니즘 포함
+     */
+    MULTI
 }
