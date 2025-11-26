@@ -66,6 +66,9 @@ class OrderServiceConcurrencyIntegrationTest extends AbstractIntegrationTest {
         productRepository.clear();
         productRepository.init();
         // cartService.init()은 호출하지 않음 - 각 테스트에서 필요한 만큼만 장바구니에 추가
+
+        // Redis 분산 락 정리 (테스트 간 격리 보장)
+        clearRedisLocks();
     }
 
     @Test

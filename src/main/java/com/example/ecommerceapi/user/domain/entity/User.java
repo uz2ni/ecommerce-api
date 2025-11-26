@@ -34,7 +34,7 @@ public class User {
     @Column(name = "point_balance", nullable = false)
     private Integer pointBalance;
 
-    @Version
+    // @Version
     @Column(name = "version")
     private Integer version;
 

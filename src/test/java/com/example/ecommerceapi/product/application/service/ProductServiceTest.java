@@ -25,6 +25,7 @@ import java.util.List;
 import static org.assertj.core.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.BDDMockito.given;
+import static org.mockito.Mockito.verify;
 
 @ExtendWith(MockitoExtension.class)
 @DisplayName("ProductService 단위 테스트")
@@ -38,6 +39,9 @@ class ProductServiceTest {
 
     @Mock
     private OrderItemRepository orderItemRepository;
+
+    @Mock
+    private ProductCacheService cacheService;
 
     @InjectMocks
     private ProductService productService;
@@ -250,18 +254,19 @@ class ProductServiceTest {
     class incrementProductViewCountTest {
 
         @Test
-        @DisplayName("상품 조회수를 증가시킨다")
-        void incrementProductViewCount_ShouldIncreaseViewCount_WhenProductExists() {
+        @DisplayName("Redis를 통해 상품 조회수를 증가시킨다")
+        void incrementProductViewCount_ShouldIncreaseViewCount_InRedis() {
             // given
             given(productValidator.validateAndGetProduct(1)).willReturn(product1);
-            Integer initialViewCount = product1.getViewCount();
+            given(cacheService.incrementViewCount(1)).willReturn(101L);
 
             // when
             IncrementProductViewResult result = productService.incrementProductViewCount(1);
 
             // then
-            assertThat(result.viewCount()).isEqualTo(initialViewCount + 1);
-            assertThat(product1.getViewCount()).isEqualTo(initialViewCount + 1);
+            assertThat(result.viewCount()).isEqualTo(101);
+            verify(productValidator).validateAndGetProduct(1);
+            verify(cacheService).incrementViewCount(1);
         }
 
         @Test

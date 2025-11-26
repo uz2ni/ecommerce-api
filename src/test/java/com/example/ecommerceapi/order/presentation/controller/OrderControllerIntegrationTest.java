@@ -82,6 +82,8 @@ class OrderControllerIntegrationTest extends AbstractIntegrationTest {
         couponUserRepository.init();
         pointService.init();
         cartService.init();
+
+        clearAllRedisKeys();
     }
 
     @Nested
