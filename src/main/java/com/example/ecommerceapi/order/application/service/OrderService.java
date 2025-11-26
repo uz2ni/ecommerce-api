@@ -3,6 +3,8 @@ package com.example.ecommerceapi.order.application.service;
 import com.example.ecommerceapi.cart.domain.entity.CartItem;
 import com.example.ecommerceapi.cart.domain.repository.CartItemRepository;
 import com.example.ecommerceapi.common.exception.*;
+import com.example.ecommerceapi.common.lock.DistributedLock;
+import com.example.ecommerceapi.common.lock.LockType;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
 import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
@@ -26,9 +28,6 @@ import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
-import org.springframework.orm.ObjectOptimisticLockingFailureException;
-import org.springframework.retry.annotation.Backoff;
-import org.springframework.retry.annotation.Retryable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -151,6 +150,7 @@ public class OrderService {
         return OrderResult.buildGetOrder(order, orderItems);
     }
 
+
     /**
      * 쿠폰 사용 처리
      */
@@ -165,19 +165,23 @@ public class OrderService {
     }
 
     /**
-     * 포인트 차감 처리
+     * 결제 처리
+     * 전체 결제 프로세스를 하나의 트랜잭션으로 처리하여 원자성 보장
+     *
+     * <분산 락-MULTI>
+     * payment:#orderId  // 동일 주문 중복 제어
+     * point:#userId     // 포인트 차감 동시성 제어
+     * <낙관적 락>
+     * couponUser        // 쿠폰 중복 사용 제어
+     * <비관적 락>
+     * productId         // 재고 차감 동시성 제어
      */
-    @Transactional
-    public User deductPointsWithOptimisticLock(Integer userId, Integer amount) {
-        User user = userRepository.findById(userId);
-        if (user == null) {
-            throw new UserException(ErrorCode.USER_NOT_FOUND);
-        }
-
-        user.usePoints(amount);
-        return userRepository.save(user);
-    }
-
+    @DistributedLock(
+            keys = { "'payment:' + #orderId", "'point:' + #userId" },
+            type = LockType.MULTI,
+            waitTime = 5,
+            leaseTime = 10
+    )
     @Transactional
     public PaymentResult processPayment(Integer orderId, Integer userId) {
 
@@ -186,9 +190,14 @@ public class OrderService {
         order.validatePaymentAvailable();
 
         try {
-            // 1. 포인트 차감 (낙관적 락 사용)
+            // 1. 포인트 차감 (분산 락 적용)
             Integer paymentAmount = order.getFinalPaymentAmount();
-            User user = deductPointsWithOptimisticLock(userId, paymentAmount);
+            User user = userRepository.findById(userId);
+            if (user == null) {
+                throw new UserException(ErrorCode.USER_NOT_FOUND);
+            }
+            user.usePoints(paymentAmount);
+            userRepository.save(user);
 
             // 2. 포인트 사용 이력 저장
             Point point = Point.createUseHistory(user, paymentAmount);
@@ -198,6 +207,9 @@ public class OrderService {
             List<OrderItem> items = orderItemRepository.findByOrderId(orderId);
             for (OrderItem item : items) {
                 Product product = productRepository.findByIdWithLock(item.getProduct().getProductId());
+                if (product == null) {
+                    throw new ProductException(ErrorCode.PRODUCT_NOT_FOUND);
+                }
                 product.decreaseStock(item.getOrderQuantity());
                 productRepository.save(product);
             }
