@@ -28,6 +28,8 @@ import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.cache.annotation.CacheEvict;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -135,6 +137,7 @@ public class OrderService {
         return CreateOrderResult.from(order);
     }
 
+    @Cacheable(value = "order", key = "#orderId")
     @Transactional(readOnly = true)
     public OrderResult getOrder(Integer orderId) {
         // 1. 주문 조회
@@ -176,6 +179,7 @@ public class OrderService {
      * <비관적 락>
      * productId         // 재고 차감 동시성 제어
      */
+    @CacheEvict(value = "order", key = "#orderId")
     @DistributedLock(
             keys = { "'payment:' + #orderId", "'point:' + #userId" },
             type = LockType.MULTI,

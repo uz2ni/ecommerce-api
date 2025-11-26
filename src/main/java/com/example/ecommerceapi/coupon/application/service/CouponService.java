@@ -17,6 +17,7 @@ import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -36,6 +37,7 @@ public class CouponService {
     /**
      * 쿠폰 정보 목록 조회
      */
+    @Cacheable(value = "allCoupons")
     @Transactional(readOnly = true)
     public List<CouponResult> getAllCoupons() {
         List<Coupon> coupons = couponRepository.findAll();

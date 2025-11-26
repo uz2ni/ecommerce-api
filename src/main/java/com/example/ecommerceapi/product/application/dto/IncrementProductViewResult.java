@@ -10,4 +10,8 @@ public record IncrementProductViewResult(
                 product.getViewCount()
         );
     }
+
+    public static IncrementProductViewResult of(Integer viewCount) {
+        return new IncrementProductViewResult(viewCount);
+    }
 }
