@@ -94,16 +94,15 @@ public PointResult chargePoint(Integer userId, Integer amount)
 - **변경 전**: `@Version` + `@Retryable` → 복잡한 재시도 로직
 - **변경 후**: 락 획득 실패 시 즉시 예외 → 간결한 코드
 
-### 3. 결제 (MULTI)
+### 3. 결제 (SIMPLE)
 ```java
-@DistributedLock(keys = {"'payment:' + #orderId", "'point:' + #userId"},
-                 type = LockType.MULTI)
+@DistributedLock(key = "'point:' + #userId", type = LockType.SIMPLE)
 @Transactional
 public PaymentResult processPayment(Integer orderId, Integer userId)
 ```
-- **선택 이유**: 주문+포인트+재고 등 여러 리소스 동시 제어
+- **선택 이유**: 포인트 리소스만 분산 락으로 제어 (동일 사용자 동시 결제 방지)
 - **변경 전**: 비관적 락 개별 적용 → 데드락 가능성
-- **변경 후**: MultiLock으로 원자적 획득 → 데드락 방지
+- **변경 후**: 포인트 차감은 분산 락, 재고/쿠폰은 DB 레벨 락 유지
 
 ## 현재 락 적용 현황
 
@@ -113,8 +112,8 @@ public PaymentResult processPayment(Integer orderId, Integer userId)
 |---------------|---------|---------|-------|----------|------|
 | **쿠폰 발급** | Redis 분산 락 | PUB_SUB | `coupon:{couponId}` | `CouponService.issueCoupon()` | 완전 전환 ✓ |
 | **포인트 충전** | Redis 분산 락 | SIMPLE | `point:{userId}` | `PointService.chargePoint()` | 완전 전환 ✓ |
-| **결제 - 전체** | Redis 분산 락 | MULTI | `payment:{orderId}`<br>`point:{userId}` | `OrderService.processPayment()` | 부분 전환 |
-| **결제 - 포인트 차감** | 분산 락으로 보호 | - | (상위 MULTI 락) | `processPayment()` 내부 | 분산 락 내에서 처리 |
+| **결제 - 전체** | Redis 분산 락 | SIMPLE | `point:{userId}` | `OrderService.processPayment()` | 부분 전환 |
+| **결제 - 포인트 차감** | 분산 락으로 보호 | - | (상위 SIMPLE 락) | `processPayment()` 내부 | 분산 락 내에서 처리 |
 | **결제 - 재고 차감** | JPA 비관적 락 | PESSIMISTIC_WRITE | - | `ProductRepository.findByIdWithLock()` | **JPA 락 유지** ⚠️ |
 | **결제 - 쿠폰 사용** | JPA 낙관적 락 | @Version | - | `OrderService.useCouponWithOptimisticLock()` | **JPA 락 유지** ⚠️ |
 
@@ -122,11 +121,10 @@ public PaymentResult processPayment(Integer orderId, Integer userId)
 
 **결제 프로세스 (processPayment)**
 ```java
-@DistributedLock(keys = {"'payment:' + #orderId", "'point:' + #userId"},
-                 type = LockType.MULTI)
+@DistributedLock(key = "'point:' + #userId", type = LockType.SIMPLE)
 @Transactional
 public PaymentResult processPayment(Integer orderId, Integer userId) {
-    // 1. 포인트 차감 - 분산 락(MULTI)으로 보호
+    // 1. 포인트 차감 - 분산 락(SIMPLE)으로 보호
     user.usePoints(paymentAmount);
 
     // 2. 재고 차감 - 비관적 락 사용
@@ -139,14 +137,18 @@ public PaymentResult processPayment(Integer orderId, Integer userId) {
 ```
 
 **혼용 이유**
-1. **재고 차감 (비관적 락 유지)**
+1. **포인트 차감 (분산 락 SIMPLE)**
+   - 동일 사용자의 동시 결제 방지가 주 목적
+   - `point:{userId}` 키로 사용자별 락 제어
+   - 주문 간 독립성 보장 (orderId 락 불필요)
+
+2. **재고 차감 (비관적 락 유지)**
    - 여러 주문에서 동일 상품 재고를 차감하는 경우
-   - 분산 락의 키가 `payment:{orderId}`이므로 다른 주문과 충돌 가능
    - 상품별 재고 보호를 위해 DB 레벨 비관적 락 유지
    - 향후 `product:{productId}` 분산 락 추가 고려 가능
    - 분산 락 미적용 이유: product는 메서드 내에서 조회하는 값이라 파라미터로 락 키를 가져올 수 없었음
 
-2. **쿠폰 사용 (낙관적 락 유지)**
+3. **쿠폰 사용 (낙관적 락 유지)**
    - 한 사용자가 동일 쿠폰을 여러 주문에서 동시 사용하는 경우 드뭄
    - 분산 락으로 `point:{userId}` 보호하므로 동일 사용자 동시 결제 불가
    - `@Version` 필드로 충분히 보호 가능

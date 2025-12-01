@@ -99,18 +99,17 @@ public PointResult chargePoint(Integer userId, Integer amount)
 - **변경 전**: `@Version` + `@Retryable` → 복잡한 재시도 로직
 - **변경 후**: 락 획득 실패 시 즉시 예외 → 간결한 코드
 
-#### 3. 결제 (MULTI)
+#### 3. 결제 (SIMPLE)
 ```java
-@DistributedLock(keys = {"'payment:' + #orderId", "'point:' + #userId"},
-                 type = LockType.MULTI)
+@DistributedLock(key = "'point:' + #userId", type = LockType.SIMPLE)
 @Transactional
 public PaymentResult processPayment(Integer orderId, Integer userId)
 ```
-- **선택 이유**: 주문+포인트+재고 등 여러 리소스 동시 제어
+- **선택 이유**: 포인트 리소스만 분산 락으로 제어 (동일 사용자 동시 결제 방지)
 - **변경 전**: 비관적 락 개별 적용 → 데드락 가능성
-- **변경 후**: MultiLock으로 원자적 획득 → 데드락 방지
+- **변경 후**: 포인트 차감은 분산 락, 재고/쿠폰은 DB 레벨 락 유지
 
-**코드 위치**: `OrderService.processPayment()` - src/main/java/com/example/ecommerceapi/order/application/service/OrderService.java:189
+**코드 위치**: `OrderService.processPayment()` - src/main/java/com/example/ecommerceapi/order/application/service/OrderService.java:182
 
 ### 락 적용 현황
 
@@ -118,15 +117,15 @@ public PaymentResult processPayment(Integer orderId, Integer userId)
 |---------------|---------|---------|-------|----------|------|
 | **쿠폰 발급** | Redis 분산 락 | PUB_SUB | `coupon:{couponId}` | `CouponService.issueCoupon()` | 완전 전환 ✓ |
 | **포인트 충전** | Redis 분산 락 | SIMPLE | `point:{userId}` | `PointService.chargePoint()` | 완전 전환 ✓ |
-| **결제 - 전체** | Redis 분산 락 | MULTI | `payment:{orderId}`<br>`point:{userId}` | `OrderService.processPayment()` | 부분 전환 |
-| **결제 - 포인트 차감** | 분산 락으로 보호 | - | (상위 MULTI 락) | `processPayment()` 내부 | 분산 락 내에서 처리 |
+| **결제 - 전체** | Redis 분산 락 | SIMPLE | `point:{userId}` | `OrderService.processPayment()` | 부분 전환 |
+| **결제 - 포인트 차감** | 분산 락으로 보호 | - | (상위 SIMPLE 락) | `processPayment()` 내부 | 분산 락 내에서 처리 |
 | **결제 - 재고 차감** | JPA 비관적 락 | PESSIMISTIC_WRITE | - | `ProductRepository.findByIdWithLock()` | JPA 락 유지 ⚠️ |
 | **결제 - 쿠폰 사용** | JPA 낙관적 락 | @Version | - | `OrderService.useCouponWithOptimisticLock()` | JPA 락 유지 ⚠️ |
 
 ### 혼용 전략
 
 **결제 프로세스의 계층적 보호**
-- **분산 락**: 주문 및 포인트 리소스 보호
+- **분산 락**: 포인트 리소스 보호
 - **비관적 락**: 상품별 재고 보호 (여러 주문에서 동일 상품 참조)
 - **낙관적 락**: 쿠폰 사용 상태 보호 (충돌 빈도 낮음)
 
