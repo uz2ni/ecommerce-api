@@ -253,7 +253,11 @@ curl -X POST http://localhost:8080/api/cart \
 - **[요구사항 명세서](docs/requirements.md)** - 비즈니스 요구사항 및 제약조건
 - **[ERD](docs/data-models.md)** - 데이터베이스 구조 및 엔티티 관계
 - **[API 명세서](docs/api-specification.md)** - API 엔드포인트 상세 설명
-- **[쿼리 최적화 및 락 처리 방안 보고서](docs/query-optimization.md)** - 쿼리 최적화, 락 처리 방안 설명
+- **[Sequence Diagram](docs/sequence.md)** - 주요 기능별 시퀀스 다이어그램
+- **[쿼리 최적화 보고서](docs/query-optimization.md)** - 쿼리 최적화 방안 설명
+- **[동시성 문제 처리 방안 보고서](docs/lock.md)** - 동시성 제어 설계 및 구현
+- **[분산 락 전환 보고서](docs/distributed-lock.md)** - Redis 분산 락 전환 과정 및 성능 분석
+- **[성능 개선 보고서](docs/performance-improvement.md)** - Redis 캐싱 적용 및 성능 개선 결과
 
 ## 라이센스
 

@@ -40,7 +40,7 @@ public class Coupon {
     @Column(name = "created_at", nullable = false)
     private LocalDateTime createdAt;
 
-    @Version
+    // @Version
     @Column(name = "version")
     private Integer version;
 

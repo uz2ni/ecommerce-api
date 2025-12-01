@@ -182,8 +182,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findByIdWithPessimisticLock(1)).willReturn(Optional.of(availableCoupon));
-            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(1, 1)).willReturn(Optional.empty());
+            given(couponRepository.findById(1)).willReturn(Optional.of(availableCoupon));
+            given(couponUserRepository.findByCouponIdAndUserId(1, 1)).willReturn(Optional.empty());
             given(couponRepository.save(availableCoupon)).willReturn(availableCoupon);
             given(couponUserRepository.save(any(CouponUser.class))).willAnswer(invocation -> {
                 CouponUser cu = invocation.getArgument(0);
@@ -232,7 +232,7 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findByIdWithPessimisticLock(999)).willReturn(Optional.empty());
+            given(couponRepository.findById(999)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -250,8 +250,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findByIdWithPessimisticLock(1)).willReturn(Optional.of(availableCoupon));
-            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(1, 1)).willReturn(Optional.of(couponUser1));
+            given(couponRepository.findById(1)).willReturn(Optional.of(availableCoupon));
+            given(couponUserRepository.findByCouponIdAndUserId(1, 1)).willReturn(Optional.of(couponUser1));
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -269,8 +269,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findByIdWithPessimisticLock(2)).willReturn(Optional.of(expiredCoupon));
-            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(2, 1)).willReturn(Optional.empty());
+            given(couponRepository.findById(2)).willReturn(Optional.of(expiredCoupon));
+            given(couponUserRepository.findByCouponIdAndUserId(2, 1)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -288,8 +288,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findByIdWithPessimisticLock(3)).willReturn(Optional.of(soldOutCoupon));
-            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(3, 1)).willReturn(Optional.empty());
+            given(couponRepository.findById(3)).willReturn(Optional.of(soldOutCoupon));
+            given(couponUserRepository.findByCouponIdAndUserId(3, 1)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
@@ -318,8 +318,8 @@ class CouponServiceTest {
             );
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
-            given(couponRepository.findByIdWithPessimisticLock(4)).willReturn(Optional.of(lastCoupon));
-            given(couponUserRepository.findByCouponIdAndUserIdWithPessimisticLock(4, 1)).willReturn(Optional.empty());
+            given(couponRepository.findById(4)).willReturn(Optional.of(lastCoupon));
+            given(couponUserRepository.findByCouponIdAndUserId(4, 1)).willReturn(Optional.empty());
             given(couponRepository.save(lastCoupon)).willReturn(lastCoupon);
             given(couponUserRepository.save(any(CouponUser.class))).willAnswer(invocation -> {
                 CouponUser cu = invocation.getArgument(0);

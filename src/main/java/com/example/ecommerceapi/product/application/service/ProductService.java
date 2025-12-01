@@ -11,6 +11,7 @@ import com.example.ecommerceapi.product.domain.entity.Product;
 import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.example.ecommerceapi.product.infrastructure.persistence.ProductTableUtils;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.data.domain.PageRequest;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
@@ -27,8 +28,10 @@ public class ProductService {
     private final ProductRepository productRepository;
     private final ProductTableUtils productTableUtils;
     private final OrderItemRepository orderItemRepository;
+    private final ProductCacheService cacheService;
 
 
+    @Cacheable(value = "allProducts")
     @Transactional(readOnly = true)
     public List<ProductResult> getAllProducts() {
         return productRepository.findAll().stream()
@@ -36,6 +39,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
+    @Cacheable(value = "product", key = "#productId")
     @Transactional(readOnly = true)
     public ProductResult getProduct(Integer productId) {
         Product product = productValidator.validateAndGetProduct(productId);
@@ -48,6 +52,10 @@ public class ProductService {
         return ProductStockResult.from(product);
     }
 
+    @Cacheable(
+        value = "popularProducts:#{#type}",
+        key = "#days + ':' + #limit"
+    )
     @Transactional(readOnly = true)
     public List<PopularProductResult> getPopularProducts(String type, Integer days, Integer limit) {
 
@@ -81,11 +89,14 @@ public class ProductService {
         return PopularProductResult.fromList(popularProducts);
     }
 
-    @Transactional
     public IncrementProductViewResult incrementProductViewCount(Integer productId) {
-        Product product = productValidator.validateAndGetProduct(productId);
-        product.incrementViewCount();
-        return IncrementProductViewResult.from(product);
+        // 상품 존재 여부만 검증
+        productValidator.validateAndGetProduct(productId);
+
+        // Redis INCR로 조회수 증가 (Write-Behind 패턴)
+        Long newViewCount = cacheService.incrementViewCount(productId);
+
+        return IncrementProductViewResult.of(newViewCount.intValue());
     }
 
     /**

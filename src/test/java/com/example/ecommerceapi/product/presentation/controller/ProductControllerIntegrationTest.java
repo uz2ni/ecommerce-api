@@ -1,7 +1,6 @@
 package com.example.ecommerceapi.product.presentation.controller;
 
 import com.example.ecommerceapi.common.AbstractIntegrationTest;
-import com.example.ecommerceapi.product.domain.repository.ProductRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -28,12 +27,10 @@ class ProductControllerIntegrationTest extends AbstractIntegrationTest {
     @Autowired
     private ObjectMapper objectMapper;
 
-    @Autowired
-    private ProductRepository productRepository;
-
     @BeforeEach
     void setUp() {
-        // 각 테스트 전에 초기 상태로 리셋 (필요한 경우)
+        // Redis 캐시 초기화 (이전 테스트의 캐시 영향 제거)
+        clearAllRedisKeys();
     }
 
     @Test
@@ -137,19 +134,24 @@ class ProductControllerIntegrationTest extends AbstractIntegrationTest {
     @Test
     @DisplayName("PATCH /api/products/{productId}/view - 상품 조회수를 증가시킨다")
     void incrementProductViewCount_ShouldIncreaseViewCount_WhenProductExists() throws Exception {
-        // given: 상품 1의 현재 조회수 확인
-        Integer initialViewCount = productRepository.findById(1).getViewCount();
+        // when: 조회수 증가 API 호출
+        String response1 = mockMvc.perform(patch("/api/products/{productId}/view", 1))
+                .andDo(print())
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON))
+                .andExpect(jsonPath("$.viewCount", notNullValue()))
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
 
-        // when & then
+        Integer firstViewCount = objectMapper.readTree(response1).get("viewCount").asInt();
+
+        // then: 한 번 더 호출하면 조회수가 증가해야 함
         mockMvc.perform(patch("/api/products/{productId}/view", 1))
                 .andDo(print())
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_JSON))
-                .andExpect(jsonPath("$.viewCount", is(initialViewCount + 1)));
-
-        // 실제로 증가했는지 확인
-        Integer updatedViewCount = productRepository.findById(1).getViewCount();
-        assertThat(updatedViewCount).isEqualTo(initialViewCount + 1);
+                .andExpect(jsonPath("$.viewCount", is(firstViewCount + 1)));
     }
 
     @Test
@@ -168,24 +170,24 @@ class ProductControllerIntegrationTest extends AbstractIntegrationTest {
     void incrementProductViewCount_ShouldIncreaseMultipleTimes() throws Exception {
         // given
         Integer productId = 2;
-        Integer initialViewCount = productRepository.findById(productId).getViewCount();
 
-        // when: 3번 조회수 증가
+        // when: 첫 번째 호출
+        String response1 = mockMvc.perform(patch("/api/products/{productId}/view", productId))
+                .andExpect(status().isOk())
+                .andReturn()
+                .getResponse()
+                .getContentAsString();
+        Integer firstViewCount = objectMapper.readTree(response1).get("viewCount").asInt();
+
+        // when: 두 번째 호출
         mockMvc.perform(patch("/api/products/{productId}/view", productId))
-                .andExpect(status().isOk());
-        mockMvc.perform(patch("/api/products/{productId}/view", productId))
-                .andExpect(status().isOk());
+                .andExpect(status().isOk())
+                .andExpect(jsonPath("$.viewCount", is(firstViewCount + 1)));
+
+        // then: 세 번째 호출
         mockMvc.perform(patch("/api/products/{productId}/view", productId))
                 .andDo(print())
                 .andExpect(status().isOk())
-                .andExpect(jsonPath("$.viewCount", is(initialViewCount + 3)));
-
-        // then
-        Integer finalViewCount = productRepository.findById(productId).getViewCount();
-        assertThat(finalViewCount).isEqualTo(initialViewCount + 3);
-    }
-
-    private org.assertj.core.api.AbstractIntegerAssert<?> assertThat(Integer actual) {
-        return org.assertj.core.api.Assertions.assertThat(actual);
+                .andExpect(jsonPath("$.viewCount", is(firstViewCount + 2)));
     }
 }

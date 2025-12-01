@@ -2,6 +2,8 @@ package com.example.ecommerceapi.coupon.application.service;
 
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
+import com.example.ecommerceapi.common.lock.DistributedLock;
+import com.example.ecommerceapi.common.lock.LockType;
 import com.example.ecommerceapi.coupon.application.dto.CouponResult;
 import com.example.ecommerceapi.coupon.application.dto.CouponUserResult;
 import com.example.ecommerceapi.coupon.application.dto.IssueCouponCommand;
@@ -15,6 +17,7 @@ import com.example.ecommerceapi.user.application.validator.UserValidator;
 import com.example.ecommerceapi.user.domain.entity.User;
 import com.example.ecommerceapi.user.domain.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
+import org.springframework.cache.annotation.Cacheable;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -34,6 +37,7 @@ public class CouponService {
     /**
      * 쿠폰 정보 목록 조회
      */
+    @Cacheable(value = "allCoupons")
     @Transactional(readOnly = true)
     public List<CouponResult> getAllCoupons() {
         List<Coupon> coupons = couponRepository.findAll();
@@ -46,20 +50,22 @@ public class CouponService {
      * - 중복 발급 불가
      * - 발급 수량이 소진되면 실패
      * - 쿠폰이 만료되면 실패
-     * - 쿠폰 동시 접근 시, 순차적 발급(비관적 락을 통한 동시성 제어)
+     * <분산 락-PUB_SUB>
+     * coupon:#command.couponId  // 쿠폰 발급 동시성 제어
      */
+    @DistributedLock(key = "'coupon' + #command.couponId", type = LockType.PUB_SUB, waitTime = 5, leaseTime = 10)
     @Transactional
     public IssueCouponResult issueCoupon(IssueCouponCommand command) {
         // 1. 회원 존재 검증
         User user = userValidator.validateAndGetUser(command.userId());
 
-        // 2. 쿠폰 존재 검증 및 비관적 락 획득
-        Coupon coupon = couponRepository.findByIdWithPessimisticLock(command.couponId())
+        // 2. 쿠폰 존재 검증
+        Coupon coupon = couponRepository.findById(command.couponId())
                 .orElseThrow(() -> new CouponException(ErrorCode.COUPON_NOT_FOUND));
 
-        // 3. 중복 발급 검증 (비관적 락 사용)
+        // 3. 중복 발급 검증
         Optional<CouponUser> existingCouponUser = couponUserRepository
-                .findByCouponIdAndUserIdWithPessimisticLock(command.couponId(), command.userId());
+                .findByCouponIdAndUserId(command.couponId(), command.userId());
         if (existingCouponUser.isPresent()) {
             throw new CouponException(ErrorCode.COUPON_ALREADY_ISSUED);
         }
