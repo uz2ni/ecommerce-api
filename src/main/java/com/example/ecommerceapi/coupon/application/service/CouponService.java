@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.coupon.application.service;
 
+import com.example.ecommerceapi.common.config.CacheType;
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.lock.DistributedLock;
@@ -37,7 +38,7 @@ public class CouponService {
     /**
      * 쿠폰 정보 목록 조회
      */
-    @Cacheable(value = "allCoupons")
+    @Cacheable(value = CacheType.Names.ALL_COUPONS)
     @Transactional(readOnly = true)
     public List<CouponResult> getAllCoupons() {
         List<Coupon> coupons = couponRepository.findAll();

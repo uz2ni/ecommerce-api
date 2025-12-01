@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.product.application.service;
 
+import com.example.ecommerceapi.common.config.CacheType;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.exception.ProductException;
 import com.example.ecommerceapi.order.domain.entity.OrderStatus;
@@ -31,7 +32,7 @@ public class ProductService {
     private final ProductCacheService cacheService;
 
 
-    @Cacheable(value = "allProducts")
+    @Cacheable(value = CacheType.Names.ALL_PRODUCTS)
     @Transactional(readOnly = true)
     public List<ProductResult> getAllProducts() {
         return productRepository.findAll().stream()
@@ -39,7 +40,7 @@ public class ProductService {
                 .collect(Collectors.toList());
     }
 
-    @Cacheable(value = "product", key = "#productId")
+    @Cacheable(value = CacheType.Names.PRODUCT, key = "#productId")
     @Transactional(readOnly = true)
     public ProductResult getProduct(Integer productId) {
         Product product = productValidator.validateAndGetProduct(productId);
@@ -53,7 +54,7 @@ public class ProductService {
     }
 
     @Cacheable(
-        value = "popularProducts:#{#type}",
+        value = "#{T(com.example.ecommerceapi.common.config.CacheType$Names).getPopularProductsCacheName(#type)}",
         key = "#days + ':' + #limit"
     )
     @Transactional(readOnly = true)

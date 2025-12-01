@@ -1,5 +1,6 @@
 package com.example.ecommerceapi.product.application.scheduler;
 
+import com.example.ecommerceapi.common.config.CacheType;
 import com.example.ecommerceapi.product.application.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -27,7 +28,7 @@ public class PopularProductCacheScheduler {
      * 판매량 기준 인기 상품 캐시 갱신 (5분마다 실행)
      */
     @Scheduled(fixedRate = 300000) // 5분 = 300,000ms
-    @CacheEvict(value = "popularProducts:SALES", allEntries = true)
+    @CacheEvict(value = CacheType.Names.POPULAR_PRODUCTS_SALES, allEntries = true)
     public void evictSalesBasedPopularProductsCache() {
         log.info("Evicted sales-based popular products cache");
     }
@@ -36,7 +37,7 @@ public class PopularProductCacheScheduler {
      * 조회수 기준 인기 상품 캐시 갱신 (30분마다 실행)
      */
     @Scheduled(fixedRate = 1800000) // 30분 = 1,800,000ms
-    @CacheEvict(value = "popularProducts:VIEWS", allEntries = true)
+    @CacheEvict(value = CacheType.Names.POPULAR_PRODUCTS_VIEWS, allEntries = true)
     public void evictViewBasedPopularProductsCache() {
         log.info("Evicted view-based popular products cache");
     }

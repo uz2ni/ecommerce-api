@@ -85,29 +85,23 @@ public class RedisConfig {
     /**
      * RedisTemplate 설정
      * 캐싱 및 일반적인 Redis 작업에 사용됩니다.
+     * 기본 설정을 사용합니다.
      */
     @Bean
     public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
         RedisTemplate<String, Object> template = new RedisTemplate<>();
         template.setConnectionFactory(connectionFactory);
-
-        GenericJackson2JsonRedisSerializer serializer = new GenericJackson2JsonRedisSerializer(createRedisObjectMapper());
-
         template.setKeySerializer(new StringRedisSerializer());
-        template.setValueSerializer(serializer);
+        template.setValueSerializer(new StringRedisSerializer());
         template.setHashKeySerializer(new StringRedisSerializer());
-        template.setHashValueSerializer(serializer);
+        template.setHashValueSerializer(new StringRedisSerializer());
         return template;
     }
 
     /**
      * CacheManager 설정
      * Spring Cache 추상화에 사용됩니다.
-     *
-     * TTL 전략:
-     * - 기본: 10분 (일반적인 캐시)
-     * - 인기 상품 (판매량): 5분 (주문 데이터는 상대적으로 느리게 변경)
-     * - 인기 상품 (조회수): 3분 (조회수는 빈번하게 변경되므로 짧게 설정)
+     * 캐시별 TTL 설정은 CacheType enum에서 중앙 관리됩니다.
      */
     @Bean
     public CacheManager cacheManager(RedisConnectionFactory connectionFactory) {
@@ -120,32 +114,14 @@ public class RedisConfig {
                 .entryTtl(Duration.ofMinutes(10))
                 .disableCachingNullValues(); // null 값은 캐싱하지 않음
 
-        // 캐시별 개별 설정
+        // CacheType enum을 기반으로 캐시별 설정 생성
         Map<String, RedisCacheConfiguration> cacheConfigurations = new HashMap<>();
-
-        // 인기 상품 - 판매량 기준 (TTL: 5분)
-        // 주문 데이터는 상대적으로 느리게 변경되므로 5분 유지
-        cacheConfigurations.put("popularProducts:SALES", defaultConfig.entryTtl(Duration.ofMinutes(5)));
-
-        // 인기 상품 - 조회수 기준 (TTL: 3분)
-        // 조회수는 빈번하게 변경되므로 짧게 설정
-        cacheConfigurations.put("popularProducts:VIEWS", defaultConfig.entryTtl(Duration.ofMinutes(3)));
-
-        // 전체 상품 목록 (TTL: 30분)
-        // 상품 데이터는 자주 변경되지 않으므로 30분 유지
-        cacheConfigurations.put("allProducts", defaultConfig.entryTtl(Duration.ofMinutes(30)));
-
-        // 단일 상품 조회 (TTL: 30분)
-        // 개별 상품 정보는 자주 변경되지 않으므로 30분 유지
-        cacheConfigurations.put("product", defaultConfig.entryTtl(Duration.ofMinutes(30)));
-
-        // 전체 쿠폰 목록 (TTL: 60분)
-        // 쿠폰 정보는 거의 변경되지 않으므로 1시간 유지
-        cacheConfigurations.put("allCoupons", defaultConfig.entryTtl(Duration.ofMinutes(60)));
-
-        // 주문 조회 (TTL: 60분)
-        // 주문은 완료 후 불변 데이터이므로 1시간 유지
-        cacheConfigurations.put("order", defaultConfig.entryTtl(Duration.ofMinutes(60)));
+        for (CacheType cacheType : CacheType.values()) {
+            cacheConfigurations.put(
+                    cacheType.getCacheName(),
+                    defaultConfig.entryTtl(cacheType.getTtl())
+            );
+        }
 
         return RedisCacheManager.builder(connectionFactory)
                 .cacheDefaults(defaultConfig)
