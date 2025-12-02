@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.coupon.application.service;
 
-import com.example.ecommerceapi.common.config.CacheType;
+import com.example.ecommerceapi.common.redis.CacheType;
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.common.exception.ErrorCode;
 import com.example.ecommerceapi.common.lock.DistributedLock;

@@ -6,6 +6,7 @@
 - [3. 장바구니 API](#3-장바구니-api)
 - [4. 주문/결제 API](#4-주문결제-api)
 - [5. 쿠폰 API](#5-쿠폰-api)
+- [6. 랭킹 API](#6-랭킹-api)
 
 ---
 
@@ -877,6 +878,105 @@ GET /api/coupons/{couponId}/usage
 
 ---
 
+## 6. 랭킹 API
+
+### 6.1 일간 판매 랭킹 조회
+특정 날짜의 판매량 기준 상위 K개 상품을 조회합니다.
+
+**Endpoint**
+```
+GET /api/rankings/sales/daily?date={date}&limit={limit}
+```
+
+**Query Parameters**
+
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| date | LocalDate | X | 오늘 | 조회할 날짜 (YYYY-MM-DD) |
+| limit | Integer | X | 10 | 조회할 상품 개수 |
+
+**Response**
+```json
+[
+  {
+    "productId": 1,
+    "productName": "유기농 딸기",
+    "totalSalesCount": 150,
+    "rank": 1
+  },
+  {
+    "productId": 2,
+    "productName": "국산 사과",
+    "totalSalesCount": 120,
+    "rank": 2
+  }
+]
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| productId | Integer | 상품 ID |
+| productName | String | 상품명 |
+| totalSalesCount | Long | 총 판매 수량 |
+| rank | Long | 순위 |
+
+**제약조건**
+- date 파라미터가 없으면 오늘 날짜 기준으로 조회
+- limit 파라미터로 조회 개수 지정 가능 (기본값: 10)
+
+---
+
+### 6.2 주간 판매 랭킹 조회
+특정 주의 판매량 기준 상위 K개 상품을 조회합니다.
+
+**Endpoint**
+```
+GET /api/rankings/sales/weekly?date={date}&limit={limit}
+```
+
+**Query Parameters**
+
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| date | LocalDate | X | 오늘 | 조회할 주가 포함된 날짜 (YYYY-MM-DD) |
+| limit | Integer | X | 10 | 조회할 상품 개수 |
+
+**Response**
+```json
+[
+  {
+    "productId": 1,
+    "productName": "유기농 딸기",
+    "totalSalesCount": 850,
+    "rank": 1
+  },
+  {
+    "productId": 3,
+    "productName": "제주 감귤",
+    "totalSalesCount": 720,
+    "rank": 2
+  }
+]
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| productId | Integer | 상품 ID |
+| productName | String | 상품명 |
+| totalSalesCount | Long | 총 판매 수량 |
+| rank | Long | 순위 |
+
+**제약조건**
+- date 파라미터가 없으면 오늘이 포함된 주 기준으로 조회
+- 주간 집계는 월요일부터 일요일까지를 한 주로 계산
+- limit 파라미터로 조회 개수 지정 가능 (기본값: 10)
+
+---
+
 ## 공통 사항
 
 ### HTTP Status Code
@@ -962,6 +1062,7 @@ GET /api/coupons/{couponId}/usage
    - 상품 등록은 이미 되어있다고 가정
    - 인기 상품: 최근 N일 기준 topX 조회 (판매량 또는 조회수 기준)
    - 조회수는 상품 조회 시 자동으로 증가
+   - 판매 랭킹: 일간/주간 판매량 기준 상위 K개 조회 가능 (Redis Sorted Set 기반 실시간 집계)
 
 3. **장바구니**
    - 수량 변동 시 상품 삭제 후 재등록

@@ -22,6 +22,11 @@ public interface ProductRepository {
     Product findById(Integer productId);
 
     /**
+     * 여러 ID로 상품 조회
+     */
+    List<Product> findAllById(List<Integer> productIds);
+
+    /**
      * ID로 상품 조회 (비관적 락 - PESSIMISTIC_WRITE)
      * 동시성 제어가 필요한 재고 차감 등의 작업에 사용
      */

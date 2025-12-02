@@ -11,6 +11,7 @@ import com.example.ecommerceapi.order.application.dto.CreateOrderCommand;
 import com.example.ecommerceapi.order.application.dto.CreateOrderResult;
 import com.example.ecommerceapi.order.application.dto.OrderResult;
 import com.example.ecommerceapi.order.application.dto.PaymentResult;
+import com.example.ecommerceapi.order.application.event.OrderEventPublisher;
 import com.example.ecommerceapi.order.domain.entity.Order;
 import com.example.ecommerceapi.order.domain.entity.OrderItem;
 import com.example.ecommerceapi.order.domain.entity.OrderStatus;
@@ -76,6 +77,9 @@ class OrderServiceTest {
 
     @Mock
     private PointRepository pointRepository;
+
+    @Mock
+    private OrderEventPublisher orderEventPublisher;
 
     @InjectMocks
     private OrderService orderService;
@@ -529,6 +533,50 @@ class OrderServiceTest {
             verify(productRepository).save(any(Product.class));
             verify(cartItemRepository).deleteByUserId(1);
             verify(orderRepository).save(any(Order.class));
+            verify(orderEventPublisher).publishOrderPaidEvent(any(Order.class), anyList());
+        }
+
+        @Test
+        @DisplayName("결제 처리 후 주문 결제 완료 이벤트를 발행한다")
+        void processPayment_ShouldPublishOrderPaidEvent() {
+            // given
+            Order order = Order.builder()
+                    .orderId(1)
+                    .user(User.builder().userId(1).version(0).build())
+                    .orderStatus(OrderStatus.PENDING)
+                    .finalPaymentAmount(40000)
+                    .coupon(null)
+                    .build();
+
+            OrderItem orderItem1 = OrderItem.builder()
+                    .orderItemId(1)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product1)
+                    .orderQuantity(2)
+                    .build();
+
+            OrderItem orderItem2 = OrderItem.builder()
+                    .orderItemId(2)
+                    .order(Order.builder().orderId(1).build())
+                    .product(product2)
+                    .orderQuantity(1)
+                    .build();
+
+            List<OrderItem> orderItems = Arrays.asList(orderItem1, orderItem2);
+
+            given(orderRepository.findById(1)).willReturn(Optional.of(order));
+            given(userRepository.findById(1)).willReturn(user);
+            given(userRepository.save(any(User.class))).willReturn(user);
+            given(orderItemRepository.findByOrderId(1)).willReturn(orderItems);
+            given(productRepository.findByIdWithLock(1)).willReturn(product1);
+            given(productRepository.findByIdWithLock(2)).willReturn(product2);
+            given(orderRepository.save(any(Order.class))).willReturn(order);
+
+            // when
+            orderService.processPayment(1, 1);
+
+            // then
+            verify(orderEventPublisher).publishOrderPaidEvent(order, orderItems);
         }
 
         @Test
