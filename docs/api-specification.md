@@ -774,8 +774,8 @@ GET /api/coupons
 
 ---
 
-### 5.2 쿠폰 발급
-선착순으로 쿠폰을 발급받습니다.
+### 5.2 쿠폰 발급 (동기)
+선착순으로 쿠폰을 즉시 발급받습니다.
 
 **Endpoint**
 ```
@@ -802,7 +802,9 @@ POST /api/coupons/issue
 {
   "couponUserId": 1,
   "couponId": 1,
-  "userId": 1
+  "userId": 1,
+  "eventId": null,
+  "status": "ISSUED"
 }
 ```
 
@@ -813,6 +815,8 @@ POST /api/coupons/issue
 | couponUserId | Integer | 쿠폰 발급 이력 ID |
 | couponId | Integer | 쿠폰 ID |
 | userId | Integer | 회원 ID |
+| eventId | String | 이벤트 ID (동기 발급 시 null) |
+| status | String | 발급 상태 (ISSUED: 발급 완료) |
 
 **제약조건**
 - 발급 수량이 소진되면 실패 (400 Bad Request)
@@ -823,10 +827,64 @@ POST /api/coupons/issue
 - 발급 성공 시 쿠폰 사용 이력에 자동 추가
 - 발급된 쿠폰은 주문 생성 시 사용 가능
 - 선착순 쿠폰은 사전에 등록되어 있음
+- 분산 락(Redis Pub/Sub)을 통한 동시성 제어
 
 ---
 
-### 5.3 쿠폰 사용 이력 조회
+### 5.3 쿠폰 발급 접수 (비동기)
+선착순 쿠폰 발급 요청을 접수합니다. 실제 발급은 비동기로 처리됩니다.
+
+**Endpoint**
+```
+POST /api/coupons/issue/request
+```
+
+**Request Body**
+```json
+{
+  "userId": 1,
+  "couponId": 1
+}
+```
+
+**Request Fields**
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| userId | Integer | O | 회원 ID |
+| couponId | Integer | O | 쿠폰 ID |
+
+**Response (성공)**
+```json
+{
+  "couponUserId": null,
+  "couponId": 1,
+  "userId": 1,
+  "eventId": "1733270400000-0",
+  "status": "PENDING"
+}
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| couponUserId | Integer | 쿠폰 발급 이력 ID (비동기 처리 중이므로 null) |
+| couponId | Integer | 쿠폰 ID |
+| userId | Integer | 회원 ID |
+| eventId | String | Redis Stream 이벤트 ID |
+| status | String | 발급 상태 (PENDING: 처리 대기 중) |
+
+**제약조건**
+- 기본 검증(회원 존재, 쿠폰 존재, 만료 여부, 수량)만 수행 후 즉시 응답
+- 실제 발급은 Redis Stream Consumer에서 비동기로 처리
+- Redis Stream을 통한 메시지 큐 기반 처리
+- 중복 발급 검증은 Consumer에서 수행
+- 대용량 트래픽 처리에 적합
+
+---
+
+### 5.4 쿠폰 사용 이력 조회
 특정 쿠폰의 사용 이력을 조회합니다.
 
 **Endpoint**
@@ -1086,3 +1144,5 @@ GET /api/rankings/sales/weekly?date={date}&limit={limit}
    - 주문 생성 시 쿠폰 ID를 전달하여 할인 적용
    - 쿠폰은 사용자에게 발급된 것만 사용 가능
    - 쿠폰 사용 시 유효성 검증 (발급 여부, 사용 여부, 만료 여부)
+   - 동기 발급: 분산 락(Redis Pub/Sub)을 통한 동시성 제어, 즉시 발급 완료
+   - 비동기 발급: Redis Stream 메시지 큐 기반, 요청 접수 후 비동기 처리
