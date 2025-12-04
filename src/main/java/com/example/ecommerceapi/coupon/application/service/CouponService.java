@@ -147,13 +147,11 @@ public class CouponService {
     /**
      * 쿠폰 발급 이벤트 처리 (Consumer에서 호출)
      * - Stream Consumer에서 비동기로 호출되는 실제 쿠폰 발급 로직
-     * - 분산 락을 통해 동시성 제어
      * - 트랜잭션 내에서 발급 수량 증가 및 발급 이력 생성
      *
      * @param couponId 쿠폰 ID
      * @param userId 사용자 ID
      */
-    @DistributedLock(key = "'coupon:' + #couponId", type = LockType.PUB_SUB, waitTime = 5, leaseTime = 10)
     @Transactional
     public void processCouponIssue(Integer couponId, Integer userId) {
         // 1. 회원 존재 검증
