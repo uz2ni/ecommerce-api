@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.product.application.scheduler;
 
-import com.example.ecommerceapi.common.config.CacheType;
+import com.example.ecommerceapi.common.redis.CacheType;
 import com.example.ecommerceapi.product.application.service.ProductService;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

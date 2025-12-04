@@ -66,6 +66,15 @@ public class Coupon {
         }
     }
 
+    public void validIssueCoupon() {
+        if (isExpired()) {
+            throw new CouponException(ErrorCode.COUPON_EXPIRED);
+        }
+        if (!isAvailable()) {
+            throw new CouponException(ErrorCode.COUPON_NOT_AVAILABLE);
+        }
+    }
+
     public void issueCoupon() {
         if (!isAvailable()) {
             throw new CouponException(ErrorCode.COUPON_NOT_AVAILABLE);

@@ -86,8 +86,8 @@ class CouponControllerIntegrationTest extends AbstractIntegrationTest {
         void issueCoupon_ShouldIssueCoupon_WhenValid() throws Exception {
             // given
             IssueCouponRequest request = new IssueCouponRequest(
-                    5, // 초기 데이터에 없는 사용자
-                    1
+                    3,
+                    3
             );
 
             // when & then
@@ -98,8 +98,8 @@ class CouponControllerIntegrationTest extends AbstractIntegrationTest {
                     .andExpect(status().isOk())
                     .andExpect(content().contentType(MediaType.APPLICATION_JSON))
                     .andExpect(jsonPath("$.couponUserId", notNullValue()))
-                    .andExpect(jsonPath("$.couponId", is(1)))
-                    .andExpect(jsonPath("$.userId", is(5)));
+                    .andExpect(jsonPath("$.couponId", is(3)))
+                    .andExpect(jsonPath("$.userId", is(3)));
         }
 
         @Test

@@ -35,6 +35,12 @@ public class JpaProductRepositoryAdapter implements ProductRepository {
     }
 
     @Override
+    @Transactional(readOnly = true)
+    public List<Product> findAllById(List<Integer> productIds) {
+        return jpaProductRepository.findAllById(productIds);
+    }
+
+    @Override
     @Transactional
     public Product findByIdWithLock(Integer productId) {
         return jpaProductRepository.findByIdWithLock(productId).orElse(null);

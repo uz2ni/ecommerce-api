@@ -1,15 +1,15 @@
-package com.example.ecommerceapi.common.config;
+package com.example.ecommerceapi.common.redis;
 
 import lombok.Getter;
 
 import java.time.Duration;
 
 /**
- * 캐시 타입 정의 Enum
+ * 캐시 타입 정의 Enum (Spring Cache 전용)
  * 각 캐시의 이름과 TTL(Time To Live)을 중앙에서 관리합니다.
  */
 @Getter
-public enum CacheType {
+public enum CacheType implements RedisType {
 
     // Product 관련 캐시
     ALL_PRODUCTS("allProducts", Duration.ofMinutes(30)),
@@ -29,6 +29,11 @@ public enum CacheType {
     CacheType(String cacheName, Duration ttl) {
         this.cacheName = cacheName;
         this.ttl = ttl;
+    }
+
+    @Override
+    public String getKey() {
+        return cacheName;
     }
 
     /**
