@@ -31,6 +31,11 @@ public class JpaCouponUserRepositoryAdapter implements CouponUserRepository {
     }
 
     @Override
+    public CouponUser saveAndFlush(CouponUser couponUser) {
+        return jpaCouponUserRepository.saveAndFlush(couponUser);
+    }
+
+    @Override
     public Optional<CouponUser> findById(Integer couponUserId) {
         return jpaCouponUserRepository.findById(couponUserId);
     }

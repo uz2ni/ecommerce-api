@@ -17,6 +17,11 @@ public interface CouponUserRepository {
     CouponUser save(CouponUser couponUser);
 
     /**
+     * 쿠폰 발급 이력 저장 flush
+     */
+    CouponUser saveAndFlush(CouponUser couponUser);
+
+    /**
      * ID로 쿠폰 발급 이력 조회
      */
     Optional<CouponUser> findById(Integer couponUserId);

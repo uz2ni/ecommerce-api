@@ -33,12 +33,21 @@ public class CouponController {
         return ResponseEntity.ok(CouponResponse.fromList(coupons));
     }
 
-    @Operation(summary = "쿠폰 발급", description = "선착순으로 쿠폰을 발급받습니다. 발급 수량이 소진되거나 중복 발급 시 실패합니다.")
+    @Operation(summary = "쿠폰 발급 (동기)", description = "쿠폰을 즉시 발급받습니다. 발급 수량이 소진되거나 중복 발급 시 실패합니다.")
     @PostMapping("/issue")
     public ResponseEntity<IssueCouponResponse> issueCoupon(
             @Valid @RequestBody IssueCouponRequest request) {
 
         IssueCouponResult result = couponService.issueCoupon(request.toCommand());
+        return ResponseEntity.ok(IssueCouponResponse.from(result));
+    }
+
+    @Operation(summary = "쿠폰 발급 접수 (비동기)", description = "쿠폰 발급 요청을 접수합니다. 실제 발급은 비동기로 처리됩니다.")
+    @PostMapping("/issue/request")
+    public ResponseEntity<IssueCouponResponse> issueCouponAsync(
+            @Valid @RequestBody IssueCouponRequest request) {
+
+        IssueCouponResult result = couponService.issueCouponAsync(request.toCommand());
         return ResponseEntity.ok(IssueCouponResponse.from(result));
     }
 
