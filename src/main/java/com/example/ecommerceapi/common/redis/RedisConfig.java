@@ -1,4 +1,4 @@
-package com.example.ecommerceapi.common.config;
+package com.example.ecommerceapi.common.redis;
 
 import com.fasterxml.jackson.annotation.JsonTypeInfo;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +79,9 @@ public class RedisConfig {
      */
     @Bean
     public RedisConnectionFactory redisConnectionFactory() {
-        return new LettuceConnectionFactory(redisHost, redisPort);
+        LettuceConnectionFactory factory = new LettuceConnectionFactory(redisHost, redisPort);
+        factory.afterPropertiesSet(); // 명시적 초기화
+        return factory;
     }
 
     /**

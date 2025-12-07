@@ -6,6 +6,7 @@
 - [3. 장바구니 API](#3-장바구니-api)
 - [4. 주문/결제 API](#4-주문결제-api)
 - [5. 쿠폰 API](#5-쿠폰-api)
+- [6. 랭킹 API](#6-랭킹-api)
 
 ---
 
@@ -773,8 +774,8 @@ GET /api/coupons
 
 ---
 
-### 5.2 쿠폰 발급
-선착순으로 쿠폰을 발급받습니다.
+### 5.2 쿠폰 발급 (동기)
+선착순으로 쿠폰을 즉시 발급받습니다.
 
 **Endpoint**
 ```
@@ -801,7 +802,9 @@ POST /api/coupons/issue
 {
   "couponUserId": 1,
   "couponId": 1,
-  "userId": 1
+  "userId": 1,
+  "eventId": null,
+  "status": "ISSUED"
 }
 ```
 
@@ -812,6 +815,8 @@ POST /api/coupons/issue
 | couponUserId | Integer | 쿠폰 발급 이력 ID |
 | couponId | Integer | 쿠폰 ID |
 | userId | Integer | 회원 ID |
+| eventId | String | 이벤트 ID (동기 발급 시 null) |
+| status | String | 발급 상태 (ISSUED: 발급 완료) |
 
 **제약조건**
 - 발급 수량이 소진되면 실패 (400 Bad Request)
@@ -822,10 +827,64 @@ POST /api/coupons/issue
 - 발급 성공 시 쿠폰 사용 이력에 자동 추가
 - 발급된 쿠폰은 주문 생성 시 사용 가능
 - 선착순 쿠폰은 사전에 등록되어 있음
+- 분산 락(Redis Pub/Sub)을 통한 동시성 제어
 
 ---
 
-### 5.3 쿠폰 사용 이력 조회
+### 5.3 쿠폰 발급 접수 (비동기)
+선착순 쿠폰 발급 요청을 접수합니다. 실제 발급은 비동기로 처리됩니다.
+
+**Endpoint**
+```
+POST /api/coupons/issue/request
+```
+
+**Request Body**
+```json
+{
+  "userId": 1,
+  "couponId": 1
+}
+```
+
+**Request Fields**
+
+| 필드 | 타입 | 필수 | 설명 |
+|------|------|------|------|
+| userId | Integer | O | 회원 ID |
+| couponId | Integer | O | 쿠폰 ID |
+
+**Response (성공)**
+```json
+{
+  "couponUserId": null,
+  "couponId": 1,
+  "userId": 1,
+  "eventId": "1733270400000-0",
+  "status": "PENDING"
+}
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| couponUserId | Integer | 쿠폰 발급 이력 ID (비동기 처리 중이므로 null) |
+| couponId | Integer | 쿠폰 ID |
+| userId | Integer | 회원 ID |
+| eventId | String | Redis Stream 이벤트 ID |
+| status | String | 발급 상태 (PENDING: 처리 대기 중) |
+
+**제약조건**
+- 기본 검증(회원 존재, 쿠폰 존재, 만료 여부, 수량)만 수행 후 즉시 응답
+- 실제 발급은 Redis Stream Consumer에서 비동기로 처리
+- Redis Stream을 통한 메시지 큐 기반 처리
+- 중복 발급 검증은 Consumer에서 수행
+- 대용량 트래픽 처리에 적합
+
+---
+
+### 5.4 쿠폰 사용 이력 조회
 특정 쿠폰의 사용 이력을 조회합니다.
 
 **Endpoint**
@@ -874,6 +933,105 @@ GET /api/coupons/{couponId}/usage
 
 **제약조건**
 - 발급 이력이 없는 경우 빈 배열 반환
+
+---
+
+## 6. 랭킹 API
+
+### 6.1 일간 판매 랭킹 조회
+특정 날짜의 판매량 기준 상위 K개 상품을 조회합니다.
+
+**Endpoint**
+```
+GET /api/rankings/sales/daily?date={date}&limit={limit}
+```
+
+**Query Parameters**
+
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| date | LocalDate | X | 오늘 | 조회할 날짜 (YYYY-MM-DD) |
+| limit | Integer | X | 10 | 조회할 상품 개수 |
+
+**Response**
+```json
+[
+  {
+    "productId": 1,
+    "productName": "유기농 딸기",
+    "totalSalesCount": 150,
+    "rank": 1
+  },
+  {
+    "productId": 2,
+    "productName": "국산 사과",
+    "totalSalesCount": 120,
+    "rank": 2
+  }
+]
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| productId | Integer | 상품 ID |
+| productName | String | 상품명 |
+| totalSalesCount | Long | 총 판매 수량 |
+| rank | Long | 순위 |
+
+**제약조건**
+- date 파라미터가 없으면 오늘 날짜 기준으로 조회
+- limit 파라미터로 조회 개수 지정 가능 (기본값: 10)
+
+---
+
+### 6.2 주간 판매 랭킹 조회
+특정 주의 판매량 기준 상위 K개 상품을 조회합니다.
+
+**Endpoint**
+```
+GET /api/rankings/sales/weekly?date={date}&limit={limit}
+```
+
+**Query Parameters**
+
+| 필드 | 타입 | 필수 | 기본값 | 설명 |
+|------|------|------|--------|------|
+| date | LocalDate | X | 오늘 | 조회할 주가 포함된 날짜 (YYYY-MM-DD) |
+| limit | Integer | X | 10 | 조회할 상품 개수 |
+
+**Response**
+```json
+[
+  {
+    "productId": 1,
+    "productName": "유기농 딸기",
+    "totalSalesCount": 850,
+    "rank": 1
+  },
+  {
+    "productId": 3,
+    "productName": "제주 감귤",
+    "totalSalesCount": 720,
+    "rank": 2
+  }
+]
+```
+
+**Response Fields**
+
+| 필드 | 타입 | 설명 |
+|------|------|------|
+| productId | Integer | 상품 ID |
+| productName | String | 상품명 |
+| totalSalesCount | Long | 총 판매 수량 |
+| rank | Long | 순위 |
+
+**제약조건**
+- date 파라미터가 없으면 오늘이 포함된 주 기준으로 조회
+- 주간 집계는 월요일부터 일요일까지를 한 주로 계산
+- limit 파라미터로 조회 개수 지정 가능 (기본값: 10)
 
 ---
 
@@ -962,6 +1120,7 @@ GET /api/coupons/{couponId}/usage
    - 상품 등록은 이미 되어있다고 가정
    - 인기 상품: 최근 N일 기준 topX 조회 (판매량 또는 조회수 기준)
    - 조회수는 상품 조회 시 자동으로 증가
+   - 판매 랭킹: 일간/주간 판매량 기준 상위 K개 조회 가능 (Redis Sorted Set 기반 실시간 집계)
 
 3. **장바구니**
    - 수량 변동 시 상품 삭제 후 재등록
@@ -985,3 +1144,5 @@ GET /api/coupons/{couponId}/usage
    - 주문 생성 시 쿠폰 ID를 전달하여 할인 적용
    - 쿠폰은 사용자에게 발급된 것만 사용 가능
    - 쿠폰 사용 시 유효성 검증 (발급 여부, 사용 여부, 만료 여부)
+   - 동기 발급: 분산 락(Redis Pub/Sub)을 통한 동시성 제어, 즉시 발급 완료
+   - 비동기 발급: Redis Stream 메시지 큐 기반, 요청 접수 후 비동기 처리

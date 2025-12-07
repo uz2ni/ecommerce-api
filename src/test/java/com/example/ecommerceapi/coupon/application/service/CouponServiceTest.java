@@ -185,7 +185,7 @@ class CouponServiceTest {
             given(couponRepository.findById(1)).willReturn(Optional.of(availableCoupon));
             given(couponUserRepository.findByCouponIdAndUserId(1, 1)).willReturn(Optional.empty());
             given(couponRepository.save(availableCoupon)).willReturn(availableCoupon);
-            given(couponUserRepository.save(any(CouponUser.class))).willAnswer(invocation -> {
+            given(couponUserRepository.saveAndFlush(any(CouponUser.class))).willAnswer(invocation -> {
                 CouponUser cu = invocation.getArgument(0);
                 cu.setCouponUserId(1);
                 return cu;
@@ -201,7 +201,7 @@ class CouponServiceTest {
             assertThat(result.userId()).isEqualTo(1);
             assertThat(availableCoupon.getIssuedQuantity()).isEqualTo(11);
             verify(couponRepository).save(availableCoupon);
-            verify(couponUserRepository).save(any(CouponUser.class));
+            verify(couponUserRepository).saveAndFlush(any(CouponUser.class));
         }
 
         @Test
@@ -270,12 +270,11 @@ class CouponServiceTest {
 
             given(userValidator.validateAndGetUser(1)).willReturn(user);
             given(couponRepository.findById(2)).willReturn(Optional.of(expiredCoupon));
-            given(couponUserRepository.findByCouponIdAndUserId(2, 1)).willReturn(Optional.empty());
 
             // when & then
             assertThatThrownBy(() -> couponService.issueCoupon(command))
                     .isInstanceOf(CouponException.class)
-                    .hasMessage("발급 가능한 쿠폰이 아닙니다. 수량이 소진되었거나 만료되었습니다.");
+                    .hasMessage("만료된 쿠폰입니다.");
         }
 
         @Test
@@ -321,7 +320,7 @@ class CouponServiceTest {
             given(couponRepository.findById(4)).willReturn(Optional.of(lastCoupon));
             given(couponUserRepository.findByCouponIdAndUserId(4, 1)).willReturn(Optional.empty());
             given(couponRepository.save(lastCoupon)).willReturn(lastCoupon);
-            given(couponUserRepository.save(any(CouponUser.class))).willAnswer(invocation -> {
+            given(couponUserRepository.saveAndFlush(any(CouponUser.class))).willAnswer(invocation -> {
                 CouponUser cu = invocation.getArgument(0);
                 cu.setCouponUserId(10);
                 return cu;

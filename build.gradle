@@ -38,11 +38,12 @@ dependencies {
     implementation 'com.github.gavlyukovskiy:p6spy-spring-boot-starter:1.9.0'
     implementation 'org.springframework.retry:spring-retry'
 
-    // testContainers
+    // test
     testImplementation 'org.springframework.boot:spring-boot-testcontainers'
     testImplementation 'org.testcontainers:mysql'
     testImplementation 'org.testcontainers:junit-jupiter'
     testImplementation 'com.redis:testcontainers-redis:2.2.2'
+    testImplementation 'org.awaitility:awaitility:4.2.0' // 비동기 테스트 도구
 
     // Redis (분산 락, 캐싱)
     implementation 'org.springframework.boot:spring-boot-starter-data-redis'
