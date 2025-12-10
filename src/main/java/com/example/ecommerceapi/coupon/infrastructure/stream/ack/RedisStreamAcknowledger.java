@@ -1,6 +1,6 @@
-package com.example.ecommerceapi.coupon.infrastructure.stream.acknowledgement;
+package com.example.ecommerceapi.coupon.infrastructure.stream.ack;
 
-import com.example.ecommerceapi.coupon.domain.stream.StreamAcknowledger;
+import com.example.ecommerceapi.coupon.domain.event.EventAcknowledger;
 import com.example.ecommerceapi.coupon.infrastructure.stream.config.CouponStreamConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -15,7 +15,7 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class RedisStreamAcknowledger implements StreamAcknowledger {
+public class RedisStreamAcknowledger implements EventAcknowledger {
 
     private final RedisTemplate<String, String> redisTemplate;
 
