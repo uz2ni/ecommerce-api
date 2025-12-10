@@ -2,7 +2,6 @@ package com.example.ecommerceapi.coupon.infrastructure.stream.consumer;
 
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.coupon.application.service.CouponService;
-import com.example.ecommerceapi.coupon.domain.event.CouponIssueConsumer;
 import com.example.ecommerceapi.coupon.domain.event.EventAcknowledger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -20,15 +19,14 @@ import org.springframework.stereotype.Component;
 @Slf4j
 @Component
 @RequiredArgsConstructor
-public class CouponEventConsumer implements CouponIssueConsumer, StreamListener<String, MapRecord<String, String, String>> {
+public class CouponEventConsumer implements StreamListener<String, MapRecord<String, String, String>> {
 
     private final CouponService couponService;
     private final EventAcknowledger eventAcknowledger;
 
     /**
-     * 쿠폰 발급 이벤트 처리 (도메인 인터페이스 구현)
+     * 쿠폰 발급 이벤트 처리
      */
-    @Override
     public void consume(Integer couponId, Integer userId) {
         couponService.processCouponIssue(couponId, userId);
     }
