@@ -1,12 +1,12 @@
-package com.example.ecommerceapi.coupon.domain.stream;
+package com.example.ecommerceapi.coupon.domain.event;
 
 import org.springframework.data.redis.connection.stream.RecordId;
 
 /**
- * Stream 메시지 ACK 처리 인터페이스
- * - Stream Consumer에서 메시지 처리 완료를 알리는 역할
+ * 이벤트 메시지 ACK 처리 인터페이스
+ * - 이벤트 Consumer에서 메시지 처리 완료를 알리는 역할
  */
-public interface StreamAcknowledger {
+public interface EventAcknowledger {
 
     /**
      * 메시지 ACK 처리

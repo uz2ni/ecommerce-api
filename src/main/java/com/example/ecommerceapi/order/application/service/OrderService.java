@@ -236,7 +236,7 @@ public class OrderService {
             order.completePayment();
             orderRepository.save(order);
 
-            // 7. 주문 결제 완료 이벤트 발행 (판매 랭킹 업데이트 트리거)
+            // 7. 주문 결제 완료 이벤트 발행
             orderEventPublisher.publishOrderPaidEvent(order, items);
 
             return PaymentResult.from(order, user.getPointBalance());

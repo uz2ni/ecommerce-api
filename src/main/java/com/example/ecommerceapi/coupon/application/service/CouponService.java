@@ -12,7 +12,7 @@ import com.example.ecommerceapi.coupon.application.dto.IssueCouponResult;
 import com.example.ecommerceapi.coupon.application.validator.CouponValidator;
 import com.example.ecommerceapi.coupon.domain.entity.Coupon;
 import com.example.ecommerceapi.coupon.domain.entity.CouponUser;
-import com.example.ecommerceapi.coupon.domain.publisher.CouponIssuePublisher;
+import com.example.ecommerceapi.coupon.domain.event.CouponIssuePublisher;
 import com.example.ecommerceapi.coupon.domain.repository.CouponRepository;
 import com.example.ecommerceapi.coupon.domain.repository.CouponUserRepository;
 import com.example.ecommerceapi.user.application.validator.UserValidator;

@@ -1,8 +1,8 @@
-package com.example.ecommerceapi.coupon.presentation.consumer;
+package com.example.ecommerceapi.coupon.infrastructure.stream.consumer;
 
 import com.example.ecommerceapi.common.exception.CouponException;
 import com.example.ecommerceapi.coupon.application.service.CouponService;
-import com.example.ecommerceapi.coupon.domain.stream.StreamAcknowledger;
+import com.example.ecommerceapi.coupon.domain.event.EventAcknowledger;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.data.redis.connection.stream.MapRecord;
@@ -11,7 +11,7 @@ import org.springframework.data.redis.stream.StreamListener;
 import org.springframework.stereotype.Component;
 
 /**
- * 쿠폰 발급 이벤트 Consumer
+ * 쿠폰 발급 이벤트 Consumer (Redis Stream 구현체)
  * Redis Stream으로부터 쿠폰 발급 요청을 수신하고 처리
  * - 메시지 파싱 및 서비스 호출에만 집중
  * - 비즈니스 로직은 CouponService에 위임
@@ -22,7 +22,14 @@ import org.springframework.stereotype.Component;
 public class CouponEventConsumer implements StreamListener<String, MapRecord<String, String, String>> {
 
     private final CouponService couponService;
-    private final StreamAcknowledger streamAcknowledger;
+    private final EventAcknowledger eventAcknowledger;
+
+    /**
+     * 쿠폰 발급 이벤트 처리
+     */
+    public void consume(Integer couponId, Integer userId) {
+        couponService.processCouponIssue(couponId, userId);
+    }
 
     /**
      * Redis Stream으로부터 메시지를 수신하여 쿠폰 발급 처리
@@ -43,7 +50,7 @@ public class CouponEventConsumer implements StreamListener<String, MapRecord<Str
             couponService.processCouponIssue(couponId, userId);
 
             // 3. ACK 처리
-            streamAcknowledger.acknowledge(recordId);
+            eventAcknowledger.acknowledge(recordId);
 
             log.info("Coupon issued successfully: couponId={}, userId={}, recordId={}",
                     couponId, userId, recordId);
@@ -52,7 +59,7 @@ public class CouponEventConsumer implements StreamListener<String, MapRecord<Str
             // 비즈니스 예외는 로그만 남기고 ACK 처리 (재시도 불필요)
             log.warn("Coupon issue failed (business exception): {}, recordId={}",
                     e.getMessage(), recordId);
-            streamAcknowledger.acknowledge(recordId);
+            eventAcknowledger.acknowledge(recordId);
 
         } catch (Exception e) {
             // 시스템 예외는 로그 남기고 ACK 하지 않음 (재시도 가능)

@@ -1,4 +1,4 @@
-package com.example.ecommerceapi.coupon.domain.publisher;
+package com.example.ecommerceapi.coupon.domain.event;
 
 /**
  * 쿠폰 발급 이벤트 발행 인터페이스
