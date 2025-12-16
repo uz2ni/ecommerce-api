@@ -1,6 +1,6 @@
 package com.example.ecommerceapi.coupon.infrastructure.stream.publisher;
 
-import com.example.ecommerceapi.coupon.domain.publisher.CouponIssuePublisher;
+import com.example.ecommerceapi.coupon.domain.event.CouponIssuePublisher;
 import com.example.ecommerceapi.coupon.infrastructure.stream.config.CouponStreamConstants;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;

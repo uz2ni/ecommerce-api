@@ -33,7 +33,6 @@ public class RankingService {
      */
     public void incrementDailySalesCount(Integer productId, Integer quantity, LocalDate date) {
         rankingRepository.incrementDailySales(productId, quantity, date);
-        log.debug("Incremented daily sales count for product {} by {} on {}", productId, quantity, date);
     }
 
     /**
@@ -45,7 +44,6 @@ public class RankingService {
      */
     public void incrementWeeklySalesCount(Integer productId, Integer quantity, LocalDate date) {
         rankingRepository.incrementWeeklySales(productId, quantity, date);
-        log.debug("Incremented weekly sales count for product {} by {}", productId, quantity);
     }
 
     /**
@@ -114,7 +112,6 @@ public class RankingService {
      */
     public void deleteDailyRanking(LocalDate date) {
         rankingRepository.deleteDailyRanking(date);
-        log.info("Deleted daily ranking for date: {}", date);
     }
 
     /**
@@ -124,7 +121,6 @@ public class RankingService {
      */
     public void deleteWeeklyRanking(LocalDate date) {
         rankingRepository.deleteWeeklyRanking(date);
-        log.info("Deleted weekly ranking for week: {}", date);
     }
 
     /**
@@ -132,6 +128,5 @@ public class RankingService {
      */
     public void clearAllRankings() {
         rankingRepository.clearAllRankings();
-        log.info("Cleared all ranking keys");
     }
 }
