@@ -9,6 +9,8 @@ services:
       - "3306:3306"
     volumes:
       - mysql-data:/var/lib/mysql
+    networks:
+      - ecommerce-network
 
   redis:
     image: redis:7.2
@@ -17,22 +19,113 @@ services:
       - "6379:6379"
     volumes:
       - redis-data:/data
+    networks:
+      - ecommerce-network
     # Redis 기본 설정으로 실행
     # 기록 옵션은 선택적, 운영에서는 --appendonly yes 추천
     # command: ["redis-server", "--appendonly", "yes"]
 
-# 재구동 시 설정값 초기화되는 이슈로 로컬 설치로 변경
-#  redis-insight:
-#    image: redis/redisinsight:latest
-#    container_name: ecommerce-api-redis-insight
-#    ports:
-#      - "5540:5540"
-#    depends_on:
-#      - redis
-#    volumes:
-#      - redis-insight-data:/db
+  # 재구동 시 설정값 초기화되는 이슈로 로컬 설치로 변경
+  #  redis-insight:
+  #    image: redis/redisinsight:latest
+  #    container_name: ecommerce-api-redis-insight
+  #    ports:
+  #      - "5540:5540"
+  #    depends_on:
+  #      - redis
+  #    volumes:
+  #      - redis-insight-data:/db
+
+  # External Logging Mock Server
+  json-server:
+    image: clue/json-server   # 공식 json-server Docker 이미지
+    platform: linux/amd64   # <- 명시적으로 아키텍처 지정
+    ports:
+      - "3000:80"             # 호스트 3000번 -> 컨테이너 80번
+    volumes:
+      - ./docker/json-server/external-db.json:/data/external-db.json
+    command: /data/external-db.json    # JSON 파일 경로 지정
+
+  kafka1:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka1
+    ports:
+      - "19092:19092"
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:19093,2@kafka2:29093,3@kafka3:39093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka1:9092,CONTROLLER://kafka1:19093,PLAINTEXT_HOST://0.0.0.0:19092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka1:9092,PLAINTEXT_HOST://localhost:19092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+    networks:
+      - ecommerce-network
+
+  kafka2:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka2
+    ports:
+      - "29092:29092"
+    environment:
+      KAFKA_NODE_ID: 2
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:19093,2@kafka2:29093,3@kafka3:39093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka2:9092,CONTROLLER://kafka2:29093,PLAINTEXT_HOST://0.0.0.0:29092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka2:9092,PLAINTEXT_HOST://localhost:29092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+    networks:
+      - ecommerce-network
+
+  kafka3:
+    image: confluentinc/cp-kafka:latest
+    container_name: kafka3
+    ports:
+      - "39092:39092"
+    environment:
+      KAFKA_NODE_ID: 3
+      KAFKA_PROCESS_ROLES: 'broker,controller'
+      KAFKA_CONTROLLER_QUORUM_VOTERS: '1@kafka1:19093,2@kafka2:29093,3@kafka3:39093'
+      KAFKA_LISTENERS: 'PLAINTEXT://kafka3:9092,CONTROLLER://kafka3:39093,PLAINTEXT_HOST://0.0.0.0:39092'
+      KAFKA_ADVERTISED_LISTENERS: 'PLAINTEXT://kafka3:9092,PLAINTEXT_HOST://localhost:39092'
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: 'CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT,PLAINTEXT_HOST:PLAINTEXT'
+      KAFKA_CONTROLLER_LISTENER_NAMES: 'CONTROLLER'
+      KAFKA_INTER_BROKER_LISTENER_NAME: 'PLAINTEXT'
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 3
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 3
+      CLUSTER_ID: 'ciWo7IWazngRchmPES6q5A=='
+    networks:
+      - ecommerce-network
+
+  kafka-ui:
+    image: provectuslabs/kafka-ui:latest
+    ports:
+      - "8081:8080"
+    environment:
+      KAFKA_CLUSTERS_0_NAME: local-cluster
+      KAFKA_CLUSTERS_0_BOOTSTRAPSERVERS: kafka1:9092,kafka2:9092,kafka3:9092
+    depends_on:
+      - kafka1
+      - kafka2
+      - kafka3
+    networks:
+      - ecommerce-network
+
+networks:
+  ecommerce-network:
+    driver: bridge
 
 volumes:
   mysql-data:
   redis-data:
+  kafka-data:
   # redis-insight-data:

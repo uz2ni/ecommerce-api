@@ -24,6 +24,7 @@ public class ExternalLoggingClient {
      * 외부 로깅 시스템에 로그 데이터를 전송합니다.
      *
      * @param payload 전송할 로그 데이터 (JSON 직렬화 가능한 객체)
+     * @throws Exception 외부 시스템 호출 실패 시
      */
     public void sendLog(Object payload) {
         try {
@@ -37,9 +38,10 @@ public class ExternalLoggingClient {
 
             log.info("Successfully sent log to external system: url={}", loggingUrl);
         } catch (Exception e) {
-            // 외부 로깅 실패는 메인 비즈니스 로직에 영향을 주지 않음
             log.error("Failed to send log to external system: url={}, error={}",
                     loggingUrl, e.getMessage(), e);
+            // 예외를 상위로 전파하여 Consumer에서 재시도나 DLQ 처리 가능하도록 함
+            throw e;
         }
     }
 }
