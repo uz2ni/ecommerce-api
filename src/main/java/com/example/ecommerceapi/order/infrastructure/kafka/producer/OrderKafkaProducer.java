@@ -1,6 +1,7 @@
 package com.example.ecommerceapi.order.infrastructure.kafka.producer;
 
 import com.example.ecommerceapi.common.infrastructure.kafka.dto.Ticket;
+import com.example.ecommerceapi.common.infrastructure.kafka.service.KafkaFallbackService;
 import com.example.ecommerceapi.order.infrastructure.kafka.dto.OrderKafkaMessage;
 import com.example.ecommerceapi.order.application.publisher.OrderMessagePublisher;
 import lombok.RequiredArgsConstructor;
@@ -19,12 +20,14 @@ import org.springframework.stereotype.Component;
 public class OrderKafkaProducer implements OrderMessagePublisher {
 
     private final KafkaTemplate<String, Ticket<OrderKafkaMessage>> kafkaTemplate;
+    private final KafkaFallbackService kafkaFallbackService;
 
     @Value("${kafka.topic.order-paid}")
     private String orderPaidTopic;
 
     /**
      * 주문 결제 완료 메시지를 Kafka로 발행
+     * 발행 실패 시 Fallback DB에 저장하여 나중에 재시도합니다.
      *
      * @param message 주문 결제 완료 메시지
      */
@@ -50,6 +53,14 @@ public class OrderKafkaProducer implements OrderMessagePublisher {
                     } else {
                         log.error("Failed to send message to Kafka - orderId: {}, messageId: {}, error: {}",
                                 message.getOrderId(), ticket.getMessageId(), ex.getMessage(), ex);
+
+                        // Fallback DB에 저장하여 나중에 재시도
+                        kafkaFallbackService.saveFallbackMessage(
+                                orderPaidTopic,
+                                key,
+                                ticket,
+                                ex.getMessage()
+                        );
                     }
                 });
     }

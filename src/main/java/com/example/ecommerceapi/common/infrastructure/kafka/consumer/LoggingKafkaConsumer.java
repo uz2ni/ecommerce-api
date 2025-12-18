@@ -27,6 +27,7 @@ public class LoggingKafkaConsumer {
 
     /**
      * 주문 결제 완료 이벤트를 수신하여 외부 로깅 시스템으로 전송
+     * 예외 발생 시 ErrorHandler가 재시도 및 DLQ 처리를 담당합니다.
      *
      * @param ticket Ticket으로 래핑된 주문 결제 완료 메시지
      * @param topic Kafka 토픽
@@ -48,29 +49,20 @@ public class LoggingKafkaConsumer {
                 .registerModule(new JavaTimeModule())
                 .configure(DeserializationFeature.FAIL_ON_UNKNOWN_PROPERTIES, false);
 
-        try {
-            // 2. convertValue를 사용하여 LinkedHashMap -> OrderKafkaMessage 강제 변환
-            // 이 과정에서 LocalDateTime 배열이나 문자열도 설정에 따라 자동으로 매핑됩니다.
-            OrderKafkaMessage message = mapper.convertValue(
-                    ticket.getPayload(),
-                    OrderKafkaMessage.class
-            );
+        // 2. convertValue를 사용하여 LinkedHashMap -> OrderKafkaMessage 강제 변환
+        // 이 과정에서 LocalDateTime 배열이나 문자열도 설정에 따라 자동으로 매핑됩니다.
+        OrderKafkaMessage message = mapper.convertValue(
+                ticket.getPayload(),
+                OrderKafkaMessage.class
+        );
 
-            log.info("Received order paid event from Kafka - topic: {}, partition: {}, offset: {}, orderId: {}, messageId: {}, timestamp: {}",
-                    topic, partition, offset, message.getOrderId(), ticket.getMessageId(), ticket.getTimestamp());
+        log.info("Received order paid event from Kafka - topic: {}, partition: {}, offset: {}, orderId: {}, messageId: {}, timestamp: {}",
+                topic, partition, offset, message.getOrderId(), ticket.getMessageId(), ticket.getTimestamp());
 
-            // 외부 로깅 시스템으로 전송
-            externalLoggingClient.sendLog(message);
+        // 외부 로깅 시스템으로 전송 (예외 발생 시 ErrorHandler가 재시도 처리)
+        externalLoggingClient.sendLog(message);
 
-            log.info("Successfully forwarded order paid event to external logging system - orderId: {}, messageId: {}",
-                    message.getOrderId(), ticket.getMessageId());
-
-        } catch (IllegalArgumentException e) {
-            // convertValue 실패 시 발생하는 예외 처리
-            log.error("Failed to convert payload to OrderKafkaMessage. Payload: {}", ticket.getPayload(), e);
-        } catch (Exception e) {
-            log.error("Failed to process order paid event - orderId: {}, error: {}",
-                    ticket.getMessageId(), e.getMessage(), e);
-        }
+        log.info("Successfully forwarded order paid event to external logging system - orderId: {}, messageId: {}",
+                message.getOrderId(), ticket.getMessageId());
     }
 }

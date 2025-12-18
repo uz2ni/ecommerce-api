@@ -16,9 +16,15 @@ public class KafkaTopicConfig {
         return new NewTopic(topicName, partitions, replicationFactors);
     }
 
+    /**
+     * DLQ 토픽: 처리 실패한 메시지를 저장
+     */
     @Bean
-    public NewTopic testTopic() {
-        return new NewTopic("testTopic", 2, (short)2);
+    public NewTopic orderPaidDlqTopic(@Value("${kafka.topic.order-paid}") String topicName,
+                                      @Value("${kafka.topic.common.partitions}") int partitions,
+                                      @Value("${kafka.topic.common.replications}") short replicationFactors
+    ) {
+        return new NewTopic(topicName + ".DLQ", partitions, replicationFactors);
     }
 
 }
