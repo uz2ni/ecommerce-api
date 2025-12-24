@@ -5,11 +5,13 @@ import org.redisson.api.RedissonClient;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.DynamicPropertyRegistry;
 import org.springframework.test.context.DynamicPropertySource;
+import org.testcontainers.containers.KafkaContainer;
 import org.testcontainers.containers.MySQLContainer;
+import org.testcontainers.utility.DockerImageName;
 
 /**
  * 통합 테스트를 위한 추상 클래스
- * Singleton Testcontainers를 사용하여 모든 테스트가 하나의 MySQL, Redis 컨테이너 공유
+ * Singleton Testcontainers를 사용하여 모든 테스트가 하나의 MySQL, Redis, Kafka 컨테이너 공유
  * 이를 통해 테스트 실행 속도를 크게 향상시킴
  */
 public abstract class AbstractIntegrationTest {
@@ -20,6 +22,7 @@ public abstract class AbstractIntegrationTest {
     // Singleton 패턴으로 모든 테스트가 하나의 컨테이너 공유
     private static final MySQLContainer<?> mysql;
     private static final RedisContainer redis;
+    private static final KafkaContainer kafka;
 
     static {
         mysql = new MySQLContainer<>("mysql:8.0")
@@ -30,6 +33,9 @@ public abstract class AbstractIntegrationTest {
 
         redis = new RedisContainer("redis:7.2");
         redis.start();
+
+        kafka = new KafkaContainer(DockerImageName.parse("confluentinc/cp-kafka:7.5.0"));
+        kafka.start();
     }
 
     @DynamicPropertySource
@@ -43,6 +49,9 @@ public abstract class AbstractIntegrationTest {
         // Redis 설정
         registry.add("spring.data.redis.host", redis::getHost);
         registry.add("spring.data.redis.port", () -> redis.getMappedPort(6379));
+
+        // Kafka 설정
+        registry.add("spring.kafka.bootstrap-servers", kafka::getBootstrapServers);
     }
 
     /**

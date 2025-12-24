@@ -258,6 +258,7 @@ curl -X POST http://localhost:8080/api/cart \
 - **[동시성 문제 처리 방안 보고서](docs/lock.md)** - 동시성 제어 설계 및 구현
 - **[분산 락 전환 보고서](docs/distributed-lock.md)** - Redis 분산 락 전환 과정 및 성능 분석
 - **[성능 개선 보고서](docs/performance-improvement.md)** - Redis 캐싱 적용 및 성능 개선 결과
+- **[Kafka 적용 개선안 보고서](docs/kafka.md)** - Kafka 적용 개선안 과정 및 결과
 
 ## 라이센스
 
