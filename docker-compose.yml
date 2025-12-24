@@ -120,6 +120,40 @@ services:
     networks:
       - ecommerce-network
 
+  influxdb:
+    image: influxdb:1.8
+    ports:
+      - "8086:8086"
+    volumes:
+      - influxdb-data:/var/lib/influxdb
+    environment:
+      - INFLUXDB_DB=k6
+    networks:
+      - ecommerce-network
+
+  grafana:
+    image: grafana/grafana
+    ports:
+      - "3001:3000"
+    environment:
+      - GF_SECURITY_ADMIN_USER=admin
+      - GF_SECURITY_ADMIN_PASSWORD=admin
+    volumes:
+      - grafana-data:/var/lib/grafana
+    networks:
+      - ecommerce-network
+
+  k6:
+    image: grafana/k6
+    volumes:
+      - ./k6/scripts:/scripts
+    depends_on:
+      - influxdb
+    environment:
+      - K6_OUT=influxdb=http://influxdb:8086/k6
+    networks:
+      - ecommerce-network
+
 networks:
   ecommerce-network:
     driver: bridge
@@ -127,5 +161,7 @@ networks:
 volumes:
   mysql-data:
   redis-data:
-  kafka-data:
   # redis-insight-data:
+  kafka-data:
+  influxdb-data:
+  grafana-data:
