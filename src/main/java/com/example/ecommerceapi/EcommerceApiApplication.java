@@ -12,6 +12,8 @@ public class EcommerceApiApplication {
 
     public static void main(String[] args) {
         SpringApplication.run(EcommerceApiApplication.class, args);
+        System.out.println("현재 활성 Heap(-Xms): " + Runtime.getRuntime().totalMemory() / 1024 / 1024 + "MB");
+        System.out.println("최대 가능 Heap(-Xmx): " + Runtime.getRuntime().maxMemory() / 1024 / 1024 + "MB");
     }
 
 }
