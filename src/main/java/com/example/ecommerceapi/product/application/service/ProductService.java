@@ -54,8 +54,9 @@ public class ProductService {
     }
 
     @Cacheable(
-        value = "#{T(com.example.ecommerceapi.common.config.CacheType$Names).getPopularProductsCacheName(#type)}",
-        key = "#days + ':' + #limit"
+        value = "popularProducts",
+        key = "#type + ':' + #days + ':' + #limit",
+        sync = true
     )
     @Transactional(readOnly = true)
     public List<PopularProductResult> getPopularProducts(String type, Integer days, Integer limit) {
