@@ -32,7 +32,7 @@ public class ProductService {
     private final ProductCacheService cacheService;
 
 
-    @Cacheable(value = CacheType.Names.ALL_PRODUCTS)
+    @Cacheable(value = CacheType.Names.PRODUCT, key = "'all'")
     @Transactional(readOnly = true)
     public List<ProductResult> getAllProducts() {
         return productRepository.findAll().stream()
@@ -54,8 +54,8 @@ public class ProductService {
     }
 
     @Cacheable(
-        value = "popularProducts",
-        key = "#type + ':' + #days + ':' + #limit",
+        value = CacheType.Names.POPULAR_PRODUCTS,
+        key = "#type + '::' + #days + '::' + #limit",
         sync = true
     )
     @Transactional(readOnly = true)

@@ -12,10 +12,8 @@ import java.time.Duration;
 public enum CacheType implements RedisType {
 
     // Product 관련 캐시
-    ALL_PRODUCTS(Names.ALL_PRODUCTS, Duration.ofMinutes(30)),
     PRODUCT(Names.PRODUCT, Duration.ofMinutes(30)),
-    POPULAR_PRODUCTS_SALES(Names.POPULAR_PRODUCTS_SALES, Duration.ofMinutes(5)),
-    POPULAR_PRODUCTS_VIEWS(Names.POPULAR_PRODUCTS_VIEWS, Duration.ofMinutes(3)),
+    POPULAR_PRODUCTS_SALES(Names.POPULAR_PRODUCTS, Duration.ofMinutes(5)),
 
     // Order 관련 캐시
     ORDER(Names.ORDER, Duration.ofMinutes(60)),
@@ -40,10 +38,10 @@ public enum CacheType implements RedisType {
      * @Cacheable, @CacheEvict 등의 어노테이션에서 직접 사용하기 위한 상수 클래스
      */
     public static final class Names {
-        public static final String ALL_PRODUCTS = "allProducts";
         public static final String PRODUCT = "product";
-        public static final String POPULAR_PRODUCTS_SALES = "popularProducts:SALES";
-        public static final String POPULAR_PRODUCTS_VIEWS = "popularProducts:VIEWS";
+        public static final String POPULAR_PRODUCTS = "product::popular";
+        public static final String POPULAR_PRODUCTS_SALES = "product::popular::SALES";
+        public static final String POPULAR_PRODUCTS_VIEWS = "product::popular::VIEWS";
         public static final String ORDER = "order";
         public static final String ALL_COUPONS = "allCoupons";
 
