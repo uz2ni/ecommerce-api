@@ -13,7 +13,7 @@ public enum CacheType implements RedisType {
 
     // Product 관련 캐시
     PRODUCT(Names.PRODUCT, Duration.ofMinutes(30)),
-    POPULAR_PRODUCTS_SALES(Names.POPULAR_PRODUCTS, Duration.ofMinutes(5)),
+    POPULAR_PRODUCTS(Names.POPULAR_PRODUCTS, Duration.ofMinutes(5)),
 
     // Order 관련 캐시
     ORDER(Names.ORDER, Duration.ofMinutes(60)),
@@ -44,18 +44,5 @@ public enum CacheType implements RedisType {
         public static final String POPULAR_PRODUCTS_VIEWS = "product::popular::VIEWS";
         public static final String ORDER = "order";
         public static final String ALL_COUPONS = "allCoupons";
-
-        /**
-         * 인기 상품 캐시 이름을 type에 따라 반환합니다.
-         * SpEL 표현식에서 사용: "#{T(com.example.ecommerceapi.common.config.CacheType$Names).getPopularProductsCacheName(#type)}"
-         */
-        public static String getPopularProductsCacheName(String type) {
-            if ("SALES".equals(type)) {
-                return POPULAR_PRODUCTS_SALES;
-            } else if ("VIEWS".equals(type)) {
-                return POPULAR_PRODUCTS_VIEWS;
-            }
-            throw new IllegalArgumentException("Invalid type: " + type);
-        }
     }
 }
